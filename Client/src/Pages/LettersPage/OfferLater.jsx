@@ -165,7 +165,14 @@ const OfferLetterPDF = ({ data }) => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>3. Place of Work</Text>
+          <Text style={styles.sectionTitle}>3. Working Days</Text>
+          <Text>
+            You will work 6 days a week, Monday to Saturday, with working hours from 10:00 AM to 7:00 PM as per company policy.
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>4. Place of Work</Text>
           <Text>
             Your primary place of work will be at DOAGuru Infosystems, Jabalpur (M.P.), or any other location as
             assigned.
@@ -173,17 +180,26 @@ const OfferLetterPDF = ({ data }) => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>4. Compensation</Text>
-          <Text>
-            {d.salary} Rs. It may be subject to revision based on your performance during the probation period.
-          </Text>
+          <Text style={styles.sectionTitle}>5. Compensation</Text>
+          <View style={styles.listItem}>
+            <Text style={styles.bullet}>{'\u2022'}</Text>
+            <Text>Your monthly salary for the first month will be ₹{d.salary} Only.</Text>
+          </View>
+          <View style={styles.listItem}>
+            <Text style={styles.bullet}>{'\u2022'}</Text>
+            <Text>Based on your performance, salary may be revised as per company policy.</Text>
+          </View>
+          <View style={styles.listItem}>
+            <Text style={styles.bullet}>{'\u2022'}</Text>
+            <Text>Your salary will be paid on time every month.</Text>
+          </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>5. Probation Period</Text>
+          <Text style={styles.sectionTitle}>6. Probation Period</Text>
           <Text>
             You will be on a probation period of <Text style={styles.strong}>{d.probationPeriod} months</Text> from the
-            date of joining.
+            date of joining. During this period, your performance and conduct will be reviewed.
           </Text>
           <Text style={styles.strong}>Probation Period Meaning:</Text>
           <Text>
@@ -195,12 +211,21 @@ const OfferLetterPDF = ({ data }) => {
             <Text style={styles.strong}>{d.noticePeriod}</Text> notice.
           </Text>
         </View>
-      </PageWithHeaderFooter>
 
-      {/* Page 2 - Terms and Responsibilities */}
-      <PageWithHeaderFooter>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>6. Roles and Responsibilities</Text>
+          <Text style={styles.sectionTitle}>7. Notice Period & Service Commitment</Text>
+          <View style={styles.listItem}>
+            <Text style={styles.bullet}>{'\u2022'}</Text>
+            <Text>In the event of resignation, you must serve a 30-day written notice. Under no circumstances are you permitted to resign or discontinue your employment within the first six (6) months from your joining date.</Text>
+          </View>
+          <View style={styles.listItem}>
+            <Text style={styles.bullet}>{'\u2022'}</Text>
+            <Text>Violation of this clause may lead to appropriate action as per company policy.</Text>
+          </View>
+        </View>
+
+                <View style={styles.section}>
+          <Text style={styles.sectionTitle}>8. Roles and Responsibilities</Text>
           <Text>You are expected to:</Text>
           {d.jobResponsibilities.map((resp, index) => (
             <View key={index} style={styles.listItem}>
@@ -209,27 +234,54 @@ const OfferLetterPDF = ({ data }) => {
             </View>
           ))}
         </View>
-        <View style={styles.section}>
-          <Text>Please sign and return a copy of this letter as a token of your acceptance.</Text>
-          <Text>We look forward to welcoming you to our team.</Text>
-        </View>
 
         <View style={styles.section}>
-          <Text style={styles.strong}>Warm Regards,</Text>
-          <Image src={imgS} style={styles.signature} />
-          <Text>R.S.Pandey</Text>
-          <Text>Director</Text>
-          <Text>DOAGuru Infosystems</Text>
+          <Text style={styles.sectionTitle}>9. General Terms</Text>
+          <View style={styles.listItem}>
+            <Text style={styles.bullet}>{'\u2022'}</Text>
+            <Text>You are expected to maintain the highest standards of professionalism, confidentiality, and follow all company policies.</Text>
+          </View>
+          <View style={styles.listItem}>
+            <Text style={styles.bullet}>{'\u2022'}</Text>
+            <Text>You are also expected to adhere to the company's code of conduct and ethical guidelines.</Text>
+          </View>
+          <View style={styles.listItem}>
+            <Text style={styles.bullet}>{'\u2022'}</Text>
+            <Text>The company reserves the right to amend these terms and conditions at any time, with prior notice to the employee.</Text>
+          </View>
+          <View style={styles.listItem}>
+            <Text style={styles.bullet}>{'\u2022'}</Text>
+            <Text>This offer is valid for 15 days from the date of issue.</Text>
+          </View>
+
+          <View style={styles.listItem}>
+            <Text style={styles.bullet}>{'\u2022'}</Text>
+            <Text>Failure to accept this offer within the stipulated time will result in the offer being considered withdrawn.</Text>
+          </View>
+          <View style={styles.listItem}>
+            <Text style={styles.bullet}>{'\u2022'}</Text>
+            <Text>Any disputes arising from this offer shall be resolved in accordance with the laws of India.</Text>
+          </View>
+
         </View>
 
+           <View style={styles.section}>
+          <Text>We look forward to your valuable contribution to DOAGURU INFOSYSTEMS. Please sign and return a copy of this letter as confirmation of your acceptance.</Text>
+        </View>
+
+      </PageWithHeaderFooter>
+
+      {/* Page 2 - Terms and Responsibilities */}
+      <PageWithHeaderFooter>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Acknowledgment:</Text>
           <Text>I, {d.name}, accept the above terms and conditions of employment.</Text>
-          <View style={{ marginTop: 20 }}>
+          <View style={{ marginTop: 30 }}>
             <Text>Signature: ___________________</Text>
             <Text>Date: ________________</Text>
           </View>
         </View>
+
       </PageWithHeaderFooter>
 
       {/* Page 3 - Signatures */}
@@ -242,7 +294,7 @@ const OfferLetterPDF = ({ data }) => {
         <View style={styles.section}>
           <Text style={styles.strong}>Warm Regards,</Text>
           <Image src={imgS} style={styles.signature} />
-          <Text>R.S.Pandey</Text>
+          <Text>R.S. Pandey</Text>
           <Text>Director</Text>
           <Text>DOAGuru Infosystems</Text>
         </View>
@@ -651,9 +703,9 @@ const OfferLater = () => {
         </div>
 
         <div className="flex gap-2">
-          <button type="button" onClick={handlePrint} className="bg-green-500 text-white py-2 px-4 rounded">
+          {/* <button type="button" onClick={handlePrint} className="bg-green-500 text-white py-2 px-4 rounded">
             Without Save Download PDF
-          </button>
+          </button> */}
           {!isPreviewMode && (
               <button onClick={handleSaveInfo} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                 {isEditMode ? 'Update' : 'Save and Print'}
@@ -729,7 +781,13 @@ const OfferLater = () => {
                   </div>
 
                   <div>
-                    <h3 className="font-bold">3. Place of Work</h3>
+                    <h3 className="font-bold">3. Working Days</h3>
+                    <p>
+                      You will work 6 days a week, Monday to Saturday, with working hours from 10:00 AM to 7:00 PM as per company policy.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-bold">4. Place of Work</h3>
                     <p>
                       Your primary place of work will be at DOAGuru Infosystems, Jabalpur (M.P.), or any other location as
                       assigned.
@@ -737,16 +795,18 @@ const OfferLater = () => {
                   </div>
 
                   <div>
-                    <h3 className="font-bold">4. Compensation</h3>
-                    <p>
-                      {salary} ₹. It may be subject to revision based on your performance during the probation period.
-                    </p>
+                    <h3 className="font-bold">5. Compensation</h3>
+                    <ul className="list-disc pl-5 mt-2 space-y-1">
+                      <li>Your monthly salary for the first month will be ₹{salary} ( Only).</li>
+                      <li>Based on your performance, salary may be revised as per company policy.</li>
+                      <li>Your salary will be paid on time every month.</li>
+                    </ul>
                   </div>
 
                   <div>
-                    <h3 className="font-bold">5. Probation Period</h3>
+                    <h3 className="font-bold">6. Probation Period</h3>
                     <p>
-                      You will be on a probation period of <strong>{probationPeriod} months</strong> from the date of joining.
+                      You will be on a probation period of <strong>{probationPeriod} months</strong> from the date of joining. During this period, your performance and conduct will be reviewed.
                     </p>
                     <p className="font-bold mt-2">Probation Period Meaning:</p>
                     <p>
@@ -758,9 +818,16 @@ const OfferLater = () => {
                       notice.
                     </p>
                   </div>
-
                   <div>
-                    <h3 className="font-bold">6. Roles and Responsibilities</h3>
+                    <h3 className="font-bold">7. Notice Period & Service Commitment</h3>
+                    <ul className="list-disc pl-5 mt-2 space-y-1">
+                      <li>In the event of resignation, you must serve a 30-day written notice. Under no circumstances are you permitted to resign or discontinue your employment within the first six (6) months from your joining date.
+</li>
+                      <li>Violation of this clause may lead to appropriate action as per company policy.</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="font-bold">8. Roles and Responsibilities</h3>
                     <p>You are expected to:</p>
                     <ul className="list-disc pl-5 mt-2 space-y-1">
                       {jobResponsibilities.map((resp, index) => (
@@ -768,16 +835,24 @@ const OfferLater = () => {
                       ))}
                     </ul>
                   </div>
+                  <div>
+                    <h3 className="font-bold">9. General Terms</h3>
+                    <p>You are expected to maintain the highest standards of professionalism, confidentiality, and follow all company policies.</p>
+                    <p>You are also expected to adhere to the company's code of conduct and ethical guidelines.</p>
+                    <p>The company reserves the right to amend these terms and conditions at any time, with prior notice to the employee.</p>
+                    <p>This offer is valid for 15 days from the date of issue.</p>
+                    <p>Failure to accept this offer within the stipulated time will result in the offer being considered withdrawn.</p>
+                    <p>Any disputes arising from this offer shall be resolved in accordance with the laws of India.</p>
+                  </div>
 
                   <div className="mt-8">
-                    <p>Please sign and return a copy of this letter as a token of your acceptance.</p>
-                    <p>We look forward to welcoming you to our team.</p>
+                    <p>We look forward to your valuable contribution to DOAGURU INFOSYSTEMS. Please sign and return a copy of this letter as confirmation of your acceptance.</p>
                   </div>
 
                   <div className="mt-8">
                     <p className="font-bold">Warm Regards,</p>
                     <div className="mt-4">
-                      <p className="font-bold">R.S.Pandey</p>
+                      <p className="font-bold">R.S. Pandey</p>
                       <p>Director</p>
                       <p>DOAGuru Infosystems</p>
                     </div>

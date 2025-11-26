@@ -1,9 +1,408 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import CLogo from "../assets/images/CLogo.png";
 import Signature from "../assets/images/CEOSignature.png";
+import headerImg from "../assets/images/NewHeaderImage.png";
+import footerImg from "../assets/images/NewFotterImage.png";
+import axios from 'axios';
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  Image,
+  Font,
+  pdf,
+} from '@react-pdf/renderer';
+
+// ---- IMPORTANT: prevent hyphenation issues on e-mails/long tokens ----
+Font.registerHyphenationCallback((word) => [String(word)]);
+
+// PDF Styles
+const styles = StyleSheet.create({
+  page: {
+    paddingTop: 80,
+    paddingBottom: 70,
+    paddingHorizontal: 40,
+    position: 'relative',
+    fontSize: 10,
+    fontFamily: 'Helvetica',
+  },
+  headerWrap: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 80,
+  },
+  footerWrap: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 60,
+  },
+  headerImage: {
+    width: '100%',
+    height: '100%',
+  },
+  footerImage: {
+    width: '100%',
+    height: '100%',
+  },
+  content: {
+    flex: 1,
+    marginTop: 20,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#000',
+  },
+  subtitle: {
+    fontSize: 12,
+    textAlign: 'center',
+    marginBottom: 15,
+    color: '#666',
+  },
+  section: {
+    marginBottom: 15,
+  },
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#000',
+    borderBottom: '1pt solid #ccc',
+    paddingBottom: 4,
+  },
+  row: {
+    flexDirection: 'row',
+    marginBottom: 4,
+  },
+  label: {
+    fontSize: 9,
+    color: '#666',
+    width: 80,
+  },
+  value: {
+    fontSize: 9,
+    color: '#000',
+    flex: 1,
+  },
+  grid: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  gridCol: {
+    flex: 1,
+    paddingHorizontal: 5,
+  },
+  box: {
+    border: '1pt solid #ccc',
+    borderRadius: 4,
+    padding: 8,
+    marginBottom: 10,
+  },
+  boxHeader: {
+    backgroundColor: '#1f2937',
+    color: '#fff',
+    padding: 6,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 10,
+  },
+  earningsBox: {
+    border: '1pt solid #ccc',
+    borderRadius: 4,
+    marginBottom: 10,
+  },
+  deductionsBox: {
+    border: '1pt solid #ccc',
+    borderRadius: 4,
+    marginBottom: 10,
+  },
+  boxContent: {
+    padding: 8,
+  },
+  netPayBox: {
+    backgroundColor: '#1f2937',
+    color: '#fff',
+    padding: 10,
+    textAlign: 'center',
+    borderRadius: 4,
+    marginBottom: 10,
+  },
+  netPayAmount: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  netPayWords: {
+    fontSize: 8,
+    fontStyle: 'italic',
+  },
+  signatureSection: {
+    marginTop: 20,
+    alignItems: 'flex-end',
+  },
+  signatureImage: {
+    width: 100,
+    height: 50,
+    marginBottom: 2,
+  },
+  signatureLine: {
+    width: 120,
+    height: 1,
+    backgroundColor: '#000',
+    marginBottom: 2,
+  },
+  signatureText: {
+    fontSize: 9,
+    textAlign: 'center',
+  },
+  bold: {
+    fontWeight: 'bold',
+  },
+  textCenter: {
+    textAlign: 'center',
+  },
+  mb4: {
+    marginBottom: 4,
+  },
+  mt8: {
+    marginTop: 8,
+  },
+  watermark: {
+    position: 'absolute',
+    top: '30%',
+    left: '30%',
+    transform: 'translate(-50%, -50%)',
+    opacity: 0.03,
+    width: 350,
+    height: 350,
+    zIndex: -1,
+  },
+  watermarkContainer: {
+    position: 'absolute',
+    top: 80,
+    left: 0,
+    right: 0,
+    bottom: 70,
+    zIndex: -1,
+  }
+});
+
+// PDF Document Component
+const SalarySlipPDF = ({ data }) => {
+  const { formData, companyInfo, salaryData, monthNames, numberToWords } = data;
+
+  // Page component with fixed header and footer
+  const PageWithHeaderFooter = ({ children }) => (
+    <Page size="A4" style={styles.page}>
+      {/* Fixed header */}
+      <View fixed style={styles.headerWrap}>
+        <Image src={headerImg} style={styles.headerImage} />
+      </View>
+      
+      {/* Fixed footer */}
+      <View fixed style={styles.footerWrap}>
+        <Image src={footerImg} style={styles.footerImage} />
+      </View>
+      
+      {/* Watermark */}
+      <View style={styles.watermarkContainer}>
+        <Image src={CLogo} style={styles.watermark} />
+      </View>
+      
+      {/* Content */}
+      <View style={styles.content}>{children}</View>
+    </Page>
+  );
+
+  return (
+    <Document>
+      <PageWithHeaderFooter>
+        {/* Title */}
+        <Text style={styles.title}>SALARY SLIP</Text>
+        <Text style={styles.subtitle}>
+          {monthNames[formData.month - 1]} {formData.year}
+        </Text>
+
+        {/* Employee Header */}
+        <View style={styles.section}>
+          <Text style={styles.bold}>{formData.employeeName}</Text>
+          <Text>{formData.designation}</Text>
+          <Text>Employee ID: DOAG000{formData.employeeId}</Text>
+        </View>
+
+        {/* Employee & Bank Details */}
+        <View style={styles.grid}>
+          <View style={styles.gridCol}>
+            <View style={styles.box}>
+              <Text style={styles.sectionTitle}>Employee Details</Text>
+              <View style={styles.row}>
+                <Text style={styles.label}>Employee ID:</Text>
+                <Text style={styles.value}>DOAG000{formData.employeeId}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Department:</Text>
+                <Text style={styles.value}>{formData.department}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Date of Joining:</Text>
+                <Text style={styles.value}>{formData.dateOfJoining}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Working Days:</Text>
+                <Text style={styles.value}>{salaryData.totalWorkingDays} days</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>LOP Days:</Text>
+                <Text style={styles.value}>{formData.lopDays} days</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.gridCol}>
+            <View style={styles.box}>
+              <Text style={styles.sectionTitle}>Bank & Payment Details</Text>
+              <View style={styles.row}>
+                <Text style={styles.label}>Bank Name:</Text>
+                <Text style={styles.value}>{formData.bankName}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Account No:</Text>
+                <Text style={styles.value}>•••• {formData.accountNumber.slice(-4)}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>PAN Number:</Text>
+                <Text style={styles.value}>{formData.panNumber}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Payment Mode:</Text>
+                <Text style={styles.value}>Bank Transfer</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Net Payable:</Text>
+                <Text style={[styles.value, styles.bold]}>Rs. {salaryData.netPay.toLocaleString('en-IN')}</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Salary Breakdown */}
+        <Text style={[styles.sectionTitle, styles.textCenter]}>Salary Breakdown</Text>
+
+        <View style={styles.grid}>
+          {/* Earnings */}
+          <View style={styles.gridCol}>
+            <View style={styles.earningsBox}>
+              <View style={styles.boxHeader}>
+                <Text>EARNINGS</Text>
+              </View>
+              <View style={styles.boxContent}>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Basic Salary:</Text>
+                  <Text style={styles.value}>Rs. {salaryData.basicSalary.toLocaleString('en-IN')}</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>HRA:</Text>
+                  <Text style={styles.value}>Rs. {salaryData.houseRentAllowance.toLocaleString('en-IN')}</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Conveyance:</Text>
+                  <Text style={styles.value}>Rs. {salaryData.conveyanceAllowance.toLocaleString('en-IN')}</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Medical:</Text>
+                  <Text style={styles.value}>Rs. {salaryData.medicalAllowance.toLocaleString('en-IN')}</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Special Allow:</Text>
+                  <Text style={styles.value}>Rs. {salaryData.specialAllowance.toLocaleString('en-IN')}</Text>
+                </View>
+                <View style={[styles.row, styles.mt8]}>
+                  <Text style={[styles.label, styles.bold]}>Total Earnings:</Text>
+                  <Text style={[styles.value, styles.bold]}>Rs. {salaryData.grossSalary.toLocaleString('en-IN')}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* Deductions */}
+          <View style={styles.gridCol}>
+            <View style={styles.deductionsBox}>
+              <View style={styles.boxHeader}>
+                <Text>DEDUCTIONS</Text>
+              </View>
+              <View style={styles.boxContent}>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Professional Tax:</Text>
+                  <Text style={styles.value}>Rs. 0</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Income Tax (TDS):</Text>
+                  <Text style={styles.value}>Rs. 0</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Provident Fund:</Text>
+                  <Text style={styles.value}>Rs. {salaryData.pfDeduction.toLocaleString('en-IN')}</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Health Insurance:</Text>
+                  <Text style={styles.value}>Rs. {salaryData.esiDeduction.toLocaleString('en-IN')}</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}></Text>
+                  <Text style={styles.value}></Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}></Text>
+                  <Text style={styles.value}></Text>
+                </View>
+                <View style={[styles.row, styles.mt8]}>
+                  <Text style={[styles.label, styles.bold]}>Total Deductions:</Text>
+                  <Text style={[styles.value, styles.bold]}>Rs. {salaryData.totalDeductions.toLocaleString('en-IN')}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Net Pay */}
+        <View style={styles.netPayBox}>
+          <Text style={styles.mb4}>Net Payable Amount</Text>
+          <Text style={styles.netPayAmount}>Rs. {salaryData.netPay.toLocaleString('en-IN')}</Text>
+          <Text style={styles.netPayWords}>{numberToWords(salaryData.netPay)} Rupees Only</Text>
+        </View>
+
+        {/* Signature */}
+        <View style={styles.signatureSection}>
+          <Text style={styles.mb4}>For {companyInfo.name}</Text>
+          <Image src={Signature} style={styles.signatureImage} />
+          <View style={styles.signatureLine}></View>
+          <Text style={[styles.signatureText, styles.bold]}>Authorized Signatory</Text>
+          <Text style={styles.signatureText}>Director</Text>
+        </View>
+
+        {/* Footer Note */}
+        <View style={[styles.section, styles.textCenter]}>
+          <Text>For any discrepancies, please contact the HR department within 7 days.</Text>
+        </View>
+      </PageWithHeaderFooter>
+    </Document>
+  );
+};
 
 const SalarySlip = () => {
   const [showSlip, setShowSlip] = useState(false);
+  const [employees, setEmployees] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [loading, setLoading] = useState(false);
+  
   // Company Information
   const companyInfo = {
     name: 'DOAGURU INFOSYSTEMS',
@@ -18,14 +417,14 @@ const SalarySlip = () => {
   };
 
   const [formData, setFormData] = useState({
-    employeeName: 'Employee Name',
-    employeeId: 'DOAG000',
-    designation: 'Designation',
-    department: 'Department',
-    bankName: 'Bank Name',
-    accountNumber: 'Account Number',
-    dateOfJoining: '02-02-2025',
-    panNumber: 'Pan Number',
+    employeeName: '',
+    employeeId: '',
+    designation: '',
+    department: '',
+    bankName: '',
+    accountNumber: '',
+    dateOfJoining: '',
+    panNumber: '',
     grossSalary: 10000,
     lopDays: 0,
     month: new Date().getMonth() + 1,
@@ -36,6 +435,48 @@ const SalarySlip = () => {
   const getDaysInMonth = (month, year) => {
     return new Date(year, month, 0).getDate();
   };
+
+  // Fetch employees from API
+  const fetchEmployees = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('https://sf.doaguru.com/api/users');
+      if (response.data && Array.isArray(response.data)) {
+        // Filter active employees only
+        const activeEmployees = response.data.filter(emp => emp.employment_status === 'active');
+        setEmployees(activeEmployees);
+      }
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Auto-fill form data when employee is selected
+  const handleEmployeeSelect = (employeeId) => {
+    const employee = employees.find(emp => emp.id == employeeId);
+    if (employee) {
+      setSelectedEmployee(employee);
+      setFormData(prev => ({
+        ...prev,
+        employeeName: employee.full_name || '',
+        employeeId: employee.employee_id || '',
+        designation: employee.designation || '',
+        department: employee.department || '',
+        bankName: '', // API mein nahi hai, user ko fill karna hoga
+        accountNumber: employee.bank_account_number || '',
+        dateOfJoining: employee.joiningDate ? new Date(employee.joiningDate).toISOString().split('T')[0] : '',
+        panNumber: employee.pan_number || '',
+        grossSalary: employee.salary_amount || 10000,
+      }));
+    }
+  };
+
+  // Load employees on component mount
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
 
   const totalWorkingDays = getDaysInMonth(formData.month, formData.year);
 
@@ -60,6 +501,35 @@ const SalarySlip = () => {
   // Reset form to show the input fields again
   const handleEdit = () => {
     setShowSlip(false);
+  };
+
+  // PDF Generation Function
+  const handlePDFDownload = async () => {
+    const data = {
+      formData,
+      companyInfo,
+      salaryData,
+      monthNames,
+      numberToWords,
+    };
+
+    try {
+      // Build the PDF instance
+      const instance = pdf();
+      instance.updateContainer(<SalarySlipPDF data={data} />);
+      const blob = await instance.toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${formData.employeeName.replace(' ', '_')}_salary_slip_${monthNames[formData.month - 1]}_${formData.year}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      alert('PDF generation failed. Check console for details.');
+    }
   };
 
   // Format date to DD/MM/YYYY
@@ -242,6 +712,27 @@ const SalarySlip = () => {
             <p className="text-center text-blue-100 mt-2">Fill in the details to generate salary slip</p>
           </div>
           <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
+            {/* Employee Selection */}
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">Select Employee <span className="text-red-500">*</span></label>
+              <select
+                onChange={(e) => handleEmployeeSelect(e.target.value)}
+                className="block w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
+                required
+              >
+                <option value="">-- Select Employee --</option>
+                {loading ? (
+                  <option>Loading employees...</option>
+                ) : (
+                  employees.map((employee) => (
+                    <option key={employee.id} value={employee.id}>
+                      {employee.full_name} - {employee.designation} ({employee.department})
+                    </option>
+                  ))
+                )}
+              </select>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700">Employee Name <span className="text-red-500">*</span></label>
@@ -253,6 +744,8 @@ const SalarySlip = () => {
                   className="block w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
                   required
                   placeholder="Enter full name"
+                  readOnly={selectedEmployee && selectedEmployee.full_name}
+                  style={{ backgroundColor: selectedEmployee && selectedEmployee.full_name ? '#f3f4f6' : 'white' }}
                 />
               </div>
               
@@ -266,6 +759,8 @@ const SalarySlip = () => {
                   className="block w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
                   required
                   placeholder="Enter employee ID"
+                  readOnly={selectedEmployee && selectedEmployee.employee_id}
+                  style={{ backgroundColor: selectedEmployee && selectedEmployee.employee_id ? '#f3f4f6' : 'white' }}
                 />
               </div>
 
@@ -279,6 +774,8 @@ const SalarySlip = () => {
                   className="block w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
                   required
                   placeholder="Enter designation"
+                  readOnly={selectedEmployee && selectedEmployee.designation}
+                  style={{ backgroundColor: selectedEmployee && selectedEmployee.designation ? '#f3f4f6' : 'white' }}
                 />
               </div>
 
@@ -292,6 +789,8 @@ const SalarySlip = () => {
                   className="block w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
                   required
                   placeholder="Enter department"
+                  readOnly={selectedEmployee && selectedEmployee.department}
+                  style={{ backgroundColor: selectedEmployee && selectedEmployee.department ? '#f3f4f6' : 'white' }}
                 />
               </div>
 
@@ -326,6 +825,8 @@ const SalarySlip = () => {
                     className="block w-full px-4 py-2.5 pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
                     required
                     placeholder="Enter account number"
+                    readOnly={selectedEmployee && selectedEmployee.bank_account_number}
+                    style={{ backgroundColor: selectedEmployee && selectedEmployee.bank_account_number ? '#f3f4f6' : 'white' }}
                   />
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -346,6 +847,8 @@ const SalarySlip = () => {
                     className="block w-full px-4 py-2.5 pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
                     required
                     placeholder="e.g. ABCDE1234F"
+                    readOnly={selectedEmployee && selectedEmployee.pan_number}
+                    style={{ backgroundColor: selectedEmployee && selectedEmployee.pan_number ? '#f3f4f6' : 'white' }}
                   />
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -365,6 +868,8 @@ const SalarySlip = () => {
                     onChange={handleChange}
                     className="block w-full px-4 py-2.5 pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
                     required
+                    readOnly={selectedEmployee && selectedEmployee.joiningDate}
+                    style={{ backgroundColor: selectedEmployee && selectedEmployee.joiningDate ? '#f3f4f6' : 'white' }}
                   />
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -386,6 +891,8 @@ const SalarySlip = () => {
                 //   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 className="block w-full px-4 py-2.5 pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
                   required
+                  readOnly={selectedEmployee && selectedEmployee.salary_amount}
+                  style={{ backgroundColor: selectedEmployee && selectedEmployee.salary_amount ? '#f3f4f6' : 'white' }}
                 />
               </div>
 
@@ -469,6 +976,58 @@ const SalarySlip = () => {
 
   // Salary Slip Display
   return (
+    <>
+      <style jsx>{`
+        @media print {
+          @page {
+            size: A4;
+            margin: 0.5cm;
+          }
+          body {
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+          }
+          .bg-gradient-to-br {
+            background: white !important;
+          }
+          .text-indigo-600, .text-indigo-700, .text-blue-600 {
+            color: black !important;
+          }
+          .bg-indigo-600, .bg-blue-600, .bg-gradient-to-r {
+            background: #1f2937 !important;
+          }
+          .hover\\:bg-indigo-700:hover, .hover\\:bg-gray-900:hover {
+            background: #1f2937 !important;
+          }
+          .min-h-screen {
+            min-height: auto !important;
+          }
+          .p-4, .p-6, .p-8 {
+            padding: 0.25rem !important;
+          }
+          .mb-6, .mb-8, .mb-12 {
+            margin-bottom: 0.5rem !important;
+          }
+          .mt-6, .mt-8, .mt-12 {
+            margin-top: 0.5rem !important;
+          }
+          .gap-4, .gap-6 {
+            gap: 0.25rem !important;
+          }
+          .text-2xl, .text-3xl {
+            font-size: 1rem !important;
+          }
+          .text-xl {
+            font-size: 0.875rem !important;
+          }
+          .h-16 {
+            height: 2rem !important;
+          }
+          .h-12 {
+            height: 1.5rem !important;
+          }
+        }
+      `}</style>
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-200 p-4 sm:p-6 md:p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8 text-center">
@@ -529,17 +1088,17 @@ const SalarySlip = () => {
           </div>
           
           {/* Employee & Bank Details */}
-          <div className="p-6 bg-gray-50 border-b">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-4 bg-gray-50 border-b">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Employee Details */}
-              <div className="bg-white p-5 rounded-xl shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200 flex items-center">
+              <div className="bg-white p-4 rounded-xl shadow-sm">
+                <h3 className="text-lg font-semibold text-gray-800 mb-3 pb-2 border-b border-gray-200 flex items-center">
                   <svg className="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                   Employee Details
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <DetailItem label="Employee ID" value={formData.employeeId} />
                   <DetailItem label="Department" value={formData.department} />
                   <DetailItem label="Date of Joining" value={formatDate(formData.dateOfJoining)} />
@@ -549,14 +1108,14 @@ const SalarySlip = () => {
               </div>
               
               {/* Bank Details */}
-              <div className="bg-white p-5 rounded-xl shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200 flex items-center">
+              <div className="bg-white p-4 rounded-xl shadow-sm">
+                <h3 className="text-lg font-semibold text-gray-800 mb-3 pb-2 border-b border-gray-200 flex items-center">
                   <svg className="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                   </svg>
                   Bank & Payment Details
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <DetailItem label="Bank Name" value={formData.bankName} />
                   <DetailItem label="Account Number" value={`•••• ${formData.accountNumber.slice(-4)}`} />
                   <DetailItem label="PAN Number" value={formData.panNumber} />
@@ -568,23 +1127,23 @@ const SalarySlip = () => {
           </div>
           
           {/* Salary Breakdown */}
-          <div className="p-6">
-            <h3 className="text-xl font-bold text-gray-800 mb-6 text-center">Salary Breakdown</h3>
+          <div className="p-4">
+            <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">Salary Breakdown</h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               {/* Earnings */}
-              <div className="bg-green-50 rounded-xl overflow-hidden border border-green-100">
-                <div className="bg-green-600 p-4 text-white font-semibold text-center">
+              <div className="bg-gray-50 rounded-xl overflow-hidden border border-gray-300">
+                <div className="bg-gray-800 p-4 text-white font-semibold text-center">
                   EARNINGS
                 </div>
-                <div className="p-4">
-                  <div className="space-y-3">
+                <div className="p-3">
+                  <div className="space-y-2">
                     <SalaryItem label="Basic Salary" amount={salaryData.basicSalary} />
                     <SalaryItem label="House Rent Allowance (HRA)" amount={salaryData.houseRentAllowance} />
                     <SalaryItem label="Conveyance Allowance" amount={salaryData.conveyanceAllowance} />
                     <SalaryItem label="Medical Allowance" amount={salaryData.medicalAllowance} />
                     <SalaryItem label="Special Allowance" amount={salaryData.specialAllowance} />
-                    <div className="pt-2 mt-4 border-t border-green-100">
+                    <div className="pt-2 mt-2 border-t border-gray-300">
                       <SalaryItem label="Total Earnings" amount={salaryData.grossSalary} isTotal />
                     </div>
                   </div>
@@ -592,18 +1151,18 @@ const SalarySlip = () => {
               </div>
               
               {/* Deductions */}
-              <div className="bg-red-50 rounded-xl overflow-hidden border border-red-100">
-                <div className="bg-red-600 p-4 text-white font-semibold text-center">
+              <div className="bg-gray-50 rounded-xl overflow-hidden border border-gray-300">
+                <div className="bg-gray-800 p-4 text-white font-semibold text-center">
                   DEDUCTIONS
                 </div>
-                <div className="p-4">
-                  <div className="space-y-3">
+                <div className="p-3">
+                  <div className="space-y-2">
                     <SalaryItem label="Professional Tax" amount={0} />
                     <SalaryItem label="Income Tax (TDS)" amount={0} />
                     <SalaryItem label="Provident Fund (PF)" amount={salaryData.pfDeduction} />
                     <SalaryItem label="Health Insurance (ESI)" amount={salaryData.esiDeduction} />
-                    <div className="h-6"></div> {/* Spacer for alignment */}
-                    <div className="pt-2 mt-4 border-t border-red-100">
+                    <div className="h-4"></div> {/* Spacer for alignment */}
+                    <div className="pt-2 mt-2 border-t border-gray-300">
                       <SalaryItem label="Total Deductions" amount={salaryData.totalDeductions} isTotal />
                     </div>
                   </div>
@@ -612,11 +1171,11 @@ const SalarySlip = () => {
             </div>
             
             {/* Net Pay */}
-            <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-xl p-6 text-white mb-8">
+            <div className="bg-gray-800 rounded-xl p-4 text-white mb-6">
               <div className="flex flex-col items-center text-center">
-                <span className="text-blue-100 mb-2">Net Payable Amount</span>
-                <div className="text-3xl font-bold mb-2">₹{salaryData.netPay.toLocaleString('en-IN')}</div>
-                <div className="text-blue-100 text-sm">
+                <span className="text-gray-300 mb-2">Net Payable Amount</span>
+                <div className="text-2xl font-bold mb-2">₹{salaryData.netPay.toLocaleString('en-IN')}</div>
+                <div className="text-gray-300 text-sm">
                   {numberToWords(salaryData.netPay)} Rupees Only
                 </div>
               </div>
@@ -625,12 +1184,12 @@ const SalarySlip = () => {
             {/* Footer */}
             
             {/* Signature Section */}
-            <div className="mt-12 pt-6 border-t border-gray-200">
+            <div className="mt-6 pt-4 border-t border-gray-200">
               <div className="flex flex-col items-end">
                 <div className="mb-2 text-sm text-gray-500">
                   For {companyInfo.name}
                 </div>
-                <img src={Signature} className="h-16" alt="Flowbite Logo" />
+                <img src={Signature} className="h-12" alt="Flowbite Logo" />
                 <div className=" mb-2 w-48 h-0.5 bg-gray-300"></div>
                 <div className="text-sm font-medium text-gray-700">
                   Authorized Signatory
@@ -641,20 +1200,19 @@ const SalarySlip = () => {
               </div>
             </div>
             
-            <div className="mt-8 pt-6 border-t border-gray-200 text-center text-sm text-gray-500">
-              {/* <p className="mb-2">This is a system generated salary slip and does not require a signature.</p> */}
+            <div className="mt-4 pt-4 border-t border-gray-200 text-center text-sm text-gray-500">
               <p>For any discrepancies, please contact the HR department within 7 days.</p>
             </div>
             {/* Action Buttons */}
-            <div className="mt-12 flex flex-col sm:flex-row justify-center gap-4">
+            <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
               <button
-                onClick={() => window.print()}
-                className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center"
+                onClick={handlePDFDownload}
+                className="px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors flex items-center justify-center"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Print Salary Slip
+                Download PDF
               </button>
               <button
                 onClick={handleEdit}
@@ -670,6 +1228,7 @@ const SalarySlip = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

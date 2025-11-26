@@ -1,9 +1,261 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import CLogo from '../../assets/images/CLogo.png';
-import headerImg from '../../assets/images/1headerLetterimg.jpg';
-import footerImg from '../../assets/images/1footerLetterimg.jpg';
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  Image,
+  Link,
+  pdf,
+  Font,
+} from '@react-pdf/renderer';
+
+// ---- IMPORTANT: prevent hyphenation issues on e-mails/long tokens ----
+Font.registerHyphenationCallback((word) => [String(word)]);
+
+// Assets (ensure these resolve to public URLs at runtime)
 import imgS from '../../assets/images/CEOSignature.png';
+import headerImg from '../../assets/images/NewHeaderImage.png';
+import footerImg from '../../assets/images/NewFotterImage.png';
+
+// Helpers
+const safe = (v) => (v === null || v === undefined ? '' : String(v));
+const safeArray = (arr) => (Array.isArray(arr) ? arr.filter((x) => typeof x === 'string' && x.trim() !== '') : []);
+
+// PDF Styles — use numeric values (points) instead of CSS strings
+const styles = StyleSheet.create({
+  page: {
+    paddingTop: 80,
+    paddingBottom: 70,
+    paddingHorizontal: 50,
+    position: 'relative',
+  },
+  headerWrap: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 80,
+    
+  },
+  footerWrap: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 60,
+  },
+  headerImg: { width: '100%', height: '100%' ,marginBottom: 10},
+  footerImg: { width: '100%', height: '100%', marginTop: 10 },
+  content: {
+    fontSize: 11,
+    lineHeight: 1.4,
+  },
+  title: {
+    fontSize: 16,
+    marginBottom: 22,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  section: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 13,
+    marginBottom: 10,
+    fontWeight: 'bold',
+  },
+  bold: {
+    fontWeight: 'bold',
+  },
+  signature: {
+    width: 100,
+    height: 50,
+    marginVertical: 15,
+  },
+  listItem: {
+    flexDirection: 'row',
+    marginBottom: 6,
+    paddingLeft: 10,
+  },
+  bullet: {
+    width: 15,
+    marginRight: 8,
+  },
+  strong: {
+    fontWeight: 'bold',
+  },
+});
+
+// PDF Component
+const InternshipOfferLetterPDF = ({ data }) => {
+  const d = {
+    name: safe(data.name),
+    address: safe(data.address),
+    phoneNumber: safe(data.phoneNumber),
+    email: safe(data.email),
+    startDate: safe(data.startDate),
+    endDate: safe(data.endDate),
+    position: safe(data.position),
+    stipend: safe(data.stipend),
+    mentorName: safe(data.mentorName),
+    mentorContact: safe(data.mentorContact),
+    offerReleaseDate: safe(data.offerReleaseDate),
+    termsAndConditions: safeArray(data.termsAndConditions),
+  };
+
+  const PageWithHeaderFooter = ({ children }) => (
+    <Page size="A4" style={styles.page}>
+      {/* Use fixed containers so header/footer never interfere with layout */}
+      <View fixed style={styles.headerWrap}>
+        <Image src={headerImg} style={styles.headerImg} />
+      </View>
+      <View fixed style={styles.footerWrap}>
+        <Image src={footerImg} style={styles.footerImg} />
+      </View>
+      <View style={styles.content}>{children}</View>
+    </Page>
+  );
+
+  return (
+    <Document>
+      {/* Page 1 - Internship Offer Details */}
+      <PageWithHeaderFooter>
+        <Text style={styles.title}>INTERNSHIP OFFER LETTER</Text>
+
+        <View style={styles.section}>
+          <Text>To,</Text>
+          <Text style={styles.bold}>{d.name}</Text>
+          <Text style={styles.bold}>{d.address}</Text>
+          <Text style={styles.bold}>{d.phoneNumber}</Text>
+          {/* Render email safely and make it a mailto Link (no wrapping issues) */}
+          {d.email ? (
+            <Link src={`mailto:${d.email}`} style={styles.bold}>
+              {d.email}
+            </Link>
+          ) : (
+            <Text style={styles.bold}> </Text>
+          )}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Subject: Offer of Internship</Text>
+          <Text>Dear {d.name},</Text>
+          <Text>
+            We are pleased to offer you an internship position at DOAGuru Infosystems as <Text style={styles.strong}>{d.position}</Text>
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>1. Internship Duration</Text>
+          <Text>
+            Your internship will be from <Text style={styles.strong}>{d.startDate}</Text> to <Text style={styles.strong}>{d.endDate}</Text>.
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>2. Position & Department</Text>
+          <Text>
+            You will be designated as <Text style={styles.strong}>{d.position}</Text>, and you will report to the assigned mentor as per project requirement.
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>3. Stipend</Text>
+          <Text>
+            You will receive a monthly stipend of <Text style={styles.strong}>₹{d.stipend}/-</Text> for the duration of your internship.
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>4. Mentor Details</Text>
+          <Text>
+            You will be assigned <Text style={styles.strong}>{d.mentorName}</Text> as your mentor.
+          </Text>
+          <Text>
+            Contact: <Text style={styles.strong}>{d.mentorContact}</Text>
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>5. Working Days</Text>
+          <Text>
+            You will work 6 days a week, Monday to Saturday, with working hours from 10:00 AM to 7:00 PM as per company policy.
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>6. Place of Work</Text>
+          <Text>
+            Your primary place of work will be at DOAGuru Infosystems, Jabalpur (M.P.), or any other location as assigned.
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>7. Terms & Conditions</Text>
+          {d.termsAndConditions.map((term, index) => (
+            <View key={index} style={styles.listItem}>
+              <Text style={styles.bullet}>{index + 1}.</Text>
+              <Text>{term}</Text>
+            </View>
+          ))}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>8. General Guidelines</Text>
+          <View style={styles.listItem}>
+            <Text style={styles.bullet}>{'\u2022'}</Text>
+            <Text>You are expected to maintain the highest standards of professionalism, confidentiality, and follow all company policies.</Text>
+          </View>
+          <View style={styles.listItem}>
+            <Text style={styles.bullet}>{'\u2022'}</Text>
+            <Text>You are also expected to adhere to the company's code of conduct and ethical guidelines.</Text>
+          </View>
+          <View style={styles.listItem}>
+            <Text style={styles.bullet}>{'\u2022'}</Text>
+            <Text>The company reserves the right to amend these terms and conditions at any time, with prior notice to the intern.</Text>
+          </View>
+          <View style={styles.listItem}>
+            <Text style={styles.bullet}>{'\u2022'}</Text>
+            <Text>This offer is valid for 7 days from the date of issue.</Text>
+          </View>
+          <View style={styles.listItem}>
+            <Text style={styles.bullet}>{'\u2022'}</Text>
+            <Text>Failure to accept this offer within the stipulated time will result in the offer being considered withdrawn.</Text>
+          </View>
+          <View style={styles.listItem}>
+            <Text style={styles.bullet}>{'\u2022'}</Text>
+            <Text>Any disputes arising from this offer shall be resolved in accordance with the laws of India.</Text>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text>We look forward to your valuable contribution to DOAGURU INFOSYSTEMS. Please sign and return a copy of this letter as confirmation of your acceptance.</Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.strong}>Warm Regards,</Text>
+          <Image src={imgS} style={styles.signature} />
+          <Text>R.S. Pandey</Text>
+          <Text>Director</Text>
+          <Text>DOAGuru Infosystems</Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Acknowledgment:</Text>
+          <Text>I, {d.name}, accept the above terms and conditions of internship.</Text>
+          <View style={{ marginTop: 30 }}>
+            <Text>Signature: ___________________</Text>
+            <Text>Date: ________________</Text>
+          </View>
+        </View>
+      </PageWithHeaderFooter>
+    </Document>
+  );
+};
 
 const InternshipOfferLetter = () => {
   const [formData, setFormData] = useState({
@@ -80,123 +332,38 @@ const InternshipOfferLetter = () => {
     }
   };
 
-  const handlePrint = () => {
-    const printContent = previewRef.current.innerHTML;
-    const printWindow = window.open('', '', 'width=210mm,height=297mm');
-    
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>${formData.name} - Internship Offer Letter</title>
-        <style>
-          @page {
-            size: A4;
-            margin: 0.8cm 1.2cm 1cm 1.2cm;
-          }
-          body {
-            font-family: Arial, sans-serif;
-            line-height: 1.4;
-            margin: 0;
-            padding: 0;
-            color: #333;
-            font-size: 12px;
-          }
-          .print-container {
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 0;
-            position: relative;
-          }
-          .header {
-            margin-bottom: 10px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-          }
-          .logo {
-            max-height: 50px;
-            margin-bottom: 5px;
-          }
-          .header-right {
-            text-align: right;
-            margin-bottom: 5px;
-            font-size: 11px;
-          }
-          .content {
-            margin: 10px 0;
-            line-height: 1.3;
-          }
-          .section {
-            margin-bottom: 8px;
-          }
-          .section-title {
-            font-weight: bold;
-            margin: 10px 0 6px 0;
-            font-size: 13px;
-          }
-          .signature {
-            margin-top: 20px;
-          }
-          .signature img {
-            height: 40px;
-            margin-bottom: 5px;
-          }
-          .footer {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 10px;
-            color: #666;
-            padding: 5px 0;
-            border-top: 1px solid #eee;
-          }
-          @media print {
-            body {
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-              zoom: 0.95;
-            }
-            .no-print {
-              display: none !important;
-            }
-            .print-container {
-              padding: 0;
-              transform: scale(0.98);
-              transform-origin: top left;
-              width: 100%;
-            }
-            .content {
-              page-break-inside: avoid;
-            }
-            p, li {
-              margin: 4px 0;
-            }
-            ul, ol {
-              margin: 4px 0;
-              padding-left: 20px;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="print-container">
-          ${printContent}
-        </div>
-      </body>
-      </html>
-    `);
-    
-    printWindow.document.close();
-    
-    // Wait for images to load before printing
-    printWindow.onload = function() {
-      setTimeout(() => {
-        printWindow.print();
-        // printWindow.close(); // Uncomment this if you want to close the print window after printing
-      }, 500);
+  const handlePrint = async () => {
+    const data = {
+      name: formData.name,
+      address: formData.address,
+      phoneNumber: formData.phoneNumber,
+      email: formData.email,
+      startDate: formData.startDate,
+      endDate: formData.endDate,
+      position: formData.position,
+      stipend: formData.stipend,
+      mentorName: formData.mentorName,
+      mentorContact: formData.mentorContact,
+      offerReleaseDate: formData.offerReleaseDate,
+      termsAndConditions: formData.termsAndConditions,
     };
+
+    try {
+      // Build the PDF instance explicitly to avoid any race conditions
+      const instance = pdf();
+      instance.updateContainer(<InternshipOfferLetterPDF data={data} />);
+      const blob = await instance.toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${safe(formData.name) || 'internship'}_internship_offer_letter.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
   };
 
   const closeModal = () => {
@@ -379,101 +546,150 @@ const InternshipOfferLetter = () => {
       {/* Preview Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div ref={previewRef} className="p-4 print:p-0">
-              {/* Header */}
-              <div className="header">
-                <div className="flex justify-between items-start">
+          <div className="bg-white rounded-lg w-[95vw] max-w-7xl h-[95vh] flex flex-col">
+            <div ref={previewRef} className="flex-1 p-8 overflow-y-auto">
+              <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-lg">
+                <div className="print-header flex justify-center">
+                  <h1 className="text-xl font-bold pt-7 text-center">INTERNSHIP OFFER LETTER</h1>
+                </div>
+
+                <div className="company-header">
+                  <h2>DOAGuru Infosystems</h2>
+                  <div className="company-info">
+                    Website: <a href="http://www.doaguru.com" target="_blank" rel="noreferrer" className="text-blue-900">www.doaguru.com</a> | Email: info@doaguru.com | Contact: +91-7440992424
+                  </div>
+                </div>
+
+                <div className="release-date mt-4">
+                  <p>
+                    <strong>Date: {formData.offerReleaseDate || new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</strong>
+                  </p>
+                </div>
+
+                <div className="candidate-info mt-4">
+                  <p>
+                    <strong>To,</strong>
+                    <br />
+                    {formData.name}
+                    <br />
+                    {formData.address}
+                    <br />
+                    {formData.phoneNumber}
+                    <br />
+                    {formData.email}
+                  </p>
+                </div>
+
+                <div className="subject-line mt-4">
+                  <p>
+                    <strong>Subject: Offer of Internship</strong>
+                  </p>
+                  <p className="mt-2">Dear {formData.name},</p>
+                  <p className="mt-2">
+                    We are pleased to offer you an internship position at DOAGuru Infosystems as <strong>{formData.position}</strong>
+                  </p>
+                </div>
+
+                <div className="mt-6 space-y-4">
                   <div>
-                    <img src={CLogo} alt="Company Logo" className="logo" />
-                    <h1 className="text-lg font-bold mt-1">DOAGuru Infosystems</h1>
-                    <p className="text-gray-600 text-xs">
-                      Website: <a href="https://www.doaguru.com" className="text-blue-600 no-underline">www.doaguru.com</a><br/>
-                      Email: info@doaguru.com | Contact: +91-7440992424
+                    <h3 className="font-bold">1. Internship Duration</h3>
+                    <p>
+                      Your internship will be from <strong>{formData.startDate}</strong> to <strong>{formData.endDate}</strong>.
                     </p>
                   </div>
-                  <div className="header-right">
-                    <p className="text-xs">{formData.offerReleaseDate ? new Date(formData.offerReleaseDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) : new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
-                  </div>
-                </div>
-                
-                <div className="mt-2 text-center">
-                  <h2 className="text-xl font-bold uppercase">INTERNSHIP OFFER LETTER</h2>
-                </div>
-              </div>
 
-              {/* Recipient Info */}
-              <div className="section">
-                <p className="mb-1"><strong>To,</strong></p>
-                <p className="font-semibold">{formData.name || '[Candidate Name]'}</p>
-                <p className="text-xs">{formData.address || '[Address]'}</p>
-                <p className="text-xs">Email: {formData.email || '[Email]'}</p>
-                <p className="text-xs">Phone: {formData.phoneNumber || '[Phone Number]'}</p>
-              </div>
-
-              {/* Letter Content */}
-              <div className="content">
-                <p className="mb-2">Dear {formData.name || '[Candidate Name]'},</p>
-                
-                <p className="mb-3">
-                  We are pleased to offer you an internship position at DOAGuru Infosystems as a <strong>{formData.position || '[Position]'}</strong> 
-                  from <strong>{formData.startDate ? new Date(formData.startDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '[Start Date]'}</strong> to <strong>{formData.endDate ? new Date(formData.endDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '[End Date]'}</strong>.
-                </p>
-                
-                <div className="section">
-                  <h3 className="section-title">INTERNSHIP DETAILS:</h3>
-                  <ul className="list-disc pl-5 space-y-0">
-                    <li className="mb-1"><strong>Position:</strong> {formData.position || '[Position]'}</li>
-                    <li className="mb-1"><strong>Duration:</strong> {formData.startDate ? new Date(formData.startDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '[Start Date]'} to {formData.endDate ? new Date(formData.endDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '[End Date]'}</li>
-                    <li className="mb-1"><strong>Stipend:</strong> {formData.stipend || 'Not specified'}</li>
-                    <li className="mb-1"><strong>Mentor:</strong> {formData.mentorName || '[Mentor Name]'} ({formData.mentorContact || '[Contact Info]'})</li>
-                  </ul>
-                </div>
-                
-                <div className="section">
-                  <h3 className="section-title">TERMS & CONDITIONS:</h3>
-                  <ol className="list-decimal pl-5 space-y-0">
-                    {formData.termsAndConditions.map((term, index) => (
-                      <li key={index} className="mb-1 text-xs">{term || '[Term]'}</li>
-                    ))}
-                  </ol>
-                </div>
-                
-                <p className="mt-3 mb-2">
-                  We look forward to having you as part of our team. Please sign and return a copy of this letter 
-                  to indicate your acceptance of this internship offer.
-                </p>
-                
-                <div className="signature">
-                  <p className="mb-1">Best regards,</p>
-                  <div className="mt-2">
-                    <img src={imgS} alt="Signature" className="signature-img" />
-                    <p className="font-semibold text-sm">R.S. Pandey</p>
-                    <p className="text-xs">HR Manager</p>
-                    <p className="text-xs">DOAGuru Infosystems</p>
+                  <div>
+                    <h3 className="font-bold">2. Position & Department</h3>
+                    <p>
+                      You will be designated as <strong>{formData.position}</strong>, and you will report to the assigned mentor as per project requirement.
+                    </p>
                   </div>
-                </div>
-                
-                <div className="footer no-print">
-                  <p className="text-center text-xs text-gray-600">
-                    <strong>Confidentiality Notice:</strong> This letter and any attachments are confidential and may be protected by legal privilege.
-                  </p>
+
+                  <div>
+                    <h3 className="font-bold">3. Stipend</h3>
+                    <p>
+                      You will receive a monthly stipend of <strong>{formData.stipend}</strong> for the duration of your internship.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold">4. Mentor Details</h3>
+                    <p>
+                      You will be assigned <strong>{formData.mentorName}</strong> as your mentor.
+                    </p>
+                    <p>
+                      Contact: <strong>{formData.mentorContact}</strong>
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold">5. Working Days</h3>
+                    <p>
+                      You will work 6 days a week, Monday to Saturday, with working hours from 10:00 AM to 7:00 PM as per company policy.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold">6. Place of Work</h3>
+                    <p>
+                      Your primary place of work will be at DOAGuru Infosystems, Jabalpur (M.P.), or any other location as assigned.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold">7. Terms & Conditions</h3>
+                    <ul className="list-disc pl-5 mt-2 space-y-1">
+                      {formData.termsAndConditions.map((term, index) => (
+                        <li key={index}>{term}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold">8. General Guidelines</h3>
+                    <ul className="list-disc pl-5 mt-2 space-y-1">
+                      <li>You are expected to maintain the highest standards of professionalism, confidentiality, and follow all company policies.</li>
+                      <li>You are also expected to adhere to the company's code of conduct and ethical guidelines.</li>
+                      <li>The company reserves the right to amend these terms and conditions at any time, with prior notice to the intern.</li>
+                      <li>This offer is valid for 7 days from the date of issue.</li>
+                      <li>Failure to accept this offer within the stipulated time will result in the offer being considered withdrawn.</li>
+                      <li>Any disputes arising from this offer shall be resolved in accordance with the laws of India.</li>
+                    </ul>
+                  </div>
+
+                  <div className="mt-8">
+                    <p>We look forward to your valuable contribution to DOAGURU INFOSYSTEMS. Please sign and return a copy of this letter as confirmation of your acceptance.</p>
+                  </div>
+
+                  <div className="mt-8">
+                    <p className="font-bold">Warm Regards,</p>
+                    <div className="mt-4">
+                      <p className="font-bold">R.S. Pandey</p>
+                      <p>Director</p>
+                      <p>DOAGuru Infosystems</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-12 border-t pt-4">
+                    <h3 className="font-bold">Acknowledgment:</h3>
+                    <p>I, <span className="font-bold">{formData.name}</span>, accept the above terms and conditions of internship.</p>
+                    <div className="mt-8 space-y-4">
+                      <p>Signature: ___________________</p>
+                      <p>Date: ________________</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            
-            <div className="p-4 bg-gray-100 flex justify-end space-x-4">
-              <button
-                onClick={closeModal}
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-              >
-                Close
+            <div className="p-4 border-t bg-gray-50 rounded-b-lg flex justify-end gap-2">
+              <button onClick={handlePrint} className="bg-green-500 text-white py-2 px-4 rounded mr-2">
+                Without Save Download PDF
               </button>
-              <button
-                onClick={handleSaveInfo}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Save & Print
+              <button onClick={handleSaveInfo} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                Save and Print
+              </button>
+              <button onClick={closeModal} className="bg-red-500 text-white py-2 px-4 rounded">
+                Close
               </button>
             </div>
           </div>

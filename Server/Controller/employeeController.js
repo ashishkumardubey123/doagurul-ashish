@@ -55,3 +55,22 @@ exports.generatePDF = (req, res) => {
     }
   });
 };
+
+//Salary Slip
+// exports.generateSalarySlip = (req, res) => {
+//   const employeeId = req.params.employeeId;
+
+//   Employee.getEmployeeById(employeeId, (err, employee) => {
+//     if (err || !employee) {
+//       return res.status(404).json({ message: 'Employee not found' });
+//     }
+
+//     try {
+//       // Call the utility function to generate the PDF
+//       generateSalarySlip(employee, res);
+//     } catch (error) {
+//       res.status(500).json({ message: 'Error generating PDF', error });
+//     }
+//   });
+// };
+

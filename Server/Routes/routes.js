@@ -34,5 +34,8 @@ router.get('/api/download-pdf/:filename', downloadPdf);
 router.post('/api/saveEmployee', employeeController.saveEmployee); 
 router.get('/api/generatePDF/:employeeId', employeeController.generatePDF); 
 
+// Salary Slip Routes
+// router.get('/api/generateSalarySlip/:employeeId', employeeController.generateSalarySlip);
+
 
 module.exports = router;
