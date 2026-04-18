@@ -2,8 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import Modal from 'react-modal';
 import axios from 'axios';
 import CLogo from '../../assets/images/CLogo.png';
-import headerImg from '../../assets/images/1headerLetterimg.jpg';
-import footerImg from '../../assets/images/1footerLetterimg.jpg';
+import headerImg from '../../assets/images/NewFotterImage.png';
+import footerImg from '../../assets/images/NewFotterImage.png';
 import imgS from '../../assets/images/CEOSignature.png';
 import SearchableSelect from '../../Components/SearchableSelect';
 
