@@ -24,6 +24,23 @@ import footerImg from '../../assets/images/NewFotterImage.png';
 // Helpers
 const safe = (v) => (v === null || v === undefined ? '' : String(v));
 const safeArray = (arr) => (Array.isArray(arr) ? arr.filter((x) => typeof x === 'string' && x.trim() !== '') : []);
+const getPronouns = (gender) => {
+  if (gender === 'He') return { subject: 'he', object: 'him', possessive: 'his' };
+  if (gender === 'She') return { subject: 'she', object: 'her', possessive: 'her' };
+  return { subject: 'they', object: 'them', possessive: 'their' };
+};
+const getSignatoryDetails = (signatory) => {
+  if (signatory === 'HR Manager') {
+    return { name: 'HR Department', title: 'HR Manager, DOAGuru Infosystems' };
+  }
+  if (safe(signatory).includes('CEO')) {
+    return { name: 'R.S. Pandey', title: 'CEO, DOAGuru Infosystems' };
+  }
+  return {
+    name: safe(signatory) || 'Authorized Signatory',
+    title: 'Authorized Signatory',
+  };
+};
 
 // PDF Styles â€” use numeric values (points) instead of CSS strings
 const styles = StyleSheet.create({
@@ -97,6 +114,7 @@ const OfferLetterPDF = ({ data }) => {
     address: safe(data.address),
     phoneNumber: safe(data.phoneNumber),
     email: safe(data.email),
+    gender: safe(data.gender),
     date: safe(data.date),
     position: safe(data.position),
     salary: safe(data.salary),
@@ -105,7 +123,10 @@ const OfferLetterPDF = ({ data }) => {
     noticePeriod: safe(data.noticePeriod),
     confirmationNoticePeriod: safe(data.confirmationNoticePeriod),
     jobResponsibilities: safeArray(data.jobResponsibilities),
+    signatory: safe(data.signatory),
   };
+  const pronouns = getPronouns(d.gender);
+  const signatoryDetails = getSignatoryDetails(d.signatory);
 
   const PageWithHeaderFooter = ({ children }) => (
     <Page size="A4" style={styles.page}>
@@ -210,6 +231,10 @@ const OfferLetterPDF = ({ data }) => {
             During this period, either the company or you may terminate the employment with{' '}
             <Text style={styles.strong}>{d.noticePeriod}</Text> notice.
           </Text>
+          <Text>
+            During probation, <Text style={styles.strong}>{d.name}</Text> is expected to demonstrate {pronouns.possessive}{' '}
+            ability to perform assigned duties consistently.
+          </Text>
         </View>
 
         <View style={styles.section}>
@@ -274,6 +299,13 @@ const OfferLetterPDF = ({ data }) => {
       {/* Page 2 - Terms and Responsibilities */}
       <PageWithHeaderFooter>
         <View style={styles.section}>
+          <Text style={styles.strong}>Warm Regards,</Text>
+          <Image src={imgS} style={styles.signature} />
+          <Text>{signatoryDetails.name}</Text>
+          <Text>{signatoryDetails.title}</Text>
+        </View>
+
+        <View style={styles.section}>
           <Text style={styles.sectionTitle}>Acknowledgment:</Text>
           <Text>I, {d.name}, accept the above terms and conditions of employment.</Text>
           <View style={{ marginTop: 30 }}>
@@ -329,6 +361,8 @@ const OfferLater = () => {
   const [probationPeriod, setProbationPeriod] = useState('');
   const [noticePeriod, setNoticePeriod] = useState('');
   const [confirmationNoticePeriod, setConfirmationNoticePeriod] = useState('');
+  const [gender, setGender] = useState('');
+  const [signatory, setSignatory] = useState('R.S. Pandey (CEO)');
   const [jobResponsibilities, setJobResponsibilities] = useState(['']);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const previewRef = useRef();
@@ -364,6 +398,8 @@ const OfferLater = () => {
       setProbationPeriod(safe(data.probationPeriod));
       setNoticePeriod(safe(data.noticePeriod));
       setConfirmationNoticePeriod(safe(data.confirmationNoticePeriod));
+      setGender(safe(data.gender));
+      setSignatory(safe(data.signatory) || 'R.S. Pandey (CEO)');
 
       // Handle job responsibilities
       let responsibilities = [];
@@ -382,10 +418,7 @@ const OfferLater = () => {
       setJobResponsibilities(safeArray(responsibilities).length > 0 ? safeArray(responsibilities) : ['']);
 
       if (isPreviewMode) {
-        const timer = setTimeout(() => {
-          handlePrint();
-        }, 1000);
-        return () => clearTimeout(timer);
+        setIsModalOpen(true);
       }
     } catch (error) {
       console.error('Error fetching offer letter:', error);
@@ -408,10 +441,12 @@ const OfferLater = () => {
         joiningDate: safe(date),
         designation: safe(position),
         salary: safe(salary),
+        gender: safe(gender),
         probationPeriod: safe(probationPeriod),
         noticePeriod: safe(noticePeriod),
         confirmationNoticePeriod: safe(confirmationNoticePeriod),
         jobResponsibilities: safeArray(jobResponsibilities),
+        signatory: safe(signatory),
       };
 
       const url = isEditMode
@@ -475,11 +510,13 @@ const OfferLater = () => {
       date,
       position,
       salary,
+      gender,
       offerReleaseDate,
       probationPeriod,
       noticePeriod,
       confirmationNoticePeriod,
       jobResponsibilities,
+      signatory,
     };
 
     try {
@@ -544,6 +581,15 @@ const OfferLater = () => {
               <label className="dg-label">Email ID</label>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="dg-input" style={{ paddingLeft: '1rem' }} placeholder="candidate@email.com" required disabled={isPreviewMode} />
             </div>
+            <div className="dg-form-group">
+              <label className="dg-label">Gender</label>
+              <select value={gender} onChange={(e) => setGender(e.target.value)} className="dg-select" required disabled={isPreviewMode}>
+                <option value="">Select Gender</option>
+                <option value="He">Male (He/Him)</option>
+                <option value="She">Female (She/Her)</option>
+                <option value="They">Other (They/Them)</option>
+              </select>
+            </div>
           </div>
           <div className="dg-form-group" style={{ marginTop: '1rem' }}>
             <label className="dg-label">Address</label>
@@ -596,6 +642,13 @@ const OfferLater = () => {
             <div className="dg-form-group">
               <label className="dg-label">Notice Period After Confirmation</label>
               <input type="text" value={confirmationNoticePeriod} onChange={(e) => setConfirmationNoticePeriod(e.target.value)} className="dg-input" style={{ paddingLeft: '1rem' }} placeholder="e.g., 30 days" required disabled={isPreviewMode} />
+            </div>
+            <div className="dg-form-group">
+              <label className="dg-label">Signatory</label>
+              <select value={signatory} onChange={(e) => setSignatory(e.target.value)} className="dg-select" required disabled={isPreviewMode}>
+                <option value="R.S. Pandey (CEO)">R.S. Pandey (CEO)</option>
+                <option value="HR Manager">HR Manager</option>
+              </select>
             </div>
           </div>
         </div>
@@ -701,6 +754,7 @@ const OfferLater = () => {
                   <div style={{ marginBottom: '1rem' }}><p style={{ fontWeight: 700 }}>4. Place of Work</p><p>DOAGuru Infosystems, Jabalpur (M.P.), or any other assigned location.</p></div>
                   <div style={{ marginBottom: '1rem' }}><p style={{ fontWeight: 700 }}>5. Compensation</p><p>Monthly salary: Rs. {salary}. Salary may be revised based on performance.</p></div>
                   <div style={{ marginBottom: '1rem' }}><p style={{ fontWeight: 700 }}>6. Probation Period</p><p>{probationPeriod} months from joining. Notice during probation: {noticePeriod}.</p></div>
+                  <div style={{ marginBottom: '1rem' }}><p style={{ fontWeight: 700 }}>6.1 Performance Expectation</p><p>During probation, <strong>{name || 'the candidate'}</strong> is expected to demonstrate {getPronouns(gender).possessive} ability to perform assigned duties consistently.</p></div>
                   <div style={{ marginBottom: '1rem' }}><p style={{ fontWeight: 700 }}>7. Notice Period</p><p>On confirmation: {confirmationNoticePeriod || '30 days'} written notice required.</p></div>
                   <div style={{ marginBottom: '1rem' }}>
                     <p style={{ fontWeight: 700 }}>8. Roles and Responsibilities</p>
@@ -712,8 +766,8 @@ const OfferLater = () => {
                 <p style={{ marginTop: '1.5rem' }}>We look forward to your valuable contribution. Please sign and return a copy as confirmation.</p>
                 <div style={{ marginTop: '2rem' }}>
                   <p style={{ fontWeight: 700 }}>Warm Regards,</p>
-                  <p style={{ marginTop: '0.5rem' }}>R.S. Pandey</p>
-                  <p>Director, DOAGuru Infosystems</p>
+                  <p style={{ marginTop: '0.5rem' }}>{getSignatoryDetails(signatory).name}</p>
+                  <p>{getSignatoryDetails(signatory).title}</p>
                 </div>
                 <div style={{ marginTop: '2.5rem', borderTop: '1px solid #ddd', paddingTop: '1rem' }}>
                   <p style={{ fontWeight: 700 }}>Acknowledgment</p>

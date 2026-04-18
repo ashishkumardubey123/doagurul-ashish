@@ -28,18 +28,16 @@ const saveInternshipOffer = (req, res) => {
     address,
     phoneNumber,
     email,
+    gender,
     startDate,
     endDate,
     position,
     stipend,
     mentorName,
     mentorContact,
+    signatory,
     termsAndConditions
   } = req.body;
-
-  // Generate a unique filename for the PDF
-  const timestamp = new Date().getTime();
-  const pdfPath = path.join(__dirname, '..', 'uploads', `internship_${name.replace(/\s+/g, '_')}_${timestamp}.pdf`);
 
   // For now, we'll just log the data and send a success response
   // console.log('Saving internship offer:', {
@@ -58,13 +56,14 @@ const saveInternshipOffer = (req, res) => {
   
   const query = `
     INSERT INTO internship_offers 
-    (name, email, phoneNumber, address, position, startDate, endDate, stipend, mentorName, mentorContact, termsAndConditions)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    (name, email, gender, phoneNumber, address, position, startDate, endDate, stipend, mentorName, mentorContact, signatory, termsAndConditions)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
   
   const values = [
     name,
-    email,  
+    email,
+    gender || null,
     phoneNumber,
     address,
     position,
@@ -73,8 +72,8 @@ const saveInternshipOffer = (req, res) => {
     stipend,
     mentorName,
     mentorContact,
+    signatory || null,
     JSON.stringify(termsAndConditions),
-    
   ];
   
   db.query(query, values, (error, results) => {
@@ -83,16 +82,18 @@ const saveInternshipOffer = (req, res) => {
       return res.status(500).json({ success: false, message: 'Failed to save internship offer' });
     }
     
-    // TODO: Generate and save PDF
-    // generateInternshipPdf({ ...req.body, id: results.insertId }, pdfPath);
-  
-  });
-  
-  // Temporary response until database integration is complete
-  res.status(200).json({ 
-    success: true, 
-    message: 'Internship offer processed successfully',
-
+    // TODO: Generate and save PDF if needed.
+    return res.status(200).json({ 
+      success: true, 
+      message: 'Internship offer processed successfully',
+      data: {
+        id: results.insertId,
+        name,
+        email,
+        gender: gender || null,
+        signatory: signatory || null
+      }
+    });
   });
 };
 
@@ -125,7 +126,9 @@ const updateOfferLetter = (req, res) => {
     probationPeriod,
     noticePeriod,
     confirmationNoticePeriod,
-    jobResponsibilities
+    jobResponsibilities,
+    gender,
+    signatory
   } = req.body;
 
   const query = `
@@ -142,7 +145,9 @@ const updateOfferLetter = (req, res) => {
       probationPeriod = ?,
       noticePeriod = ?,
       confirmationNoticePeriod = ?,
-      jobResponsibilities = ?
+      jobResponsibilities = ?,
+      gender = ?,
+      signatory = ?
     WHERE id = ?
   `;
 
@@ -159,6 +164,8 @@ const updateOfferLetter = (req, res) => {
     noticePeriod,
     confirmationNoticePeriod,
     JSON.stringify(jobResponsibilities),
+    gender || null,
+    signatory || null,
     id
   ];
 

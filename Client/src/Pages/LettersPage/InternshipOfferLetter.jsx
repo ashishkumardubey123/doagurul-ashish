@@ -1,5 +1,4 @@
-﻿import { useState, useRef, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useRef } from 'react';
 import axios from 'axios';
 import {
   Document,
@@ -24,8 +23,25 @@ import footerImg from '../../assets/images/NewFotterImage.png';
 // Helpers
 const safe = (v) => (v === null || v === undefined ? '' : String(v));
 const safeArray = (arr) => (Array.isArray(arr) ? arr.filter((x) => typeof x === 'string' && x.trim() !== '') : []);
+const getPronouns = (gender) => {
+  if (gender === 'He') return { subject: 'he', object: 'him', possessive: 'his' };
+  if (gender === 'She') return { subject: 'she', object: 'her', possessive: 'her' };
+  return { subject: 'they', object: 'them', possessive: 'their' };
+};
+const getSignatoryDetails = (signatory) => {
+  if (signatory === 'HR Manager') {
+    return { name: 'HR Department', title: 'HR Manager, DOAGuru Infosystems' };
+  }
+  if (safe(signatory).includes('CEO')) {
+    return { name: 'R.S. Pandey', title: 'CEO, DOAGuru Infosystems' };
+  }
+  return {
+    name: safe(signatory) || 'Authorized Signatory',
+    title: 'Authorized Signatory',
+  };
+};
 
-// PDF Styles — use numeric values (points) instead of CSS strings
+// PDF Styles � use numeric values (points) instead of CSS strings
 const styles = StyleSheet.create({
   page: {
     paddingTop: 80,
@@ -97,6 +113,7 @@ const InternshipOfferLetterPDF = ({ data }) => {
     address: safe(data.address),
     phoneNumber: safe(data.phoneNumber),
     email: safe(data.email),
+    gender: safe(data.gender),
     startDate: safe(data.startDate),
     endDate: safe(data.endDate),
     position: safe(data.position),
@@ -105,7 +122,10 @@ const InternshipOfferLetterPDF = ({ data }) => {
     mentorContact: safe(data.mentorContact),
     offerReleaseDate: safe(data.offerReleaseDate),
     termsAndConditions: safeArray(data.termsAndConditions),
+    signatory: safe(data.signatory),
   };
+  const pronouns = getPronouns(d.gender);
+  const signatoryDetails = getSignatoryDetails(d.signatory);
 
   const PageWithHeaderFooter = ({ children }) => (
     <Page size="A4" style={styles.page}>
@@ -161,12 +181,15 @@ const InternshipOfferLetterPDF = ({ data }) => {
           <Text>
             You will be designated as <Text style={styles.strong}>{d.position}</Text>, and you will report to the assigned mentor as per project requirement.
           </Text>
+          <Text>
+            Throughout the internship, <Text style={styles.strong}>{d.name}</Text> will be expected to complete assigned tasks and demonstrate {pronouns.possessive} progress regularly.
+          </Text>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>3. Stipend</Text>
           <Text>
-            You will receive a monthly stipend of <Text style={styles.strong}>₹{d.stipend}/-</Text> for the duration of your internship.
+            You will receive a monthly stipend of <Text style={styles.strong}>?{d.stipend}/-</Text> for the duration of your internship.
           </Text>
         </View>
 
@@ -239,9 +262,8 @@ const InternshipOfferLetterPDF = ({ data }) => {
         <View style={styles.section}>
           <Text style={styles.strong}>Warm Regards,</Text>
           <Image src={imgS} style={styles.signature} />
-          <Text>R.S. Pandey</Text>
-          <Text>Director</Text>
-          <Text>DOAGuru Infosystems</Text>
+          <Text>{signatoryDetails.name}</Text>
+          <Text>{signatoryDetails.title}</Text>
         </View>
 
         <View style={styles.section}>
@@ -269,6 +291,8 @@ const InternshipOfferLetter = () => {
     stipend: '',
     mentorName: '',
     mentorContact: '',
+    gender: '',
+    signatory: 'R.S. Pandey (CEO)',
     offerReleaseDate: '',
     termsAndConditions: [
       'The internship duration is as mentioned above.',
@@ -344,6 +368,8 @@ const InternshipOfferLetter = () => {
       stipend: formData.stipend,
       mentorName: formData.mentorName,
       mentorContact: formData.mentorContact,
+      gender: formData.gender,
+      signatory: formData.signatory,
       offerReleaseDate: formData.offerReleaseDate,
       termsAndConditions: formData.termsAndConditions,
     };
@@ -402,6 +428,15 @@ const InternshipOfferLetter = () => {
               <label className="dg-label">Email</label>
               <input type="email" name="email" value={formData.email} onChange={handleChange} className="dg-input" style={{ paddingLeft: '1rem' }} required />
             </div>
+            <div className="dg-form-group">
+              <label className="dg-label">Gender</label>
+              <select name="gender" value={formData.gender} onChange={handleChange} className="dg-select" required>
+                <option value="">Select Gender</option>
+                <option value="He">Male (He/Him)</option>
+                <option value="She">Female (She/Her)</option>
+                <option value="They">Other (They/Them)</option>
+              </select>
+            </div>
           </div>
           <div className="dg-form-group" style={{ marginTop: '1rem' }}>
             <label className="dg-label">Address</label>
@@ -447,6 +482,13 @@ const InternshipOfferLetter = () => {
             <div className="dg-form-group">
               <label className="dg-label">Offer Release Date</label>
               <input type="date" name="offerReleaseDate" value={formData.offerReleaseDate} onChange={handleChange} className="dg-input" style={{ paddingLeft: '1rem' }} required />
+            </div>
+            <div className="dg-form-group">
+              <label className="dg-label">Signatory</label>
+              <select name="signatory" value={formData.signatory} onChange={handleChange} className="dg-select" required>
+                <option value="R.S. Pandey (CEO)">R.S. Pandey (CEO)</option>
+                <option value="HR Manager">HR Manager</option>
+              </select>
             </div>
           </div>
         </div>
@@ -496,7 +538,7 @@ const InternshipOfferLetter = () => {
           <div style={{ background: '#1a1a2e', border: '1px solid var(--border-medium)', borderRadius: '16px', width: '95vw', maxWidth: '900px', height: '92vh', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 80px rgba(0,0,0,0.6)', animation: 'fadeInUp 0.3s ease' }}>
             {/* Modal Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Internship Offer Preview — {formData.name || 'Candidate'}</h3>
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Internship Offer Preview � {formData.name || 'Candidate'}</h3>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button onClick={handlePrint} style={{ padding: '0.5rem 1rem', background: 'linear-gradient(135deg,#10b981,#059669)', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
                   Download PDF
@@ -534,6 +576,10 @@ const InternshipOfferLetter = () => {
                     <p>You will be designated as <strong>{formData.position}</strong>, and you will report to the assigned mentor.</p>
                   </div>
                   <div style={{ marginBottom: '1rem' }}>
+                    <p style={{ fontWeight: 700 }}>2.1 Performance Expectation</p>
+                    <p>Throughout the internship, <strong>{formData.name || 'the intern'}</strong> is expected to complete assigned tasks and demonstrate {getPronouns(formData.gender).possessive} progress regularly.</p>
+                  </div>
+                  <div style={{ marginBottom: '1rem' }}>
                     <p style={{ fontWeight: 700 }}>3. Stipend</p>
                     <p>You will receive a monthly stipend of <strong>{formData.stipend}</strong>.</p>
                   </div>
@@ -560,8 +606,8 @@ const InternshipOfferLetter = () => {
                 <p style={{ marginTop: '1.5rem' }}>We look forward to your valuable contribution. Please sign and return a copy as confirmation.</p>
                 <div style={{ marginTop: '2rem' }}>
                   <p style={{ fontWeight: 700 }}>Warm Regards,</p>
-                  <p style={{ marginTop: '0.5rem' }}>R.S. Pandey</p>
-                  <p>Director, DOAGuru Infosystems</p>
+                  <p style={{ marginTop: '0.5rem' }}>{getSignatoryDetails(formData.signatory).name}</p>
+                  <p>{getSignatoryDetails(formData.signatory).title}</p>
                 </div>
                 <div style={{ marginTop: '2.5rem', borderTop: '1px solid #ddd', paddingTop: '1rem' }}>
                   <p style={{ fontWeight: 700 }}>Acknowledgment</p>
@@ -581,3 +627,4 @@ const InternshipOfferLetter = () => {
 };
 
 export default InternshipOfferLetter;
+

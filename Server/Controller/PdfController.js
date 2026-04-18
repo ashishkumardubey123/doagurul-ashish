@@ -6,6 +6,7 @@ const saveOfferLetter = async (req, res) => {
     address,
     phoneNumber,
     email,
+    gender,
     offerReleaseDate,
     joiningDate,
     designation,
@@ -13,7 +14,8 @@ const saveOfferLetter = async (req, res) => {
     probationPeriod,
     noticePeriod,
     confirmationNoticePeriod,
-    jobResponsibilities
+    jobResponsibilities,
+    signatory
   } = req.body;
   
   console.log('Saving offer letter data for:', { name, email, designation });
@@ -25,6 +27,7 @@ const saveOfferLetter = async (req, res) => {
         address, 
         phoneNumber, 
         email, 
+        gender,
         offerReleaseDate, 
         joiningDate, 
         designation, 
@@ -33,14 +36,16 @@ const saveOfferLetter = async (req, res) => {
         noticePeriod, 
         confirmationNoticePeriod, 
         jobResponsibilities,
+        signatory,
         createdAt
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`;
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`;
 
     const values = [
       name,
       address,
       phoneNumber,
       email,
+      gender || null,
       new Date(offerReleaseDate).toISOString().split('T')[0],
       new Date(joiningDate).toISOString().split('T')[0],
       designation,
@@ -48,7 +53,8 @@ const saveOfferLetter = async (req, res) => {
       probationPeriod,
       noticePeriod,
       confirmationNoticePeriod,
-      JSON.stringify(jobResponsibilities)
+      JSON.stringify(jobResponsibilities),
+      signatory || null
     ];
 
     console.log('Saving offer letter data to database...');
@@ -72,6 +78,8 @@ const saveOfferLetter = async (req, res) => {
           name,
           email,
           designation,
+          gender: gender || null,
+          signatory: signatory || null,
           joiningDate: new Date(joiningDate).toISOString().split('T')[0]
         }
       });
