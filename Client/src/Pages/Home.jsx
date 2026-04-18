@@ -13,7 +13,7 @@
 
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
-//     const response = await fetch('https://letter-doaguru.dentalguru.software/generate-pdf', {
+//     const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/generate-pdf`, {
 //       method: 'POST',
 //       headers: {
 //         'Content-Type': 'application/json',

@@ -40,7 +40,7 @@ const OfferLater = () => {
 
     try {
 
-      const response = await axios.post('https://letter-doaguru.dentalguru.software/api/saveOfferLetter', letterData);
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/saveOfferLetter`, letterData);
       console.log(response.data, 'here data');
       if (response.status === 200) {
         console.log(response.data);

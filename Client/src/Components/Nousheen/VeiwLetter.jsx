@@ -7,7 +7,7 @@ const ViewWarningLettersPage = () => {
   useEffect(() => {
     const fetchWarningLetters = async () => {
       try {
-        const response = await axios.get('https://letter-doaguru.dentalguru.software/api/getWarningLetters');
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/getWarningLetters`);
         setWarningLetters(response.data);
       } catch (error){
         console.error('Failed to fetch warning letters:', error);
@@ -18,7 +18,7 @@ const ViewWarningLettersPage = () => {
   }, []);
 
   const handleDownload = (id) => {
-    window.open(`https://letter-doaguru.dentalguru.software/api/downloadPdf/${id}`, '_blank');
+    window.open(`${import.meta.env.VITE_API_BASE_URL}/api/downloadPdf/${id}`, '_blank');
   };
 
   return (

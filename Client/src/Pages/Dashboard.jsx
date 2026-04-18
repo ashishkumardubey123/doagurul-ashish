@@ -9,7 +9,7 @@ function HomePage() {
   useEffect(() => {
     const fetchOfferLetters = async () => {
       try {
-        const response = await axios.get('https://letter-doaguru.dentalguru.software/api/getOfferLetters');
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/getOfferLetters`);
         console.log(response.data);
         setOfferLetters(response.data);
         

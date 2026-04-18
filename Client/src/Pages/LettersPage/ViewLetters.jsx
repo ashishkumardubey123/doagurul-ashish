@@ -7,7 +7,7 @@ const ViewOfferLettersPage = () => {
   useEffect(() => {
     const fetchOfferLetters = async () => {
       try {
-        const response = await axios.get('https://letter-doaguru.dentalguru.software/api/getOfferLetters');
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/getOfferLetters`);
         setOfferLetters(response.data);
       } catch (error) {
         console.error('Failed to fetch offer letters:', error);
@@ -18,7 +18,7 @@ const ViewOfferLettersPage = () => {
   }, []);
 
   const handleDownload = (id) => {
-    window.open(`https://letter-doaguru.dentalguru.software/api/downloadPdf/${id}`, '_blank');
+    window.open(`${import.meta.env.VITE_API_BASE_URL}/api/downloadPdf/${id}`, '_blank');
   };
 
   return (

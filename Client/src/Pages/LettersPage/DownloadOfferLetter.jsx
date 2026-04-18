@@ -15,7 +15,7 @@ const DownloadOfferLetter = () => {
   const fetchOfferLetters = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('https://letter-doaguru.dentalguru.software/api/offer-letters', {
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/offer-letters`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

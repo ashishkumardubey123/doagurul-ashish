@@ -339,7 +339,7 @@ const OfferLater = () => {
     try {
       const token = localStorage.getItem('token');
 
-      const response = await axios.get(`https://letter-doaguru.dentalguru.software/api/offer-letters/${id}`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/offer-letters/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -415,8 +415,8 @@ const OfferLater = () => {
       };
 
       const url = isEditMode
-        ? `https://letter-doaguru.dentalguru.software/api/updateOfferLetter/${id}`
-        : 'https://letter-doaguru.dentalguru.software/api/saveOfferLetter';
+        ? `${import.meta.env.VITE_API_BASE_URL}/api/updateOfferLetter/${id}`
+        : `${import.meta.env.VITE_API_BASE_URL}/api/saveOfferLetter`;
 
       const method = isEditMode ? 'PUT' : 'POST';
 

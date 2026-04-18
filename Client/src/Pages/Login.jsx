@@ -16,7 +16,7 @@ function LoginPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    axios.post('https://letter-doaguru.dentalguru.software/api/login', { username, password })
+    axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/login`, { username, password })
       .then(response => {
         if (response.data && response.data.token) {
           // Save token to localStorage

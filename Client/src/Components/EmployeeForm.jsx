@@ -6,7 +6,7 @@ const EmployeeForm = () => {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch('https://letter-doaguru.dentalguru.software/api/saveEmployee', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/saveEmployee`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -32,7 +32,7 @@ const EmployeeForm = () => {
     }
 
     try {
-      const response = await fetch(`https://letter-doaguru.dentalguru.software/api/generatePDF/${employeeId}`);
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/generatePDF/${employeeId}`);
 
       if (response.ok) {
         const blob = await response.blob(); // Handle PDF as a blob

@@ -313,7 +313,7 @@ const InternshipOfferLetter = () => {
 
   const handleSaveInfo = async () => {
     try {
-      const response = await fetch('https://letter-doaguru.dentalguru.software/api/saveInternshipOffer', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/saveInternshipOffer`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
