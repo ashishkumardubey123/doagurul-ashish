@@ -1,23 +1,28 @@
 import CLogo from "../assets/images/CLogo.png";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useTheme } from "../context/ThemeContext";
+import {
+  LayoutDashboard, FileText, Download, BarChart2,
+  ChevronDown, ChevronRight, Menu, X, LogOut, Sun, Moon, User
+} from "lucide-react";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard" },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   {
-    name: "Generate Letter",
-    href: "#",
+    name: "Generate Letter", href: "#", icon: FileText,
     subMenu: [
       {
-        name: "🎓 Intern",
+        name: "Intern",
         subMenu: [
           { name: "Offer Letter", href: "/intern-offer-letter" },
           { name: "Experience Letter", href: "/intern-experience-letter" },
+          { name: "PPO (Pre-Placement Offer) Letter", href: "/intern-ppo-letter" },
           { name: "Other Letters", href: "/intern-other-letters" },
         ],
       },
       {
-        name: "👔 Employee",
+        name: "Employee",
         subMenu: [
           { name: "Offer Letter", href: "/Offer-Letter-Genrate" },
           { name: "Experience Letter", href: "/Experince-Letter-Genrate" },
@@ -30,18 +35,17 @@ const navigation = [
     ],
   },
   {
-    name: "Download Letter",
-    href: "#",
+    name: "Download Letter", href: "#", icon: Download,
     subMenu: [
       {
-        name: "🎓 Intern Letters",
+        name: "Intern Letters",
         subMenu: [
           { name: "Download Offer Letter", href: "/download/intern-offer-letter" },
           { name: "Download Experience Letter", href: "/download/intern-experience-letter" },
         ],
       },
       {
-        name: "👔 Employee Letters",
+        name: "Employee Letters",
         subMenu: [
           { name: "Download Offer Letter", href: "/download/offer-letter" },
           { name: "Download Experience Letter", href: "/download/experience-letter" },
@@ -52,39 +56,8 @@ const navigation = [
       },
     ],
   },
-  { name: "Report", href: "/report" },
+  { name: "Report", href: "/report", icon: BarChart2 },
 ];
-
-// SVG Icons
-const ChevronDown = () => (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-  </svg>
-);
-
-const ChevronRight = () => (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-  </svg>
-);
-
-const MenuIcon = () => (
-  <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-  </svg>
-);
-
-const XIcon = () => (
-  <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-  </svg>
-);
-
-const SignOutIcon = () => (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-  </svg>
-);
 
 export default function Navbar() {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -92,6 +65,8 @@ export default function Navbar() {
   const [openMenu, setOpenMenu] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const { toggleTheme, isDark } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const navRef = useRef(null);
@@ -109,107 +84,91 @@ export default function Navbar() {
     }
   }, []);
 
-  // Close on outside click
   useEffect(() => {
     const handleClick = (e) => {
       if (navRef.current && !navRef.current.contains(e.target)) {
-        setOpenMenu(null);
-        setShowProfile(false);
-        setMobileOpen(false);
+        setOpenMenu(null); setShowProfile(false); setMobileOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  // Close on route change
   useEffect(() => {
-    setOpenMenu(null);
-    setShowProfile(false);
-    setMobileOpen(false);
+    setOpenMenu(null); setShowProfile(false); setMobileOpen(false);
   }, [location]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setToken(null);
-    navigate("/");
+    localStorage.removeItem("token"); localStorage.removeItem("user");
+    setToken(null); navigate("/");
   };
 
   const isActive = (href) => location.pathname === href;
-
   if (!token) return null;
 
+  const linkBase = "relative flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap bg-transparent border-none";
+  const linkIdle = "text-slate-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10";
+  const linkActive = "text-primary bg-primary/10 dark:text-primary-light dark:bg-primary/10";
+  const dropItem = "flex items-center justify-between w-full px-3.5 py-2.5 rounded-lg text-sm text-slate-600 dark:text-slate-400 no-underline cursor-pointer transition-all duration-200 hover:text-gray-900 dark:hover:text-white hover:bg-primary/10";
+
   return (
-    <nav className="dg-navbar" ref={navRef}>
-      <div className="dg-navbar-inner">
+    <nav ref={navRef} className="sticky top-0 z-[100] bg-white/90 dark:bg-brand-bg/90 backdrop-blur-xl border-b border-gray-200 dark:border-white/[0.06] transition-all duration-300">
+      <div className="max-w-[1400px] mx-auto px-6 flex items-center h-16 gap-4">
+
         {/* Logo */}
-        <Link to="/dashboard" className="dg-navbar-logo">
-          <img src={CLogo} alt="DOAGuru" />
-          <span className="dg-navbar-logo-text">DOAGuru</span>
+        <Link to="/dashboard" className="flex items-center gap-3 no-underline flex-shrink-0">
+          <img src={CLogo} alt="DOAGuru" className="h-9 w-auto" />
+          <span className="text-lg font-bold tracking-tight bg-gradient-primary bg-clip-text text-transparent">
+            DOAGuru
+          </span>
         </Link>
 
-        {/* Desktop Nav Links */}
-        <div className="dg-nav-links">
+        {/* Desktop Nav */}
+        <div className="hidden md:flex items-center gap-1 flex-1 justify-center">
           {navigation.map((item) => {
+            const Icon = item.icon;
             if (!item.subMenu) {
               return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`dg-nav-link ${isActive(item.href) ? "active" : ""}`}
-                >
+                <Link key={item.name} to={item.href}
+                  className={`${linkBase} ${isActive(item.href) ? linkActive : linkIdle}`}>
+                  {Icon && <Icon size={15} />}
                   {item.name}
+                  {isActive(item.href) && (
+                    <span className="absolute bottom-[-1px] left-1/2 -translate-x-1/2 w-[60%] h-[2px] bg-gradient-primary rounded-full" />
+                  )}
                 </Link>
               );
             }
-
             return (
-              <div key={item.name} className="dg-nav-dropdown">
+              <div key={item.name} className="relative">
                 <button
-                  className={`dg-nav-link ${openMenu === item.name ? "active" : ""}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenMenu(openMenu === item.name ? null : item.name);
-                  }}
+                  className={`${linkBase} ${openMenu === item.name ? linkActive : linkIdle}`}
+                  onClick={(e) => { e.stopPropagation(); setOpenMenu(openMenu === item.name ? null : item.name); }}
                 >
+                  {Icon && <Icon size={15} />}
                   {item.name}
-                  <span style={{
-                    transition: "transform 0.2s",
-                    transform: openMenu === item.name ? "rotate(180deg)" : "rotate(0deg)",
-                    display: "flex",
-                  }}>
-                    <ChevronDown />
-                  </span>
+                  <ChevronDown size={13} className="transition-transform duration-200" style={{ transform: openMenu === item.name ? "rotate(180deg)" : "rotate(0deg)" }} />
                 </button>
 
                 {openMenu === item.name && (
-                  <div className="dg-dropdown-menu" onClick={(e) => e.stopPropagation()}>
+                  <div className="absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 min-w-[220px] bg-white/95 dark:bg-[rgba(20,20,35,0.97)] backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl py-2 animate-[fadeInUp_0.2s_ease] z-[200]"
+                    onClick={(e) => e.stopPropagation()}>
                     {item.subMenu.map((subItem) => (
-                      <div key={subItem.name} style={{ position: "relative" }}>
+                      <div key={subItem.name} className="relative group">
                         {subItem.subMenu ? (
-                          <div className="dg-dropdown-item dg-dropdown-item-parent">
-                            <span>{subItem.name}</span>
-                            <ChevronRight />
-                            <div className="dg-sub-dropdown">
+                          <div className={dropItem}>
+                            <span className="font-semibold text-xs text-primary-light uppercase tracking-wider">{subItem.name}</span>
+                            <ChevronRight size={13} />
+                            <div className="absolute left-full top-0 min-w-[220px] bg-white/95 dark:bg-[rgba(20,20,35,0.97)] backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl py-2 ml-1 hidden group-hover:block z-[201]">
                               {subItem.subMenu.map((child) => (
-                                <Link
-                                  key={child.name}
-                                  to={child.href}
-                                  className="dg-dropdown-item"
-                                  onClick={() => setOpenMenu(null)}
-                                >
+                                <Link key={child.name} to={child.href} className={dropItem + " block"} onClick={() => setOpenMenu(null)}>
                                   {child.name}
                                 </Link>
                               ))}
                             </div>
                           </div>
                         ) : (
-                          <Link
-                            to={subItem.href}
-                            className="dg-dropdown-item"
-                            onClick={() => setOpenMenu(null)}
-                          >
+                          <Link to={subItem.href} className={dropItem + " block"} onClick={() => setOpenMenu(null)}>
                             {subItem.name}
                           </Link>
                         )}
@@ -222,174 +181,107 @@ export default function Navbar() {
           })}
         </div>
 
-        {/* Right Section */}
-        <div className="dg-navbar-right">
-          <span className="dg-user-greeting">
-            Hello, <span>{userName}</span>
+        {/* Right */}
+        <div className="flex items-center gap-3 flex-shrink-0">
+          {/* Theme Toggle */}
+          <button onClick={toggleTheme}
+            className="w-9 h-9 flex items-center justify-center rounded-lg bg-gray-100 dark:bg-white/[0.05] border border-gray-200 dark:border-white/[0.08] text-gray-600 dark:text-slate-400 transition-all duration-200 hover:scale-110 hover:bg-gray-200 dark:hover:bg-white/10"
+            title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}>
+            {isDark ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+
+          {/* Greeting */}
+          <span className="hidden lg:block text-sm text-slate-500 dark:text-slate-400 font-medium">
+            Hello, <span className="text-gray-900 dark:text-white font-semibold">{userName}</span>
           </span>
 
-          {/* Avatar / Profile */}
-          <div style={{ position: "relative" }}>
+          {/* Avatar */}
+          <div className="relative">
             <button
-              className="dg-avatar-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowProfile(!showProfile);
-              }}
-              aria-label="User menu"
-            >
-              <img
-                src="https://doaguru.com/static/media/doagurulogo-removebg.b0126812bbe704a27f8f.webp"
-                alt="Profile"
-              />
+              className="w-9 h-9 rounded-full overflow-hidden border-2 border-primary cursor-pointer transition-all duration-200 bg-none p-0 hover:border-primary-light hover:shadow-[0_0_15px_rgba(99,102,241,0.4)] hover:scale-105"
+              onClick={(e) => { e.stopPropagation(); setShowProfile(!showProfile); }}
+              aria-label="User menu">
+              <img src="https://doaguru.com/static/media/doagurulogo-removebg.b0126812bbe704a27f8f.webp" alt="Profile" className="w-full h-full object-cover" />
             </button>
 
             {showProfile && (
-              <div className="dg-profile-menu" onClick={(e) => e.stopPropagation()}>
-                <div style={{
-                  padding: "0.625rem 0.875rem 0.5rem",
-                  borderBottom: "1px solid var(--border-subtle)",
-                  marginBottom: "0.25rem",
-                }}>
-                  <p style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--text-primary)" }}>{userName}</p>
-                  <p style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Administrator</p>
+              <div className="absolute right-0 top-[calc(100%+8px)] min-w-[200px] bg-white/95 dark:bg-[rgba(20,20,35,0.97)] backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl py-2 animate-[fadeInUp_0.2s_ease] z-[200]"
+                onClick={(e) => e.stopPropagation()}>
+                <div className="px-4 py-3 border-b border-gray-100 dark:border-white/[0.06] mb-1">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">{userName}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Administrator</p>
                 </div>
-                <Link
-                  to="#"
-                  className="dg-profile-menu-item"
-                  onClick={() => setShowProfile(false)}
-                >
-                  Your Profile
+                <Link to="#" className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-sm text-slate-600 dark:text-slate-400 no-underline transition-all duration-200 hover:text-gray-900 dark:hover:text-white hover:bg-primary/10"
+                  onClick={() => setShowProfile(false)}>
+                  <User size={15} /> Your Profile
                 </Link>
-                <button
-                  onClick={handleLogout}
-                  className="dg-profile-menu-item danger"
-                  style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
-                >
-                  <SignOutIcon />
-                  Sign Out
+                <button onClick={handleLogout}
+                  className="flex items-center gap-2.5 w-full px-4 py-2.5 rounded-lg text-sm text-slate-600 dark:text-slate-400 transition-all duration-200 hover:text-red-500 hover:bg-red-500/10 text-left border-none bg-transparent">
+                  <LogOut size={15} /> Sign Out
                 </button>
               </div>
             )}
           </div>
 
-          {/* Mobile toggle */}
+          {/* Mobile Toggle */}
           <button
-            className="dg-mobile-toggle"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <XIcon /> : <MenuIcon />}
+            className="flex md:hidden w-10 h-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/[0.06] text-slate-600 dark:text-slate-400 cursor-pointer transition-all duration-200 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10"
+            onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>
 
       {/* Mobile Menu */}
-      <div className={`dg-mobile-menu ${mobileOpen ? "open" : ""}`}>
-        {navigation.map((item) => {
-          if (!item.subMenu) {
+      {mobileOpen && (
+        <div className="md:hidden flex flex-col px-4 py-3 gap-1 border-t border-gray-100 dark:border-white/[0.06] animate-[fadeInUp_0.2s_ease]">
+          {navigation.map((item) => {
+            const Icon = item.icon;
+            if (!item.subMenu) {
+              return (
+                <Link key={item.name} to={item.href}
+                  className={`${linkBase} w-full justify-start ${isActive(item.href) ? linkActive : linkIdle}`}>
+                  {Icon && <Icon size={15} />} {item.name}
+                </Link>
+              );
+            }
             return (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={`dg-nav-link ${isActive(item.href) ? "active" : ""}`}
-                style={{ width: "100%", justifyContent: "flex-start" }}
-              >
-                {item.name}
-              </Link>
+              <div key={item.name}>
+                <button className={`${linkBase} w-full justify-between ${linkIdle}`}
+                  onClick={() => setOpenMenu(openMenu === item.name ? null : item.name)}>
+                  <span className="flex items-center gap-1.5">{Icon && <Icon size={15} />}{item.name}</span>
+                  <ChevronDown size={13} className="transition-transform duration-200" style={{ transform: openMenu === item.name ? "rotate(180deg)" : "rotate(0deg)" }} />
+                </button>
+                {openMenu === item.name && (
+                  <div className="pl-4 border-l-2 border-gray-200 dark:border-white/10 ml-3.5 mt-1 mb-1">
+                    {item.subMenu.map((subItem) =>
+                      subItem.subMenu ? (
+                        <div key={subItem.name}>
+                          <p className="text-xs font-semibold text-primary-light uppercase tracking-widest px-3.5 py-2">{subItem.name}</p>
+                          {subItem.subMenu.map((child) => (
+                            <Link key={child.name} to={child.href}
+                              className={`${linkBase} w-full justify-start ${linkIdle}`}
+                              onClick={() => setMobileOpen(false)}>{child.name}</Link>
+                          ))}
+                        </div>
+                      ) : (
+                        <Link key={subItem.name} to={subItem.href}
+                          className={`${linkBase} w-full justify-start ${linkIdle}`}
+                          onClick={() => setMobileOpen(false)}>{subItem.name}</Link>
+                      )
+                    )}
+                  </div>
+                )}
+              </div>
             );
-          }
-
-          return (
-            <div key={item.name}>
-              <button
-                className="dg-nav-link"
-                style={{ width: "100%", justifyContent: "space-between" }}
-                onClick={() => setOpenMenu(openMenu === item.name ? null : item.name)}
-              >
-                {item.name}
-                <span style={{
-                  transition: "transform 0.2s",
-                  transform: openMenu === item.name ? "rotate(180deg)" : "rotate(0deg)",
-                  display: "flex",
-                }}>
-                  <ChevronDown />
-                </span>
-              </button>
-
-              {openMenu === item.name && (
-                <div style={{
-                  paddingLeft: "1rem",
-                  borderLeft: "2px solid var(--border-medium)",
-                  marginLeft: "0.875rem",
-                  marginTop: "0.25rem",
-                  marginBottom: "0.25rem",
-                }}>
-                  {item.subMenu.map((subItem) =>
-                    subItem.subMenu ? (
-                      <div key={subItem.name}>
-                        <p style={{
-                          fontSize: "0.75rem",
-                          fontWeight: 600,
-                          color: "var(--primary-light)",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.08em",
-                          padding: "0.5rem 0.875rem 0.25rem",
-                        }}>
-                          {subItem.name}
-                        </p>
-                        {subItem.subMenu.map((child) => (
-                          <Link
-                            key={child.name}
-                            to={child.href}
-                            className="dg-nav-link"
-                            style={{ width: "100%", justifyContent: "flex-start" }}
-                            onClick={() => setMobileOpen(false)}
-                          >
-                            {child.name}
-                          </Link>
-                        ))}
-                      </div>
-                    ) : (
-                      <Link
-                        key={subItem.name}
-                        to={subItem.href}
-                        className="dg-nav-link"
-                        style={{ width: "100%", justifyContent: "flex-start" }}
-                        onClick={() => setMobileOpen(false)}
-                      >
-                        {subItem.name}
-                      </Link>
-                    )
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
-
-        <div style={{ height: "1px", background: "var(--border-subtle)", margin: "0.25rem 0" }} />
-
-        <button
-          onClick={handleLogout}
-          className="dg-nav-link"
-          style={{
-            width: "100%",
-            justifyContent: "flex-start",
-            color: "var(--accent)",
-            gap: "0.5rem",
-          }}
-        >
-          <SignOutIcon />
-          Sign Out
-        </button>
-      </div>
-
-      <style>{`
-        .dg-dropdown-item-parent:hover .dg-sub-dropdown {
-          display: block !important;
-        }
-      `}</style>
+          })}
+          <div className="h-px bg-gray-100 dark:bg-white/[0.06] my-1" />
+          <button onClick={handleLogout}
+            className={`${linkBase} w-full justify-start text-red-500 gap-2`}>
+            <LogOut size={15} /> Sign Out
+          </button>
+        </div>
+      )}
     </nav>
   );
 }

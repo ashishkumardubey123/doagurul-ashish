@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import CLogo from "../assets/images/CLogo.png";
 import Signature from "../assets/images/CEOSignature.png";
 import headerImg from "../assets/images/NewHeaderImage.png";
@@ -542,10 +542,10 @@ const SalarySlip = () => {
   // Reusable Detail Item Component
   const DetailItem = ({ label, value, isHighlighted = false }) => (
     <div className="flex">
-      <span className={`w-36 text-gray-600 ${isHighlighted ? 'font-semibold' : ''}`}>
+      <span className={`w-36 text-gray-600 dark:text-slate-400 ${isHighlighted ? 'font-semibold' : ''}`}>
         {label}
       </span>
-      <span className={`${isHighlighted ? 'text-indigo-700 font-bold' : 'text-gray-800'}`}>
+      <span className={`${isHighlighted ? 'text-indigo-600 dark:text-indigo-400 font-bold' : 'text-gray-800 dark:text-gray-200'}`}>
         {value}
       </span>
     </div>
@@ -554,10 +554,10 @@ const SalarySlip = () => {
   // Salary Item Component
   const SalaryItem = ({ label, amount, isTotal = false }) => (
     <div className={`flex justify-between items-center ${isTotal ? 'pt-2' : 'pb-2'}`}>
-      <span className={`${isTotal ? 'font-bold' : 'text-gray-700'}`}>
+      <span className={`${isTotal ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-700 dark:text-slate-300'}`}>
         {label}
       </span>
-      <span className={`font-mono ${isTotal ? 'text-lg font-bold text-indigo-700' : 'text-gray-800'}`}>
+      <span className={`font-mono ${isTotal ? 'text-lg font-bold text-indigo-700 dark:text-indigo-400' : 'text-gray-800 dark:text-gray-200'}`}>
         ₹{amount.toLocaleString('en-IN')}
       </span>
     </div>
@@ -743,19 +743,19 @@ const SalarySlip = () => {
               <div className="dg-form-grid">
                 <div className="dg-form-group">
                   <label className="dg-label">Employee Name</label>
-                  <input type="text" name="employeeName" value={formData.employeeName} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.full_name} style={{ backgroundColor: selectedEmployee && selectedEmployee.full_name ? 'rgba(255,255,255,0.05)' : '' }} required />
+                  <input type="text" name="employeeName" value={formData.employeeName} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.full_name} required />
                 </div>
                 <div className="dg-form-group">
                   <label className="dg-label">Employee ID</label>
-                  <input type="text" name="employeeId" value={formData.employeeId} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.employee_id} style={{ backgroundColor: selectedEmployee && selectedEmployee.employee_id ? 'rgba(255,255,255,0.05)' : '' }} required />
+                  <input type="text" name="employeeId" value={formData.employeeId} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.employee_id} required />
                 </div>
                 <div className="dg-form-group">
                   <label className="dg-label">Designation</label>
-                  <input type="text" name="designation" value={formData.designation} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.designation} style={{ backgroundColor: selectedEmployee && selectedEmployee.designation ? 'rgba(255,255,255,0.05)' : '' }} required />
+                  <input type="text" name="designation" value={formData.designation} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.designation} required />
                 </div>
                 <div className="dg-form-group">
                   <label className="dg-label">Department</label>
-                  <input type="text" name="department" value={formData.department} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.department} style={{ backgroundColor: selectedEmployee && selectedEmployee.department ? 'rgba(255,255,255,0.05)' : '' }} required />
+                  <input type="text" name="department" value={formData.department} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.department} required />
                 </div>
               </div>
             </div>
@@ -769,15 +769,15 @@ const SalarySlip = () => {
                 </div>
                 <div className="dg-form-group">
                   <label className="dg-label">Account Number</label>
-                  <input type="text" name="accountNumber" value={formData.accountNumber} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.bank_account_number} style={{ backgroundColor: selectedEmployee && selectedEmployee.bank_account_number ? 'rgba(255,255,255,0.05)' : '' }} required />
+                  <input type="text" name="accountNumber" value={formData.accountNumber} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.bank_account_number} required />
                 </div>
                 <div className="dg-form-group">
                   <label className="dg-label">PAN Number</label>
-                  <input type="text" name="panNumber" value={formData.panNumber} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.pan_number} style={{ backgroundColor: selectedEmployee && selectedEmployee.pan_number ? 'rgba(255,255,255,0.05)' : '' }} required />
+                  <input type="text" name="panNumber" value={formData.panNumber} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.pan_number} required />
                 </div>
                 <div className="dg-form-group">
                   <label className="dg-label">Date of Joining</label>
-                  <input type="date" name="dateOfJoining" value={formData.dateOfJoining} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.joiningDate} style={{ backgroundColor: selectedEmployee && selectedEmployee.joiningDate ? 'rgba(255,255,255,0.05)' : '' }} required />
+                  <input type="date" name="dateOfJoining" value={formData.dateOfJoining} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.joiningDate} required />
                 </div>
               </div>
             </div>
@@ -787,7 +787,7 @@ const SalarySlip = () => {
               <div className="dg-form-grid">
                 <div className="dg-form-group">
                   <label className="dg-label">Monthly Gross Salary (₹)</label>
-                  <input type="number" name="grossSalary" value={formData.grossSalary} onChange={handleChange} className="dg-input" min="0" step="100" readOnly={selectedEmployee && selectedEmployee.salary_amount} style={{ backgroundColor: selectedEmployee && selectedEmployee.salary_amount ? 'rgba(255,255,255,0.05)' : '' }} required />
+                  <input type="number" name="grossSalary" value={formData.grossSalary} onChange={handleChange} className="dg-input" min="0" step="100" readOnly={selectedEmployee && selectedEmployee.salary_amount} required />
                 </div>
                 <div className="dg-form-group">
                   <label className="dg-label">Loss of Pay (LOP) Days</label>
@@ -876,14 +876,14 @@ const SalarySlip = () => {
     <div className="dg-page-container">
       <div className="max-w-4xl mx-auto w-full">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Salary Slip Generator</h1>
-          <p className="text-gray-600">Generated on {new Date().toLocaleDateString('en-IN')}</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-2">Salary Slip Generator</h1>
+          <p className="text-gray-600 dark:text-slate-400">Generated on {new Date().toLocaleDateString('en-IN')}</p>
         </div>
         
         {/* Salary Slip Card */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl">
+        <div className="bg-white dark:bg-brand-card rounded-2xl shadow-xl dark:shadow-none dark:border dark:border-white/[0.06] overflow-hidden transform transition-all duration-300 hover:shadow-2xl">
           {/* Company Header */}
-          <div className="bg-white p-4 border-b">
+          <div className="bg-white dark:bg-brand-card p-4 border-b border-gray-200 dark:border-white/[0.06]">
             <div className="flex flex-col md:flex-row items-center justify-between">
               <div className="flex items-center space-x-4">
                 <img 
@@ -892,10 +892,10 @@ const SalarySlip = () => {
                   className="w-16 h-16 object-contain"
                 />
                 <div className="text-center md:text-left">
-                  <h1 className="text-xl font-bold text-gray-800">{companyInfo.name}</h1>
-                  <p className="text-sm text-gray-600">{companyInfo.address}</p>
-                  <p className="text-sm text-gray-600">{companyInfo.city}, {companyInfo.state}, {companyInfo.country}</p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <h1 className="text-xl font-bold text-gray-800 dark:text-white">{companyInfo.name}</h1>
+                  <p className="text-sm text-gray-600 dark:text-slate-400">{companyInfo.address}</p>
+                  <p className="text-sm text-gray-600 dark:text-slate-400">{companyInfo.city}, {companyInfo.state}, {companyInfo.country}</p>
+                  <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">
                     {/* <span className="font-medium">CIN:</span> {companyInfo.cin} |  */}
                     <span className="font-medium">GSTIN:</span> {companyInfo.gstin} | 
                     {/* <span className="font-medium">PAN:</span> {companyInfo.pan} */}
@@ -917,14 +917,14 @@ const SalarySlip = () => {
           </div>
           
           {/* Employee Header */}
-          <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-4 border-b">
+          <div className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 p-4 border-b border-gray-200 dark:border-white/[0.06]">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="text-center md:text-left mb-2 md:mb-0">
-                <h1 className="text-xl font-bold text-gray-800">{formData.employeeName}</h1>
-                <p className="text-gray-600">{formData.designation}</p>
-                <p className="text-sm text-gray-500">Employee ID: {formData.employeeId}</p>
+                <h1 className="text-xl font-bold text-gray-800 dark:text-white">{formData.employeeName}</h1>
+                <p className="text-gray-600 dark:text-slate-400">{formData.designation}</p>
+                <p className="text-sm text-gray-500 dark:text-slate-500">Employee ID: {formData.employeeId}</p>
               </div>
-              <div className="text-sm text-gray-600 text-center md:text-right">
+              <div className="text-sm text-gray-600 dark:text-slate-400 text-center md:text-right">
                 <p><span className="font-medium">Date of Joining:</span> {formatDate(formData.dateOfJoining)}</p>
                 <p><span className="font-medium">Department:</span> {formData.department}</p>
                 <p><span className="font-medium">PAN Number:</span> {formData.panNumber}</p>
@@ -933,11 +933,11 @@ const SalarySlip = () => {
           </div>
           
           {/* Employee & Bank Details */}
-          <div className="p-4 bg-gray-50 border-b">
+          <div className="p-4 bg-gray-50 dark:bg-white/[0.02] border-b border-gray-200 dark:border-white/[0.06]">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Employee Details */}
-              <div className="bg-white p-4 rounded-xl shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3 pb-2 border-b border-gray-200 flex items-center">
+              <div className="bg-white dark:bg-brand-card p-4 rounded-xl shadow-sm dark:shadow-none dark:border dark:border-white/[0.06]">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3 pb-2 border-b border-gray-200 dark:border-white/[0.06] flex items-center">
                   <svg className="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
@@ -953,8 +953,8 @@ const SalarySlip = () => {
               </div>
               
               {/* Bank Details */}
-              <div className="bg-white p-4 rounded-xl shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3 pb-2 border-b border-gray-200 flex items-center">
+              <div className="bg-white dark:bg-brand-card p-4 rounded-xl shadow-sm dark:shadow-none dark:border dark:border-white/[0.06]">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3 pb-2 border-b border-gray-200 dark:border-white/[0.06] flex items-center">
                   <svg className="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                   </svg>
@@ -973,11 +973,11 @@ const SalarySlip = () => {
           
           {/* Salary Breakdown */}
           <div className="p-4">
-            <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">Salary Breakdown</h3>
+            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4 text-center">Salary Breakdown</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               {/* Earnings */}
-              <div className="bg-gray-50 rounded-xl overflow-hidden border border-gray-300">
+              <div className="bg-gray-50 dark:bg-white/[0.02] rounded-xl overflow-hidden border border-gray-300 dark:border-white/[0.1]">
                 <div className="bg-gray-800 p-4 text-white font-semibold text-center">
                   EARNINGS
                 </div>
@@ -988,7 +988,7 @@ const SalarySlip = () => {
                     <SalaryItem label="Conveyance Allowance" amount={salaryData.conveyanceAllowance} />
                     <SalaryItem label="Medical Allowance" amount={salaryData.medicalAllowance} />
                     <SalaryItem label="Special Allowance" amount={salaryData.specialAllowance} />
-                    <div className="pt-2 mt-2 border-t border-gray-300">
+                    <div className="pt-2 mt-2 border-t border-gray-300 dark:border-white/[0.1]">
                       <SalaryItem label="Total Earnings" amount={salaryData.grossSalary} isTotal />
                     </div>
                   </div>
@@ -996,7 +996,7 @@ const SalarySlip = () => {
               </div>
               
               {/* Deductions */}
-              <div className="bg-gray-50 rounded-xl overflow-hidden border border-gray-300">
+              <div className="bg-gray-50 dark:bg-white/[0.02] rounded-xl overflow-hidden border border-gray-300 dark:border-white/[0.1]">
                 <div className="bg-gray-800 p-4 text-white font-semibold text-center">
                   DEDUCTIONS
                 </div>
@@ -1007,7 +1007,7 @@ const SalarySlip = () => {
                     <SalaryItem label="Provident Fund (PF)" amount={salaryData.pfDeduction} />
                     <SalaryItem label="Health Insurance (ESI)" amount={salaryData.esiDeduction} />
                     <div className="h-4"></div> {/* Spacer for alignment */}
-                    <div className="pt-2 mt-2 border-t border-gray-300">
+                    <div className="pt-2 mt-2 border-t border-gray-300 dark:border-white/[0.1]">
                       <SalaryItem label="Total Deductions" amount={salaryData.totalDeductions} isTotal />
                     </div>
                   </div>
@@ -1029,30 +1029,30 @@ const SalarySlip = () => {
             {/* Footer */}
             
             {/* Signature Section */}
-            <div className="mt-6 pt-4 border-t border-gray-200">
+            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-white/[0.06]">
               <div className="flex flex-col items-end">
-                <div className="mb-2 text-sm text-gray-500">
+                <div className="mb-2 text-sm text-gray-500 dark:text-slate-400">
                   For {companyInfo.name}
                 </div>
                 <img src={Signature} className="h-12" alt="Flowbite Logo" />
-                <div className=" mb-2 w-48 h-0.5 bg-gray-300"></div>
-                <div className="text-sm font-medium text-gray-700">
+                <div className="mb-2 w-48 h-0.5 bg-gray-300 dark:bg-slate-600"></div>
+                <div className="text-sm font-medium text-gray-700 dark:text-slate-300">
                   Authorized Signatory
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 dark:text-slate-500">
                   Director
                 </div>
               </div>
             </div>
             
-            <div className="mt-4 pt-4 border-t border-gray-200 text-center text-sm text-gray-500">
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-white/[0.06] text-center text-sm text-gray-500 dark:text-slate-500">
               <p>For any discrepancies, please contact the HR department within 7 days.</p>
             </div>
             {/* Action Buttons */}
             <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
               <button
                 onClick={handlePDFDownload}
-                className="px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors flex items-center justify-center"
+                className="px-6 py-3 bg-gray-800 dark:bg-indigo-600 text-white rounded-lg hover:bg-gray-900 dark:hover:bg-indigo-700 transition-colors flex items-center justify-center"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -1061,7 +1061,7 @@ const SalarySlip = () => {
               </button>
               <button
                 onClick={handleEdit}
-                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center"
+                className="px-6 py-3 border border-gray-300 dark:border-white/[0.1] text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-colors flex items-center justify-center"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

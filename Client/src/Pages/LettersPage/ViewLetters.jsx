@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Search, X, Plus, Edit2, Download, FileText, Inbox, Loader2 } from 'lucide-react';
 
 const ViewOfferLettersPage = () => {
   const [offerLetters, setOfferLetters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const queryParams = new URLSearchParams(location.search);
+  const filterType = queryParams.get('filter');
 
   useEffect(() => {
     const fetchOfferLetters = async () => {
@@ -25,85 +31,108 @@ const ViewOfferLettersPage = () => {
     window.open(`${import.meta.env.VITE_API_BASE_URL}/api/download-pdf/${id}`, '_blank');
   };
 
-  const filtered = offerLetters.filter((l) =>
-    l.name?.toLowerCase().includes(search.toLowerCase()) ||
-    l.designation?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = offerLetters.filter((l) => {
+    const matchesSearch =
+      l.name?.toLowerCase().includes(search.toLowerCase()) ||
+      l.designation?.toLowerCase().includes(search.toLowerCase());
+    if (!matchesSearch) return false;
+    if (filterType === 'this-month') {
+      if (!l.createdAt) return false;
+      const d = new Date(l.createdAt); const now = new Date();
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    }
+    if (filterType === 'designation') return !!l.designation && l.designation.trim() !== '';
+    if (filterType === 'recent') {
+      if (!l.createdAt) return false;
+      return Math.ceil(Math.abs(new Date() - new Date(l.createdAt)) / (1000 * 60 * 60 * 24)) <= 7;
+    }
+    return true;
+  });
+
+  const getFilterLabel = () => {
+    switch (filterType) {
+      case 'this-month': return 'This Month';
+      case 'designation': return 'With Designation';
+      case 'recent': return 'Recent 7 Days';
+      default: return '';
+    }
+  };
 
   return (
-    <div className="dg-page-container" style={{ maxWidth: '1100px' }}>
+    <div className="flex-1 px-6 py-8 max-w-[1100px] mx-auto w-full">
+
       {/* Header */}
-      <div className="dg-page-header">
-        <span className="dg-page-tag">📋 Records</span>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-          <h1 className="dg-page-title">Offer Letters</h1>
-          <Link
-            to="/Offer-Letter-Genrate"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-              padding: '0.625rem 1.25rem',
-              background: 'var(--gradient-primary)',
-              borderRadius: 'var(--radius-md)',
-              color: 'white', fontSize: '0.875rem', fontWeight: 600,
-              textDecoration: 'none',
-            }}
-          >
-            + New Offer Letter
+      <div className="mb-6 animate-[fadeInUp_0.4s_ease]">
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-light uppercase tracking-widest mb-2">
+          <FileText size={13} /> Records
+        </span>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">Offer Letters</h1>
+            {filterType && filterType !== 'all' && (
+              <span className="inline-flex items-center gap-2 text-xs font-semibold text-primary-light bg-primary/10 border border-primary/20 px-3 py-1 rounded-full">
+                {getFilterLabel()}
+                <button
+                  onClick={() => navigate('/download/offer-letter')}
+                  className="bg-transparent border-none cursor-pointer text-primary-light hover:text-white transition-colors p-0 flex items-center">
+                  <X size={13} />
+                </button>
+              </span>
+            )}
+          </div>
+          <Link to="/Offer-Letter-Genrate"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold no-underline transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(99,102,241,0.4)]"
+            style={{ background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #0ea5e9 100%)" }}>
+            <Plus size={16} /> New Offer Letter
           </Link>
         </div>
       </div>
 
-      {/* Search + Table Card */}
-      <div className="dg-form-card" style={{ padding: 0, overflow: 'hidden' }}>
+      {/* Table Card */}
+      <div className="bg-white dark:bg-brand-card border border-gray-100 dark:border-white/[0.06] rounded-2xl overflow-hidden animate-[fadeInUp_0.5s_ease]">
+
         {/* Search Bar */}
-        <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--text-muted)" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
-          </svg>
+        <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100 dark:border-white/[0.06]">
+          <Search size={15} className="text-slate-400 flex-shrink-0" />
           <input
             type="text"
             placeholder="Search by name or designation..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{
-              flex: 1, background: 'transparent', border: 'none', outline: 'none',
-              color: 'var(--text-primary)', fontSize: '0.9rem',
-              fontFamily: 'Inter, sans-serif',
-            }}
+            className="flex-1 bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-slate-400 text-sm font-sans"
           />
           {search && (
-            <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: '1rem', padding: 0 }}>✕</button>
+            <button onClick={() => setSearch('')}
+              className="bg-transparent border-none cursor-pointer text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors p-0 flex items-center">
+              <X size={15} />
+            </button>
           )}
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+          <span className="text-xs text-slate-400 whitespace-nowrap">
             {filtered.length} record{filtered.length !== 1 ? 's' : ''}
           </span>
         </div>
 
-        {/* Table */}
-        <div style={{ overflowX: 'auto' }}>
+        {/* Table Body */}
+        <div className="overflow-x-auto">
           {loading ? (
-            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-              <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>⏳</div>
-              <p>Loading records...</p>
+            <div className="flex flex-col items-center justify-center py-16 gap-3 text-slate-400 dark:text-slate-500">
+              <Loader2 size={32} className="animate-spin text-primary" />
+              <p className="text-sm">Loading records...</p>
             </div>
           ) : filtered.length === 0 ? (
-            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>📭</div>
-              <p style={{ fontWeight: 600, color: 'var(--text-primary)' }}>No records found</p>
-              <p style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>
+            <div className="flex flex-col items-center justify-center py-16 gap-3">
+              <Inbox size={40} className="text-slate-300 dark:text-slate-600" />
+              <p className="font-semibold text-gray-700 dark:text-slate-300">No records found</p>
+              <p className="text-sm text-slate-400 dark:text-slate-500">
                 {search ? 'Try adjusting your search' : 'Generate your first offer letter to get started'}
               </p>
             </div>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+            <table className="w-full text-sm border-collapse">
               <thead>
-                <tr style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid var(--border-subtle)' }}>
+                <tr className="bg-gray-50 dark:bg-white/[0.02] border-b border-gray-100 dark:border-white/[0.06]">
                   {['#', 'Candidate Name', 'Designation', 'Joining Date', 'Offer Date', 'Actions'].map((h) => (
-                    <th key={h} style={{
-                      padding: '0.875rem 1.25rem', textAlign: 'left',
-                      fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)',
-                      textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap',
-                    }}>
+                    <th key={h} className="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                       {h}
                     </th>
                   ))}
@@ -111,81 +140,33 @@ const ViewOfferLettersPage = () => {
               </thead>
               <tbody>
                 {filtered.map((letter, idx) => (
-                  <tr
-                    key={letter.id}
-                    style={{
-                      borderBottom: '1px solid var(--border-subtle)',
-                      transition: 'background 0.15s',
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                  >
-                    <td style={{ padding: '1rem 1.25rem', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-                      {idx + 1}
-                    </td>
-                    <td style={{ padding: '1rem 1.25rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{
-                          width: 32, height: 32, borderRadius: '50%',
-                          background: 'rgba(99,102,241,0.15)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '0.875rem', fontWeight: 700, color: 'var(--primary-light)',
-                          flexShrink: 0,
-                        }}>
+                  <tr key={letter.id}
+                    className="border-b border-gray-50 dark:border-white/[0.04] transition-colors duration-150 hover:bg-gray-50 dark:hover:bg-white/[0.02]">
+                    <td className="px-5 py-4 text-slate-400 dark:text-slate-500 text-xs">{idx + 1}</td>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary-light flex-shrink-0">
                           {letter.name ? letter.name.charAt(0).toUpperCase() : '?'}
                         </div>
-                        <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
-                          {letter.name || '—'}
-                        </span>
+                        <span className="font-medium text-gray-900 dark:text-white">{letter.name || '—'}</span>
                       </div>
                     </td>
-                    <td style={{ padding: '1rem 1.25rem' }}>
-                      <span style={{
-                        display: 'inline-flex', alignItems: 'center',
-                        padding: '0.2rem 0.625rem',
-                        background: 'rgba(99,102,241,0.1)',
-                        border: '1px solid rgba(99,102,241,0.2)',
-                        borderRadius: '9999px',
-                        fontSize: '0.75rem', fontWeight: 600, color: 'var(--primary-light)',
-                      }}>
+                    <td className="px-5 py-4">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold text-primary-light bg-primary/10 border border-primary/20">
                         {letter.designation || '—'}
                       </span>
                     </td>
-                    <td style={{ padding: '1rem 1.25rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
-                      {letter.joiningDate || '—'}
-                    </td>
-                    <td style={{ padding: '1rem 1.25rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
-                      {letter.offerReleaseDate || '—'}
-                    </td>
-                    <td style={{ padding: '1rem 1.25rem' }}>
-                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                        <button
-                          onClick={() => handleDownload(letter.id)}
-                          style={{
-                            padding: '0.375rem 0.75rem',
-                            background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)',
-                            borderRadius: '6px', color: '#10b981',
-                            cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600,
-                            transition: 'all 0.2s', whiteSpace: 'nowrap',
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(16,185,129,0.2)'}
-                          onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(16,185,129,0.1)'}
-                        >
-                          ⬇ Download
+                    <td className="px-5 py-4 text-slate-500 dark:text-slate-400 whitespace-nowrap">{letter.joiningDate || '—'}</td>
+                    <td className="px-5 py-4 text-slate-500 dark:text-slate-400 whitespace-nowrap">{letter.offerReleaseDate || '—'}</td>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => handleDownload(letter.id)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 cursor-pointer transition-all duration-200 hover:bg-emerald-500/20 hover:-translate-y-px">
+                          <Download size={13} /> Download
                         </button>
-                        <Link
-                          to={`/Offer-Letter-Genrate/${letter.id}`}
-                          style={{
-                            padding: '0.375rem 0.75rem',
-                            background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)',
-                            borderRadius: '6px', color: 'var(--primary-light)',
-                            textDecoration: 'none', fontSize: '0.75rem', fontWeight: 600,
-                            transition: 'all 0.2s', display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap',
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(99,102,241,0.18)'}
-                          onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(99,102,241,0.1)'}
-                        >
-                          ✏ Edit
+                        <Link to={`/Offer-Letter-Genrate/${letter.id}`}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-primary-light bg-primary/10 border border-primary/20 no-underline transition-all duration-200 hover:bg-primary/20 hover:-translate-y-px">
+                          <Edit2 size={13} /> Edit
                         </Link>
                       </div>
                     </td>

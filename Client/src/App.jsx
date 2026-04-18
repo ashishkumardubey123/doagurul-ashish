@@ -26,24 +26,32 @@ const App = () =>{
   const navigate = useNavigate()
 
   const handleLogout = () => {
-    // console.log('Logout function called');
-    localStorage.removeItem('token')
-    setRender(true);
-    Navigate('/');
-    handleRender();
-}
+    localStorage.removeItem('token');
+    setToken(null); // Clear state
+    setRender(prev => !prev);
+    navigate('/');
+  };
 
-const handleRender = () => {
-  setRender(!render)
-}
+  const handleRender = () => {
+    setRender(!render);
+  };
 
-useEffect(()=>{
-  if(token){
-    navigate('/dashboard')
-  }else{
-    navigate('/')
-  }
-},[])
+  useEffect(() => {
+    const publicPaths = ['/'];
+    const currentPath = window.location.pathname;
+
+    if (token) {
+      // If logged in and on login page, go to dashboard
+      if (currentPath === '/') {
+        navigate('/dashboard');
+      }
+    } else {
+      // If not logged in and not on a public path, go to login
+      if (!publicPaths.includes(currentPath)) {
+        navigate('/');
+      }
+    }
+  }, [token, navigate]);
 
   return(
     <Fragment>

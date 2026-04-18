@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import CLogo from "../assets/images/CLogo.png";
+import { Activity, ExternalLink } from "lucide-react";
 
 function Footer() {
   const year = new Date().getFullYear();
@@ -12,23 +13,35 @@ function Footer() {
   ];
 
   return (
-    <footer className="dg-footer">
-      <div className="dg-footer-inner">
-        <div className="dg-footer-top">
+    <footer className="bg-gray-100 dark:bg-[#13131f] border-t border-gray-200 dark:border-white/[0.06] mt-auto">
+      <div className="max-w-[1400px] mx-auto px-6 py-6">
+
+        {/* Top Row: Logo + Links */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-5">
+
+          {/* Brand */}
           <Link
             to="https://doaguru.com/"
             target="_blank"
             rel="noreferrer"
-            className="dg-footer-brand"
+            className="flex items-center gap-2.5 no-underline group"
           >
-            <img src={CLogo} alt="DOAGuru Infosystem" />
-            <span className="dg-footer-brand-name">DOAGuru Infosystem</span>
+            <img src={CLogo} alt="DOAGuru Infosystem" className="h-7 w-auto" />
+            <span className="text-sm font-semibold text-gray-700 dark:text-slate-300 group-hover:text-primary transition-colors duration-200">
+              DOAGuru Infosystem
+            </span>
           </Link>
 
-          <ul className="dg-footer-links">
+          {/* Nav Links */}
+          <ul className="flex flex-wrap items-center gap-x-5 gap-y-2 list-none p-0 m-0">
             {footerLinks.map((link) => (
               <li key={link.name}>
-                <Link to={link.href} target="_blank" rel="noreferrer">
+                <Link
+                  to={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs font-medium text-gray-500 dark:text-slate-500 hover:text-primary dark:hover:text-primary-light no-underline transition-colors duration-200"
+                >
                   {link.name}
                 </Link>
               </li>
@@ -36,25 +49,26 @@ function Footer() {
           </ul>
         </div>
 
-        <div className="dg-footer-divider" />
+        {/* Divider */}
+        <div className="h-px bg-gray-200 dark:bg-white/[0.06] mb-4" />
 
-        <div className="dg-footer-bottom">
-          <span className="dg-footer-copy">
+        {/* Bottom Row: Copyright + Status */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+          <span className="text-xs text-gray-400 dark:text-slate-500 text-center sm:text-left">
             © {year}{" "}
-            <Link to="https://doaguru.com/" target="_blank" rel="noreferrer">
+            <Link
+              to="https://doaguru.com/"
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary-light hover:underline no-underline font-medium"
+            >
               DOAGuru Infosystem
             </Link>
             . All Rights Reserved.
           </span>
 
-          <span className="dg-footer-badge">
-            <span style={{
-              display: "inline-block",
-              width: 6,
-              height: 6,
-              borderRadius: "50%",
-              background: "#10b981",
-            }} />
+          <span className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-slate-500">
+            <Activity size={12} className="text-accent-green" />
             All systems operational
           </span>
         </div>
