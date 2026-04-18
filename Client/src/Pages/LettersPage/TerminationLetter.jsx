@@ -1,4 +1,4 @@
-﻿import { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import Modal from 'react-modal';
 import { useNavigate } from 'react-router-dom';
 import { IoMdArrowBack } from "react-icons/io";
@@ -55,7 +55,17 @@ const TerminationLetter = () => {
     setIsModalOpen(false);
   };
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL || ''}/api/termination-letters`, {
+        employeeName, employeeId, designation, terminationDate
+      }, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    } catch (error) {
+      console.error('Failure saving to Database:', error);
+    }
     // Get the preview content using the ref
     if (!previewRef.current) {
       console.error('Preview content not found');

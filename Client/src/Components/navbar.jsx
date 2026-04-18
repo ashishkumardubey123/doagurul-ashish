@@ -42,6 +42,7 @@ const navigation = [
         subMenu: [
           { name: "Download Offer Letter", href: "/download/intern-offer-letter" },
           { name: "Download Experience Letter", href: "/download/intern-experience-letter" },
+          { name: "Download PPO Letter", href: "/download/intern-ppo-letter" },
         ],
       },
       {
@@ -117,10 +118,8 @@ export default function Navbar() {
 
         {/* Logo */}
         <Link to="/dashboard" className="flex items-center gap-3 no-underline flex-shrink-0">
-          <img src={CLogo} alt="DOAGuru" className="h-9 w-auto" />
-          <span className="text-lg font-bold tracking-tight bg-gradient-primary bg-clip-text text-transparent">
-            DOAGuru
-          </span>
+          <img src={CLogo} alt="DOAGuru" className="h-12 w-auto" />
+         
         </Link>
 
         {/* Desktop Nav */}

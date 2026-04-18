@@ -4,6 +4,7 @@ import Signature from "../assets/images/CEOSignature.png";
 import headerImg from "../assets/images/NewHeaderImage.png";
 import footerImg from "../assets/images/NewFotterImage.png";
 import axios from 'axios';
+import SearchableSelect from './SearchableSelect';
 import {
   Document,
   Page,
@@ -478,6 +479,11 @@ const SalarySlip = () => {
     fetchEmployees();
   }, []);
 
+  const employeeOptions = employees.map(emp => ({
+    value: emp.id,
+    label: `${emp.full_name} (${emp.employee_id || 'No ID'}) - ${emp.department || 'N/A'}`
+  }));
+
   const totalWorkingDays = getDaysInMonth(formData.month, formData.year);
 
   // Update form data when input changes
@@ -512,6 +518,22 @@ const SalarySlip = () => {
       monthNames,
       numberToWords,
     };
+
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL || ''}/api/salary-slips`, {
+        employeeName: formData.employeeName,
+        employeeId: formData.employeeId,
+        month: monthNames[formData.month - 1],
+        year: formData.year,
+        grossSalary: formData.grossSalary,
+        netSalary: salaryData.netPay
+      }, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    } catch (err) {
+      console.error('Failure saving to Database:', err);
+    }
 
     try {
       // Build the PDF instance
@@ -722,19 +744,13 @@ const SalarySlip = () => {
             <div className="dg-form-section">
               <p className="dg-form-section-title">Employee Selection</p>
               <div className="dg-form-group">
-                <label className="dg-label">Select Employee</label>
-                <select onChange={(e) => handleEmployeeSelect(e.target.value)} className="dg-input" required>
-                  <option value="">-- Select Employee --</option>
-                  {loading ? (
-                    <option>Loading employees...</option>
-                  ) : (
-                    employees.map((employee) => (
-                      <option key={employee.id} value={employee.id}>
-                        {employee.full_name} - {employee.designation} ({employee.department})
-                      </option>
-                    ))
-                  )}
-                </select>
+                <label className="dg-label">Search and Select Employee</label>
+                <SearchableSelect
+                  options={ employeeOptions }
+                  value={ selectedEmployee ? String(selectedEmployee.id) : '' }
+                  onChange={ handleEmployeeSelect }
+                  placeholder={ loading ? "Loading employees..." : "-- Select Employee --" }
+                />
               </div>
             </div>
 

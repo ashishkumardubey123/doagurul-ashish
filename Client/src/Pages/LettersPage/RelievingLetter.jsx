@@ -1,10 +1,11 @@
-﻿import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Modal from 'react-modal';
 import axios from 'axios';
 import CLogo from '../../assets/images/CLogo.png';
 import headerImg from '../../assets/images/1headerLetterimg.jpg';
 import footerImg from '../../assets/images/1footerLetterimg.jpg';
 import imgS from '../../assets/images/CEOSignature.png';
+import SearchableSelect from '../../Components/SearchableSelect';
 
 // Make sure to bind modal to your appElement
 Modal.setAppElement('#root');
@@ -56,7 +57,17 @@ const RelievingLetter = () => {
     setIsModalOpen(true);
   };
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL || ''}/api/relieving-letters`, {
+        employeeName, department, designation, dateOfJoining, dateOfRelieving, lastWorkingDay
+      }, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    } catch (error) {
+      console.error('Failure saving to Database:', error);
+    }
     const printContent = `
       <!DOCTYPE html>
       <html>
@@ -178,11 +189,12 @@ const RelievingLetter = () => {
 
               <div className="dg-form-group">
                 <label className="dg-label">Department</label>
-                <select value={department} onChange={(e) => setDepartment(e.target.value)} className="dg-input" required>
-                  {departments.map((dept) => (
-                    <option key={dept} value={dept}>{dept}</option>
-                  ))}
-                </select>
+                <SearchableSelect 
+                  options={departments.map(dept => ({ label: dept, value: dept }))}
+                  value={department} 
+                  onChange={setDepartment} 
+                  placeholder="-- Select Department --"
+                />
               </div>
 
               <div className="dg-form-group">
@@ -192,11 +204,12 @@ const RelievingLetter = () => {
 
               <div className="dg-form-group">
                 <label className="dg-label">Gender (Pronouns)</label>
-                <select value={gender} onChange={(e) => setGender(e.target.value)} className="dg-input" required>
-                  {genderOptions.map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
-                </select>
+                <SearchableSelect 
+                  options={genderOptions}
+                  value={gender} 
+                  onChange={setGender} 
+                  placeholder="-- Select Pronouns --"
+                />
               </div>
             </div>
           </div>

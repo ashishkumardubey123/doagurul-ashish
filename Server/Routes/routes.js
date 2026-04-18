@@ -13,6 +13,7 @@ const {
 const { saveOfferLetter } = require('../Controller/PdfController');
 const { RegisterAuth, LoginAuth } = require('../Controller/Auth');
 
+const letterDownloadController = require('../Controller/LetterDownloadController');
 
 // Define routes
 
@@ -28,8 +29,6 @@ router.get('/api/offer-letters', getOfferLetters);
 router.get('/api/offer-letters/:id', getOfferLetterById);
 router.get('/api/download-pdf/:filename', downloadPdf); 
 
-
-
 // New Experience Letter Routes
 router.post('/api/saveEmployee', employeeController.saveEmployee); 
 router.get('/api/generatePDF/:employeeId', employeeController.generatePDF); 
@@ -37,5 +36,23 @@ router.get('/api/generatePDF/:employeeId', employeeController.generatePDF);
 // Salary Slip Routes
 // router.get('/api/generateSalarySlip/:employeeId', employeeController.generateSalarySlip);
 
+// Letter Download API Routes
+router.post('/api/intern-experience-letters', letterDownloadController.saveInternExperienceLetter);
+router.get('/api/intern-experience-letters', letterDownloadController.getInternExperienceLetters);
+
+router.post('/api/intern-ppo-letters', letterDownloadController.saveInternPPOLetter);
+router.get('/api/intern-ppo-letters', letterDownloadController.getInternPPOLetters);
+
+router.post('/api/relieving-letters', letterDownloadController.saveRelievingLetter);
+router.get('/api/relieving-letters', letterDownloadController.getRelievingLetters);
+
+router.post('/api/termination-letters', letterDownloadController.saveTerminationLetter);
+router.get('/api/termination-letters', letterDownloadController.getTerminationLetters);
+
+router.post('/api/salary-slips', letterDownloadController.saveSalarySlip);
+router.get('/api/salary-slips', letterDownloadController.getSalarySlips);
+
+router.get('/api/internship-offers', letterDownloadController.getInternshipOffers);
+router.get('/api/experience-letters', letterDownloadController.getExperienceLetters);
 
 module.exports = router;

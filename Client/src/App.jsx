@@ -17,6 +17,15 @@ import EmployeeForm from "./Components/EmployeeForm";
 import TerminationLetter from "./Pages/LettersPage/TerminationLetter";
 import SalarySlip from "./Components/sallaeySlip";
 import DownloadOfferLetter from "./Pages/LettersPage/DownloadOfferLetter";
+import InternExperienceLetter from "./Pages/LettersPage/InternExperienceLetter";
+import InternPPOLetter from "./Pages/LettersPage/InternPPOLetter";
+import DownloadInternOfferLetter from "./Pages/LettersPage/DownloadInternOfferLetter";
+import DownloadInternExperienceLetter from "./Pages/LettersPage/DownloadInternExperienceLetter";
+import DownloadInternPPOLetter from "./Pages/LettersPage/DownloadInternPPOLetter";
+import DownloadExperienceLetter from "./Pages/LettersPage/DownloadExperienceLetter";
+import DownloadRelievingLetter from "./Pages/LettersPage/DownloadRelievingLetter";
+import DownloadTerminationLetter from "./Pages/LettersPage/DownloadTerminationLetter";
+import DownloadSalarySlip from "./Pages/LettersPage/DownloadSalarySlip";
 
 
 const App = () =>{
@@ -73,9 +82,21 @@ const App = () =>{
       <Route path="/Termination-Letter-Genrate" element={<TerminationLetter/>} />
       <Route path="/OfferLetter" element={<ViewOfferLettersPage/>} />
       <Route path="/download/offer-letter" element={<DownloadOfferLetter/>} />
-      <Route path="/Warning-Letter-Genrate" element={<WarningLetter/>} />
+      <Route path="/warning-letter-genrate" element={<WarningLetter/>} />
       <Route path="/salary-slip" element={<SalarySlip/>} />
-      <Route path="/Experince-Letter-Genrate" element={<EmployeeForm/>} />
+      <Route path="/experince-letter-genrate" element={<EmployeeForm/>} />
+
+      <Route path="/intern-experience-letter" element={<InternExperienceLetter/>} />
+      <Route path="/intern-ppo-letter" element={<InternPPOLetter/>} />
+
+      {/* Download Pages */}
+      <Route path="/download/intern-offer-letter" element={<DownloadInternOfferLetter/>} />
+      <Route path="/download/intern-experience-letter" element={<DownloadInternExperienceLetter/>} />
+      <Route path="/download/intern-ppo-letter" element={<DownloadInternPPOLetter/>} />
+      <Route path="/download/experience-letter" element={<DownloadExperienceLetter/>} />
+      <Route path="/download/relieving-letter" element={<DownloadRelievingLetter/>} />
+      <Route path="/download/termination-letter" element={<DownloadTerminationLetter/>} />
+      <Route path="/download/salary-slip" element={<DownloadSalarySlip/>} />
 
     </Routes>
 
