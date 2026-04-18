@@ -71,7 +71,7 @@ const DownloadTerminationLetter = () => {
             <table className="w-full text-sm border-collapse">
               <thead>
                 <tr className="bg-gray-50 dark:bg-white/[0.02] border-b border-gray-100 dark:border-white/[0.06]">
-                  {['Name', 'Employee ID', 'Designation', 'Termination Date', 'Created On'].map((h) => (
+                  {['Name', 'Employee ID', 'Department', 'Designation', 'Termination Date', 'Created On'].map((h) => (
                     <th key={h} className="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                       {h}
                     </th>
@@ -91,6 +91,7 @@ const DownloadTerminationLetter = () => {
                       </div>
                     </td>
                     <td className="px-5 py-4 text-slate-500 dark:text-slate-400 whitespace-nowrap">{letter.employeeId || '—'}</td>
+                    <td className="px-5 py-4 text-slate-500 dark:text-slate-400 whitespace-nowrap">{letter.department || '—'}</td>
                     <td className="px-5 py-4">
                       {letter.designation ? (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold text-red-400 bg-red-500/10 border border-red-500/20">

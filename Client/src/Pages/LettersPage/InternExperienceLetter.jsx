@@ -77,8 +77,12 @@ const InternExperienceLetterPDF = ({ data }) => {
           )}
           {!formData.showSignature && <View style={{ height: 50 }} />}
           <View style={styles.signatureLine}></View>
-          <Text style={[styles.signatureText, styles.bold]}>Authorized Signatory</Text>
-          <Text style={styles.signatureText}>Director</Text>
+          <Text style={[styles.signatureText, styles.bold]}>
+            {formData.signatory === 'HR Manager' ? 'HR Department' : formData.signatory.includes('CEO') ? 'R.S. Pandey' : formData.signatory}
+          </Text>
+          <Text style={styles.signatureText}>
+            {formData.signatory === 'HR Manager' ? 'HR Manager' : formData.signatory.includes('CEO') ? 'CEO, DOAGuru Infosystems' : 'Authorized Signatory'}
+          </Text>
         </View>
 
       </PageWithHeaderFooter>
@@ -95,13 +99,14 @@ const InternExperienceLetter = () => {
   const [formData, setFormData] = useState({
     employeeName: '',
     employeeId: '',
-    designation: 'Intern',
-    department: 'Software Development',
+    designation: '',
+    department: '',
     startDate: '',
     endDate: '',
-    gender: 'He',
+    gender: '',
     currentDate: new Date().toLocaleDateString('en-GB'),
-    showSignature: true
+    showSignature: true,
+    signatory: 'R.S. Pandey (CEO)'
   });
 
   const companyInfo = {
@@ -142,6 +147,7 @@ const InternExperienceLetter = () => {
         designation: employee.designation || 'Intern',
         department: employee.department || '',
         startDate: employee.joiningDate ? new Date(employee.joiningDate).toISOString().split('T')[0] : '',
+        gender: employee.gender || '',
       }));
     }
   };
@@ -267,9 +273,17 @@ const InternExperienceLetter = () => {
               <div className="dg-form-group">
                 <label className="dg-label">Pronouns</label>
                 <select name="gender" value={formData.gender} onChange={handleChange} className="dg-input" required>
-                  <option value="He">He/Him</option>
-                  <option value="She">She/Her</option>
-                  <option value="They">They/Them</option>
+                  <option value="">-- Select Gender --</option>
+                  <option value="He">Male (He/Him)</option>
+                  <option value="She">Female (She/Her)</option>
+                  <option value="They">Other (They/Them)</option>
+                </select>
+              </div>
+              <div className="dg-form-group">
+                <label className="dg-label">Signatory</label>
+                <select name="signatory" value={formData.signatory} onChange={handleChange} className="dg-input" required>
+                  <option value="R.S. Pandey (CEO)">R.S. Pandey (CEO)</option>
+                  <option value="HR Manager">HR Manager</option>
                 </select>
               </div>
             </div>

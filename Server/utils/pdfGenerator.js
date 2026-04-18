@@ -77,6 +77,9 @@ Madhya pradesh INDIA 482002`, { align: 'left' });
     pdfDoc.text(`To Whom It May Concern,`);
     pdfDoc.moveDown();
 
+    const pr_their = employee.gender === 'He' ? 'his' : employee.gender === 'She' ? 'her' : 'their';
+    const pr_them = employee.gender === 'He' ? 'him' : employee.gender === 'She' ? 'her' : 'them';
+
     pdfDoc.font('Helvetica').text(`This is to certify that `, {continued: true});
     pdfDoc.font('Helvetica-Bold').text(`${employee.name}`, {continued: true});
     pdfDoc.font('Helvetica').text(` was employed at `, {continued: true});
@@ -85,14 +88,14 @@ Madhya pradesh INDIA 482002`, { align: 'left' });
     pdfDoc.font('Helvetica-Bold').text(`${employee.designation},`, {continued: true});
     pdfDoc.font('Helvetica').text(` from `, {continued: true});
     pdfDoc.font('Helvetica-Bold').text(`${moment(employee.joining_date).format('MMMM D, YYYY')} to ${moment(employee.resignation_date).format('MMMM D, YYYY')}.`, {continued: true});
-    pdfDoc.font('Helvetica').text(`  During their tenure, they exhibited exceptional skills, professionalism, and a strong work ethic.`, {continued: false});
+    pdfDoc.font('Helvetica').text(`  During ${pr_their} tenure, they exhibited exceptional skills, professionalism, and a strong work ethic.`, {continued: false});
     pdfDoc.moveDown();
     pdfDoc.font('Helvetica').text(`We found `, {continued: true});
     pdfDoc.font('Helvetica-Bold').text(`${employee.name}`, {continued: true});
     pdfDoc.font('Helvetica').text(` to be proficient in communication, time management, and problem-solving. Their ability to effectively collaborate with team members, meet deadlines, and deliver high-quality work made them a valuable contributor to our organization. `, {continued: false});
     
     pdfDoc.moveDown();
-    pdfDoc.text(`We wish them continued success in their future endeavors.`);
+    pdfDoc.text(`We wish ${pr_them} continued success in ${pr_their} future endeavors.`);
     pdfDoc.moveDown();
 
     pdfDoc.text(`Sincerely,`);
@@ -119,10 +122,26 @@ try {
     pdfDoc.moveDown();
     pdfDoc.moveDown();
     pdfDoc.moveDown();
+    let sigName = 'R.S. Pandey';
+    let sigTitle = 'CEO, DOAGuru Infosystems';
+    if (employee.signatory === 'HR Manager') {
+      sigName = 'HR Department';
+      sigTitle = 'HR Manager, DOAGuru Infosystems';
+    } else if (employee.signatory) {
+      // Just in case it comes as standard 'R.S. Pandey (CEO)'
+      if (employee.signatory.includes('CEO')) {
+        sigName = 'R.S. Pandey';
+        sigTitle = 'CEO, DOAGuru Infosystems';
+      } else {
+        sigName = employee.signatory;
+        sigTitle = 'Authorized Signatory';
+      }
+    }
+
     // Closing statement
     pdfDoc.text(`Signature,`, { align: 'left' });
-    pdfDoc.text(`R.S. Pandey`, { align: 'left' });
-    pdfDoc.text(`CEO, DOAGuru Infosystems`, { align: 'left' });
+    pdfDoc.text(sigName, { align: 'left' });
+    pdfDoc.text(sigTitle, { align: 'left' });
     
     // Add footer line (red line)
     // pdfDoc.moveDown();

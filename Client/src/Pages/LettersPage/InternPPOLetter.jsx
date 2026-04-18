@@ -47,10 +47,10 @@ const styles = StyleSheet.create({
 const InternPPOLetterPDF = ({ data }) => {
   const { formData, companyInfo } = data;
 
-  const monthlyGross = formData.newCTC / 12;
-  const basic = monthlyGross * 0.5; // Example 50%
-  const hra = basic * 0.4; // Example 40% of Basic
-  const specialAllowance = monthlyGross - basic - hra;
+  const monthlyGross = formData.newCTC ? formData.newCTC / 12 : 0;
+  const basic = formData.basicSalary ? parseFloat(formData.basicSalary) : 0;
+  const hra = formData.hra ? parseFloat(formData.hra) : 0;
+  const allowances = formData.allowances ? parseFloat(formData.allowances) : 0;
 
   const PageWithHeaderFooter = ({ children }) => (
     <Page size="A4" style={styles.page}>
@@ -99,9 +99,9 @@ const InternPPOLetterPDF = ({ data }) => {
             <View style={styles.tableCol}><Text style={styles.tableCell}>{(hra * 12).toLocaleString('en-IN', {maximumFractionDigits: 0})}</Text></View>
           </View>
           <View style={styles.tableRow}>
-            <View style={styles.tableCol}><Text style={styles.tableCell}>Special Allowance</Text></View>
-            <View style={styles.tableCol}><Text style={styles.tableCell}>{specialAllowance.toLocaleString('en-IN', {maximumFractionDigits: 0})}</Text></View>
-            <View style={styles.tableCol}><Text style={styles.tableCell}>{(specialAllowance * 12).toLocaleString('en-IN', {maximumFractionDigits: 0})}</Text></View>
+            <View style={styles.tableCol}><Text style={styles.tableCell}>Other Allowances</Text></View>
+            <View style={styles.tableCol}><Text style={styles.tableCell}>{allowances.toLocaleString('en-IN', {maximumFractionDigits: 0})}</Text></View>
+            <View style={styles.tableCol}><Text style={styles.tableCell}>{(allowances * 12).toLocaleString('en-IN', {maximumFractionDigits: 0})}</Text></View>
           </View>
           <View style={styles.tableRow}>
             <View style={[styles.tableColHeader, {backgroundColor: '#e2e8f0'}]}><Text style={[styles.tableCellHeader, styles.bold]}>Total Gross Salary</Text></View>
@@ -121,8 +121,12 @@ const InternPPOLetterPDF = ({ data }) => {
           )}
           {!formData.showSignature && <View style={{ height: 50 }} />}
           <View style={styles.signatureLine}></View>
-          <Text style={[styles.signatureText, styles.bold]}>Authorized Signatory</Text>
-          <Text style={styles.signatureText}>Director</Text>
+          <Text style={[styles.signatureText, styles.bold]}>
+            {formData.signatory === 'HR Manager' ? 'HR Department' : formData.signatory.includes('CEO') ? 'R.S. Pandey' : formData.signatory}
+          </Text>
+          <Text style={styles.signatureText}>
+            {formData.signatory === 'HR Manager' ? 'HR Manager' : formData.signatory.includes('CEO') ? 'CEO, DOAGuru Infosystems' : 'Authorized Signatory'}
+          </Text>
         </View>
       </PageWithHeaderFooter>
     </Document>
@@ -138,13 +142,18 @@ const InternPPOLetter = () => {
   const [formData, setFormData] = useState({
     employeeName: '',
     employeeId: '',
-    oldDesignation: 'Intern',
-    newDesignation: 'Software Developer',
-    newCTC: 300000,
+    oldDesignation: '',
+    newDesignation: '',
+    newCTC: '',
+    basicSalary: '',
+    hra: '',
+    allowances: '',
     joiningDate: '',
     acceptanceDate: '',
     currentDate: new Date().toLocaleDateString('en-GB'),
-    showSignature: true
+    showSignature: true,
+    gender: '',
+    signatory: 'R.S. Pandey (CEO)'
   });
 
   const companyInfo = {
@@ -183,6 +192,8 @@ const InternPPOLetter = () => {
         employeeName: employee.full_name || '',
         employeeId: employee.employee_id || '',
         oldDesignation: employee.designation || 'Intern',
+        gender: employee.gender || '',
+        // Can also auto-fill newCTC if needed but user typically fills it manually for PPO
       }));
     }
   };
@@ -312,7 +323,19 @@ const InternPPOLetter = () => {
             <div className="dg-form-grid">
               <div className="dg-form-group">
                 <label className="dg-label">New Annual CTC (₹)</label>
-                <input type="number" name="newCTC" value={formData.newCTC} onChange={handleChange} className="dg-input" step="50000" min="0" required />
+                <input type="number" name="newCTC" value={formData.newCTC} onChange={handleChange} className="dg-input" step="500" min="0" required />
+              </div>
+              <div className="dg-form-group">
+                <label className="dg-label">Basic Salary (Monthly ₹)</label>
+                <input type="number" name="basicSalary" value={formData.basicSalary} onChange={handleChange} className="dg-input" min="0" step="1" required />
+              </div>
+              <div className="dg-form-group">
+                <label className="dg-label">HRA (Monthly ₹)</label>
+                <input type="number" name="hra" value={formData.hra} onChange={handleChange} className="dg-input" min="0" step="1" required />
+              </div>
+              <div className="dg-form-group">
+                <label className="dg-label">Other Allowances (Monthly ₹)</label>
+                <input type="number" name="allowances" value={formData.allowances} onChange={handleChange} className="dg-input" min="0" step="1" required />
               </div>
               <div className="dg-form-group">
                 <label className="dg-label">Date of Joining (Full-Time)</label>
@@ -325,6 +348,22 @@ const InternPPOLetter = () => {
               <div className="dg-form-group">
                 <label className="dg-label">Date of Issue</label>
                 <input type="text" name="currentDate" value={formData.currentDate} onChange={handleChange} className="dg-input" required />
+              </div>
+              <div className="dg-form-group">
+                <label className="dg-label">Gender</label>
+                <select name="gender" value={formData.gender} onChange={handleChange} className="dg-input" required>
+                  <option value="">-- Select Gender --</option>
+                  <option value="He">Male (He/Him)</option>
+                  <option value="She">Female (She/Her)</option>
+                  <option value="They">Other (They/Them)</option>
+                </select>
+              </div>
+              <div className="dg-form-group">
+                <label className="dg-label">Signatory</label>
+                <select name="signatory" value={formData.signatory} onChange={handleChange} className="dg-input" required>
+                  <option value="R.S. Pandey (CEO)">R.S. Pandey (CEO)</option>
+                  <option value="HR Manager">HR Manager</option>
+                </select>
               </div>
             </div>
           </div>

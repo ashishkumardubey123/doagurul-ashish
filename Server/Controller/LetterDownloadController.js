@@ -2,10 +2,10 @@ const pool = require('../Config/DB_promise');
 
 exports.saveInternExperienceLetter = async (req, res) => {
   try {
-    const { employeeName, employeeId, designation, department, startDate, endDate } = req.body;
+    const { employeeName, employeeId, designation, department, startDate, endDate, gender, signatory } = req.body;
     const [result] = await pool.query(
-      'INSERT INTO intern_experience_letters (employeeName, employeeId, designation, department, startDate, endDate) VALUES (?, ?, ?, ?, ?, ?)',
-      [employeeName, employeeId, designation, department, new Date(startDate).toISOString().split('T')[0], new Date(endDate).toISOString().split('T')[0]]
+      'INSERT INTO intern_experience_letters (employeeName, employeeId, designation, department, startDate, endDate, gender, signatory) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [employeeName, employeeId, designation, department, new Date(startDate).toISOString().split('T')[0], new Date(endDate).toISOString().split('T')[0], gender || null, signatory || null]
     );
     res.status(200).json({ success: true, message: 'Saved successfully', id: result.insertId });
   } catch (err) {
@@ -26,10 +26,10 @@ exports.getInternExperienceLetters = async (req, res) => {
 
 exports.saveInternPPOLetter = async (req, res) => {
   try {
-    const { employeeName, employeeId, oldDesignation, newDesignation, newCTC, joiningDate } = req.body;
+    const { employeeName, employeeId, oldDesignation, newDesignation, newCTC, joiningDate, gender, signatory, basicSalary, hra, allowances } = req.body;
     const [result] = await pool.query(
-      'INSERT INTO intern_ppo_letters (employeeName, employeeId, oldDesignation, newDesignation, newCTC, joiningDate) VALUES (?, ?, ?, ?, ?, ?)',
-      [employeeName, employeeId, oldDesignation, newDesignation, newCTC, new Date(joiningDate).toISOString().split('T')[0]]
+      'INSERT INTO intern_ppo_letters (employeeName, employeeId, oldDesignation, newDesignation, newCTC, joiningDate, gender, signatory, basic_salary, hra, allowances) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [employeeName, employeeId, oldDesignation, newDesignation, newCTC, new Date(joiningDate).toISOString().split('T')[0], gender || null, signatory || null, basicSalary || null, hra || null, allowances || null]
     );
     res.status(200).json({ success: true, message: 'Saved successfully', id: result.insertId });
   } catch (err) {
@@ -50,10 +50,10 @@ exports.getInternPPOLetters = async (req, res) => {
 
 exports.saveRelievingLetter = async (req, res) => {
   try {
-    const { employeeName, department, designation, dateOfJoining, dateOfRelieving, lastWorkingDay } = req.body;
+    const { employeeName, department, designation, dateOfJoining, dateOfRelieving, lastWorkingDay, gender, signatory } = req.body;
     const [result] = await pool.query(
-      'INSERT INTO relieving_letters (employeeName, department, designation, dateOfJoining, dateOfRelieving, lastWorkingDay) VALUES (?, ?, ?, ?, ?, ?)',
-      [employeeName, department, designation, new Date(dateOfJoining).toISOString().split('T')[0], new Date(dateOfRelieving).toISOString().split('T')[0], new Date(lastWorkingDay).toISOString().split('T')[0]]
+      'INSERT INTO relieving_letters (employeeName, department, designation, dateOfJoining, dateOfRelieving, lastWorkingDay, gender, signatory) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [employeeName, department, designation, new Date(dateOfJoining).toISOString().split('T')[0], new Date(dateOfRelieving).toISOString().split('T')[0], new Date(lastWorkingDay).toISOString().split('T')[0], gender || null, signatory || null]
     );
     res.status(200).json({ success: true, message: 'Saved successfully', id: result.insertId });
   } catch (err) {
@@ -74,10 +74,10 @@ exports.getRelievingLetters = async (req, res) => {
 
 exports.saveTerminationLetter = async (req, res) => {
   try {
-    const { employeeName, employeeId, designation, terminationDate } = req.body;
+    const { employeeName, employeeId, designation, department, terminationDate, gender, signatory, reason } = req.body;
     const [result] = await pool.query(
-      'INSERT INTO termination_letters (employeeName, employeeId, designation, terminationDate) VALUES (?, ?, ?, ?)',
-      [employeeName, employeeId, designation, new Date(terminationDate).toISOString().split('T')[0]]
+      'INSERT INTO termination_letters (employeeName, employeeId, designation, department, terminationDate, gender, signatory, reason) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [employeeName, employeeId, designation, department, new Date(terminationDate).toISOString().split('T')[0], gender || null, signatory || null, reason || null]
     );
     res.status(200).json({ success: true, message: 'Saved successfully', id: result.insertId });
   } catch (err) {
@@ -98,10 +98,10 @@ exports.getTerminationLetters = async (req, res) => {
 
 exports.saveSalarySlip = async (req, res) => {
   try {
-    const { employeeName, employeeId, month, year, grossSalary, netSalary } = req.body;
+    const { employeeName, employeeId, month, year, grossSalary, netSalary, basicSalary, hra, pf, esi, allowances, gender, signatory } = req.body;
     const [result] = await pool.query(
-      'INSERT INTO salary_slips (employeeName, employeeId, month, year, grossSalary, netSalary) VALUES (?, ?, ?, ?, ?, ?)',
-      [employeeName, employeeId, month, year, grossSalary || 0, netSalary || 0]
+      'INSERT INTO salary_slips (employeeName, employeeId, month, year, grossSalary, netSalary, basic_salary, hra, pf, esi, allowances, gender, signatory) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [employeeName, employeeId, month, year, grossSalary || 0, netSalary || 0, basicSalary || null, hra || null, pf || null, esi || null, allowances || null, gender || null, signatory || null]
     );
     res.status(200).json({ success: true, message: 'Saved successfully', id: result.insertId });
   } catch (err) {

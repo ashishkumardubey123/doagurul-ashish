@@ -3,8 +3,8 @@ const Employee = require('../models/employeeModel'); // Assuming you have a mode
 const generatePDF = require('../utils/pdfGenerator');
 
 exports.saveEmployee = (req, res) => {
-  const { name, designation, joining_date, resignation_date } = req.body;
-  const employeeData = [name, designation, joining_date, resignation_date];
+  const { name, designation, joining_date, resignation_date, gender, signatory } = req.body;
+  const employeeData = [name, designation, joining_date, resignation_date, gender || null, signatory || null];
   console.log(employeeData);
   
 

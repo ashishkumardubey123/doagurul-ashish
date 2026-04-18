@@ -36,21 +36,58 @@ const customStyles = {
 
 const RelievingLetter = () => {
   const [employeeName, setEmployeeName] = useState('');
-  const [department, setDepartment] = useState('Development');
+  const [department, setDepartment] = useState('');
   const [designation, setDesignation] = useState('');
   const [dateOfJoining, setDateOfJoining] = useState('');
   const [dateOfRelieving, setDateOfRelieving] = useState('');
   const [lastWorkingDay, setLastWorkingDay] = useState('');
-  const [gender, setGender] = useState('him');
+  const [gender, setGender] = useState('');
+  const [signatory, setSignatory] = useState('R.S. Pandey (CEO)');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(false);
   const previewRef = useRef();
 
-  const departments = ['Marketing', 'Development', 'Sales'];
+  const departments = ['Marketing', 'Development', 'Sales', 'HR', 'Design', 'IT'];
   const genderOptions = [
     { value: 'him', label: 'Him' },
     { value: 'her', label: 'Her' },
     { value: 'them', label: 'Them' }
   ];
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get('https://sf.doaguru.com/api/users');
+        if (response.data && Array.isArray(response.data)) {
+          setEmployees(response.data.filter(emp => emp.employment_status === 'active'));
+        }
+      } catch (error) {
+        console.error('Error fetching employees:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEmployees();
+  }, []);
+
+  const employeeOptions = employees.map(emp => ({
+    value: emp.id,
+    label: `${emp.full_name} (${emp.employee_id || 'No ID'}) - ${emp.department || 'N/A'}`
+  }));
+
+  const handleEmployeeSelect = (id) => {
+    const emp = employees.find(e => e.id == id);
+    if (emp) {
+      setEmployeeName(emp.full_name || '');
+      setDesignation(emp.designation || '');
+      setDepartment(emp.department || '');
+      if (emp.joiningDate) {
+        setDateOfJoining(new Date(emp.joiningDate).toISOString().split('T')[0]);
+      }
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,7 +98,7 @@ const RelievingLetter = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(`${import.meta.env.VITE_API_BASE_URL || ''}/api/relieving-letters`, {
-        employeeName, department, designation, dateOfJoining, dateOfRelieving, lastWorkingDay
+        employeeName, department, designation, dateOfJoining, dateOfRelieving, lastWorkingDay, gender: gender?.value || gender, signatory
       }, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -180,6 +217,18 @@ const RelievingLetter = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="dg-form-section">
+            <p className="dg-form-section-title">Select Employee</p>
+            <div className="dg-form-group">
+              <label className="dg-label">Search and Select Employee</label>
+              <SearchableSelect
+                options={employeeOptions}
+                onChange={handleEmployeeSelect}
+                placeholder={loading ? "Loading employees..." : "-- Select Employee --"}
+              />
+            </div>
+          </div>
+
+          <div className="dg-form-section">
             <p className="dg-form-section-title">Employee Details</p>
             <div className="dg-form-grid">
               <div className="dg-form-group">
@@ -203,13 +252,20 @@ const RelievingLetter = () => {
               </div>
 
               <div className="dg-form-group">
-                <label className="dg-label">Gender (Pronouns)</label>
-                <SearchableSelect 
-                  options={genderOptions}
-                  value={gender} 
-                  onChange={setGender} 
-                  placeholder="-- Select Pronouns --"
-                />
+                <label className="dg-label">Gender</label>
+                <select value={gender?.value || gender} onChange={(e) => setGender(e.target.value)} className="dg-input" required>
+                  <option value="">-- Select Gender --</option>
+                  <option value="He">Male (He/Him)</option>
+                  <option value="She">Female (She/Her)</option>
+                  <option value="They">Other (They/Them)</option>
+                </select>
+              </div>
+              <div className="dg-form-group">
+                <label className="dg-label">Signatory</label>
+                <select value={signatory} onChange={(e) => setSignatory(e.target.value)} className="dg-input" required>
+                  <option value="R.S. Pandey (CEO)">R.S. Pandey (CEO)</option>
+                  <option value="HR Manager">HR Manager</option>
+                </select>
               </div>
             </div>
           </div>
@@ -295,15 +351,24 @@ const RelievingLetter = () => {
             </p>
             
             <p className="mt-4">
-              During {gender} tenure, we found {gender} to be sincere, hardworking, and dedicated to {gender} responsibilities. 
-              {gender === 'him' ? ' He' : gender === 'her' ? ' She' : ' They'} have completed all handovers and formalities, 
-              and accordingly, we hereby relieve {gender} from {gender} duties with effect from the close of business on 
-              <span className="font-bold"> {lastWorkingDay || '[Last Working Day]'}</span>.
+              {(() => {
+                const g = gender?.value || gender;
+                const pr_their = g === 'He' ? 'his' : g === 'She' ? 'her' : 'their';
+                const pr_them = g === 'He' ? 'him' : g === 'She' ? 'her' : 'them';
+                const pr_he = g === 'He' ? 'He' : g === 'She' ? 'She' : 'They';
+                return (
+                  <>
+                    During {pr_their} tenure, we found {pr_them} to be sincere, hardworking, and dedicated to {pr_their} responsibilities. 
+                    {pr_he} have completed all handovers and formalities, and accordingly, we hereby relieve {pr_them} from {pr_their} duties with effect from the close of business on 
+                    <span className="font-bold"> {lastWorkingDay || '[Last Working Day]'}</span>.
+                  </>
+                );
+              })()}
             </p>
             
             <p className="mt-4">
               We wish <span className="font-bold">{employeeName || '[Employee Name]'}</span> all the very best in 
-              {gender === 'him' ? ' his' : gender === 'her' ? ' her' : ' their'} future endeavors.
+              {['He', 'She'].includes(gender?.value || gender) ? (gender?.value || gender === 'He' ? ' his' : ' her') : ' their'} future endeavors.
             </p>
             
             <p className="mt-6">Warm regards,</p>
@@ -311,9 +376,8 @@ const RelievingLetter = () => {
             <div className="mt-8">
               <img src={imgS} alt="Authorized Signatory" className="w-28 ms-14 mt-4 signature-img" />
               <p className="mt-1 font-bold ceo-head">
-                <span className="headName ms-16">R.S.Pandey</span><br />
-                Authorized Signatory<br />
-                DOAGuru Infosystems
+                <span className="headName ms-16">{signatory === 'HR Manager' ? 'HR Department' : signatory.includes('CEO') ? 'R.S. Pandey' : signatory}</span><br />
+                <span style={{marginLeft: '4rem'}}>{signatory === 'HR Manager' ? 'HR Manager' : signatory.includes('CEO') ? 'CEO, DOAGuru Infosystems' : 'Authorized Signatory'}</span>
               </p>
             </div>
           </div>

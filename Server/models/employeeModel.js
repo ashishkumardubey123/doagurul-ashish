@@ -1,7 +1,7 @@
 const db = require('../Config/DB');
 
 exports.saveEmployee = (employeeData, callback) => {
-  const query = `INSERT INTO experincel (name, designation, joining_date, resignation_date ) VALUES (?, ?, ?, ? )`;
+  const query = `INSERT INTO experincel (name, designation, joining_date, resignation_date, gender, signatory ) VALUES (?, ?, ?, ?, ?, ? )`;
   console.log(employeeData, 'model');
   
   db.query(query, employeeData, callback);

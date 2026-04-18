@@ -314,16 +314,16 @@ const SalarySlipPDF = ({ data }) => {
                   <Text style={styles.value}>Rs. {salaryData.houseRentAllowance.toLocaleString('en-IN')}</Text>
                 </View>
                 <View style={styles.row}>
-                  <Text style={styles.label}>Conveyance:</Text>
-                  <Text style={styles.value}>Rs. {salaryData.conveyanceAllowance.toLocaleString('en-IN')}</Text>
+                  <Text style={styles.label}>Other Allowances:</Text>
+                  <Text style={styles.value}>Rs. {salaryData.otherAllowances.toLocaleString('en-IN')}</Text>
                 </View>
                 <View style={styles.row}>
-                  <Text style={styles.label}>Medical:</Text>
-                  <Text style={styles.value}>Rs. {salaryData.medicalAllowance.toLocaleString('en-IN')}</Text>
+                  <Text style={styles.label}></Text>
+                  <Text style={styles.value}></Text>
                 </View>
                 <View style={styles.row}>
-                  <Text style={styles.label}>Special Allow:</Text>
-                  <Text style={styles.value}>Rs. {salaryData.specialAllowance.toLocaleString('en-IN')}</Text>
+                  <Text style={styles.label}></Text>
+                  <Text style={styles.value}></Text>
                 </View>
                 <View style={[styles.row, styles.mt8]}>
                   <Text style={[styles.label, styles.bold]}>Total Earnings:</Text>
@@ -385,8 +385,12 @@ const SalarySlipPDF = ({ data }) => {
           <Text style={styles.mb4}>For {companyInfo.name}</Text>
           <Image src={Signature} style={styles.signatureImage} />
           <View style={styles.signatureLine}></View>
-          <Text style={[styles.signatureText, styles.bold]}>Authorized Signatory</Text>
-          <Text style={styles.signatureText}>Director</Text>
+          <Text style={[styles.signatureText, styles.bold]}>
+            {formData.signatory === 'HR Manager' ? 'HR Department' : formData.signatory.includes('CEO') ? 'R.S. Pandey' : formData.signatory}
+          </Text>
+          <Text style={styles.signatureText}>
+            {formData.signatory === 'HR Manager' ? 'HR Manager' : formData.signatory.includes('CEO') ? 'CEO, DOAGuru Infosystems' : 'Authorized Signatory'}
+          </Text>
         </View>
 
         {/* Footer Note */}
@@ -426,10 +430,17 @@ const SalarySlip = () => {
     accountNumber: '',
     dateOfJoining: '',
     panNumber: '',
-    grossSalary: 10000,
+    grossSalary: '',
+    basicSalary: '',
+    hra: '',
+    allowances: '',
+    pf: 0,
+    esi: 0,
     lopDays: 0,
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear(),
+    gender: '',
+    signatory: 'R.S. Pandey (CEO)',
   });
 
   // Calculate total working days in the selected month
@@ -459,17 +470,27 @@ const SalarySlip = () => {
     const employee = employees.find(emp => emp.id == employeeId);
     if (employee) {
       setSelectedEmployee(employee);
+      
+      const gSal = employee.salary_amount || 0;
+      const bSal = Math.round(gSal * 0.5);
+      const hraSal = Math.round(bSal * 0.4);
+      const allowSal = Math.max(0, gSal - bSal - hraSal);
+      
       setFormData(prev => ({
         ...prev,
         employeeName: employee.full_name || '',
         employeeId: employee.employee_id || '',
         designation: employee.designation || '',
         department: employee.department || '',
-        bankName: '', // API mein nahi hai, user ko fill karna hoga
+        bankName: '', 
         accountNumber: employee.bank_account_number || '',
         dateOfJoining: employee.joiningDate ? new Date(employee.joiningDate).toISOString().split('T')[0] : '',
         panNumber: employee.pan_number || '',
-        grossSalary: employee.salary_amount || 10000,
+        grossSalary: gSal || '',
+        basicSalary: bSal || '',
+        hra: hraSal || '',
+        allowances: allowSal || '',
+        gender: employee.gender || '',
       }));
     }
   };
@@ -491,8 +512,8 @@ const SalarySlip = () => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'grossSalary' || name === 'lopDays' || name === 'month' || name === 'year' 
-        ? Number(value) 
+      [name]: ['grossSalary', 'basicSalary', 'hra', 'allowances', 'pf', 'esi', 'lopDays', 'month', 'year'].includes(name) 
+        ? (value === '' ? '' : Number(value)) 
         : value
     }));
   };
@@ -527,7 +548,14 @@ const SalarySlip = () => {
         month: monthNames[formData.month - 1],
         year: formData.year,
         grossSalary: formData.grossSalary,
-        netSalary: salaryData.netPay
+        netSalary: salaryData.netPay,
+        basicSalary: parseInt(formData.basicSalary) || 0,
+        hra: parseInt(formData.hra) || 0,
+        allowances: parseInt(formData.allowances) || 0,
+        pf: parseInt(formData.pf) || 0,
+        esi: parseInt(formData.esi) || 0,
+        gender: formData.gender,
+        signatory: formData.signatory
       }, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -654,7 +682,6 @@ const SalarySlip = () => {
     return finalResult + ' Only';
   };
 
-  // Salary Calculation Logic
   const salaryData = {
     grossSalary: formData.grossSalary,
     totalWorkingDays: totalWorkingDays,
@@ -670,48 +697,24 @@ const SalarySlip = () => {
       return Math.round(this.dailyRate * this.lopDays);
     },
     
-    // Calculate basic salary as 50% of gross (adjust percentage as per your policy)
     get basicSalary() {
-      const basic = Math.round(this.grossSalary * 0.5);
-      return Math.round((basic / this.totalWorkingDays) * (this.totalWorkingDays - this.lopDays));
-    },
-    
-    // Calculate paid days: Total Working Days - LOP Days
-    get paidDays() {
-      return this.totalWorkingDays - this.lopDays;
-    },
-    
-    // Calculate allowances based on paid days
-    get conveyanceAllowance() {
-      const fullConveyance = 1600; // Fixed amount for full month
-      return Math.round((fullConveyance / this.totalWorkingDays) * this.paidDays);
-    },
-    
-    get medicalAllowance() {
-      const fullMedical = 1250; // Fixed amount for full month
-      return Math.round((fullMedical / this.totalWorkingDays) * this.paidDays);
+      return formData.basicSalary || 0;
     },
     
     get houseRentAllowance() {
-      // HRA is 40% of basic (calculated on paid days)
-      const fullHRA = Math.round(this.grossSalary * 0.5 * 0.40); // 40% of 50% of gross
-      return Math.round((fullHRA / this.totalWorkingDays) * this.paidDays);
+      return formData.hra || 0;
     },
     
-    get specialAllowance() {
-      // Calculate special allowance based on remaining amount after other components
-      const otherComponents = this.basicSalary + this.houseRentAllowance + this.conveyanceAllowance + this.medicalAllowance;
-      return Math.max(0, this.grossSalary - otherComponents - this.lopDeduction);
+    get otherAllowances() {
+      return formData.allowances || 0;
     },
     
-    // ESI Calculation set to 0 as per requirement
-    get esiDeduction() {
-      return 0; // Set to 0 as per requirement
-    },
-    
-    // PF Calculation set to 0 as per requirement
     get pfDeduction() {
-      return 0; // Set to 0 as per requirement
+      return formData.pf || 0;
+    },
+    
+    get esiDeduction() {
+      return formData.esi || 0;
     },
     
     get totalDeductions() {
@@ -719,10 +722,12 @@ const SalarySlip = () => {
     },
     
     get netPay() {
-      const totalEarnings = this.basicSalary + this.houseRentAllowance + this.conveyanceAllowance + this.medicalAllowance + this.specialAllowance;
-      return totalEarnings - (this.esiDeduction + this.pfDeduction);
+      const totalEarnings = this.basicSalary + this.houseRentAllowance + this.otherAllowances;
+      return totalEarnings - this.totalDeductions;
     }
   };
+    
+
 
   // Show form if slip is not generated yet
   if (!showSlip) {
@@ -803,7 +808,43 @@ const SalarySlip = () => {
               <div className="dg-form-grid">
                 <div className="dg-form-group">
                   <label className="dg-label">Monthly Gross Salary (₹)</label>
-                  <input type="number" name="grossSalary" value={formData.grossSalary} onChange={handleChange} className="dg-input" min="0" step="100" readOnly={selectedEmployee && selectedEmployee.salary_amount} required />
+                  <input type="number" name="grossSalary" value={formData.grossSalary} onChange={handleChange} className="dg-input" min="0" step="1" required />
+                </div>
+                <div className="dg-form-group">
+                  <label className="dg-label">Basic Salary (₹)</label>
+                  <input type="number" name="basicSalary" value={formData.basicSalary} onChange={handleChange} className="dg-input" min="0" step="1" required />
+                </div>
+                <div className="dg-form-group">
+                  <label className="dg-label">House Rent Allowance (₹)</label>
+                  <input type="number" name="hra" value={formData.hra} onChange={handleChange} className="dg-input" min="0" step="1" required />
+                </div>
+                <div className="dg-form-group">
+                  <label className="dg-label">Other Allowances (₹)</label>
+                  <input type="number" name="allowances" value={formData.allowances} onChange={handleChange} className="dg-input" min="0" step="1" required />
+                </div>
+                <div className="dg-form-group">
+                  <label className="dg-label">PF Deduction (₹)</label>
+                  <input type="number" name="pf" value={formData.pf} onChange={handleChange} className="dg-input" min="0" step="1" required />
+                </div>
+                <div className="dg-form-group">
+                  <label className="dg-label">ESI Deduction (₹)</label>
+                  <input type="number" name="esi" value={formData.esi} onChange={handleChange} className="dg-input" min="0" step="1" required />
+                </div>
+                <div className="dg-form-group">
+                  <label className="dg-label">Gender</label>
+                  <select name="gender" value={formData.gender} onChange={handleChange} className="dg-input" required>
+                    <option value="">-- Select Gender --</option>
+                    <option value="He">Male (He/Him)</option>
+                    <option value="She">Female (She/Her)</option>
+                    <option value="They">Other (They/Them)</option>
+                  </select>
+                </div>
+                <div className="dg-form-group">
+                  <label className="dg-label">Signatory</label>
+                  <select name="signatory" value={formData.signatory} onChange={handleChange} className="dg-input" required>
+                    <option value="R.S. Pandey (CEO)">R.S. Pandey (CEO)</option>
+                    <option value="HR Manager">HR Manager</option>
+                  </select>
                 </div>
                 <div className="dg-form-group">
                   <label className="dg-label">Loss of Pay (LOP) Days</label>
