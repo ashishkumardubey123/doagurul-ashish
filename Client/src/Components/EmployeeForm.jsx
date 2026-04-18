@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 
 const EmployeeForm = () => {
   const [formData, setFormData] = useState({ name: '', designation: '', joining_date: '', resignation_date: '',  });
@@ -51,32 +51,59 @@ const EmployeeForm = () => {
   };
 
   return (
-    <div className='flex m-auto flex-col  '>
-      <form>
-        <input 
-        className='border border-black rounded-lg px-3 py-1 m-2'
-        type="text" placeholder="Name"  value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required/>
-        <input 
-        className='border border-black rounded-lg px-3 py-1 m-2'
-        type="text" placeholder="Designation"  value={formData.designation} onChange={(e) => setFormData({ ...formData, designation: e.target.value })} required />
-        <input
-        className='border border-black rounded-lg px-3 py-1 m-2'
-        type="date" placeholder="Joining Date"  value={formData.joining_date} onChange={(e) => setFormData({ ...formData, joining_date: e.target.value })} required />
-        <input
-        className='border border-black rounded-lg px-3 py-1 m-2'
-        type="date" placeholder="Resignation Date" value={formData.resignation_date} onChange={(e) => setFormData({ ...formData, resignation_date: e.target.value })} />
+    <div className="dg-page-container">
+      <div className="dg-page-header">
+        <span className="dg-page-tag">Experience</span>
+        <h1 className="dg-page-title">Generate Experience Letter</h1>
+      </div>
 
+      <div className="dg-form-card">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.75rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border-subtle)' }}>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            Fill in the details to generate the employee experience letter
+          </p>
+        </div>
 
-        <button 
-        className='border border-black rounded-lg px-3 py-1 m-2'
-        type="button" onClick={handleSubmit}>Save Employee</button>
+        <form>
+          <div className="dg-form-section">
+            <p className="dg-form-section-title">Employee Details</p>
+            <div className="dg-form-grid">
+              <div className="dg-form-group">
+                <label className="dg-label">Employee Name</label>
+                <input type="text" placeholder="Name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="dg-input" required />
+              </div>
+              <div className="dg-form-group">
+                <label className="dg-label">Designation</label>
+                <input type="text" placeholder="Designation" value={formData.designation} onChange={(e) => setFormData({ ...formData, designation: e.target.value })} className="dg-input" required />
+              </div>
+            </div>
+            
+            <p className="dg-form-section-title" style={{ marginTop: '1.5rem' }}>Tenure Dates</p>
+            <div className="dg-form-grid">
+              <div className="dg-form-group">
+                <label className="dg-label">Joining Date</label>
+                <input type="date" value={formData.joining_date} onChange={(e) => setFormData({ ...formData, joining_date: e.target.value })} className="dg-input" required />
+              </div>
+              <div className="dg-form-group">
+                <label className="dg-label">Resignation Date</label>
+                <input type="date" value={formData.resignation_date} onChange={(e) => setFormData({ ...formData, resignation_date: e.target.value })} className="dg-input" required />
+              </div>
+            </div>
+          </div>
 
-        {employeeId && (
-          <button
-          className='border border-black rounded-lg px-3 py-1 m-2'
-          type="button" onClick={handleDownloadPDF}>Download Experience Letter PDF</button>
-        )}
-      </form>
+          <div className="dg-form-actions">
+            {!employeeId ? (
+              <button type="button" onClick={handleSubmit} className="dg-btn-primary">
+                Save Employee Details
+              </button>
+            ) : (
+              <button type="button" onClick={handleDownloadPDF} className="dg-btn-secondary" style={{ background: '#10b981', color: '#fff', borderColor: '#059669' }}>
+                Download Experience Letter PDF
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import Modal from 'react-modal';
 import imgS from '../../assets/images/CEOSignature.png';
 import logo from '../../assets/images/CLogo.png'; // Import the logo
@@ -251,49 +251,52 @@ const WarningLetter = () => {
   warningDetails,]);
 
   return (
-    <div className="container mx-auto p-4">
-      <button onClick={handleveiw} className='border border-gray-300 w-[150px] h-10 ml-[1050px]'>Veiw all pdf</button>
-      <form className="bg-white p-6 rounded-lg shadow-lg mb-4">
-        <h2 className="text-2xl font-bold mb-4">Generate Warning Letter</h2>
-        {/* Form Fields */}
-        <div className="mb-4">
-          <label className="block text-gray-700">Candidate Name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded mt-1"
-            required
-          />
-        </div>      
-        <div className="mb-4">
-          <label className="block text-gray-700">Warning Release Date</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded mt-1"
-            required
-          />
+    <div className="dg-page-container">
+      <div className="dg-page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <span className="dg-page-tag">Warning</span>
+          <h1 className="dg-page-title">Generate Warning Letter</h1>
         </div>
-      
-        <div className="mb-4">
-          <label className="block text-gray-700">Warning Details</label>
-          
-            <input
-              type="text"
-              value={warningDetails}
-              onChange={(e) => setWarningDetails( e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded mt-1 mb-2"
-              required
-            />
-          
-         
-        </div>
-        <button type="button" onClick={openModal} className=" border border-gray-950 text-black py-2 px-4 rounded" >
-          Preview Warning Letter
+        <button onClick={handleveiw} className="dg-btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>
+          View all PDFs
         </button>
-      </form>
+      </div>
+
+      <div className="dg-form-card">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.75rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border-subtle)' }}>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            Fill in the details to generate the warning letter
+          </p>
+        </div>
+
+        <form>
+          <div className="dg-form-section">
+            <p className="dg-form-section-title">Warning Details</p>
+            <div className="dg-form-grid">
+              <div className="dg-form-group">
+                <label className="dg-label">Candidate Name</label>
+                <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="dg-input" required />
+              </div>
+
+              <div className="dg-form-group">
+                <label className="dg-label">Warning Release Date</label>
+                <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="dg-input" required />
+              </div>
+            </div>
+
+            <div className="dg-form-group" style={{ marginTop: '1rem' }}>
+              <label className="dg-label">Warning Reason / Details</label>
+              <textarea value={warningDetails} onChange={(e) => setWarningDetails(e.target.value)} className="dg-textarea" rows="4" required></textarea>
+            </div>
+          </div>
+
+          <div className="dg-form-actions">
+            <button type="button" onClick={openModal} className="dg-btn-secondary">
+              Preview Warning Letter
+            </button>
+          </div>
+        </form>
+      </div>
 
       <Modal 
         isOpen={isModalOpen} 

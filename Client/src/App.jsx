@@ -47,7 +47,7 @@ useEffect(()=>{
 
   return(
     <Fragment>
-    <main className="flex flex-col min-h-screen ">
+    <main style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {/* //Navbar  */}
       <Navbar Logout={handleLogout} render={render} />
 

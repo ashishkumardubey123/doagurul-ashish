@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import {
@@ -371,326 +371,207 @@ const InternshipOfferLetter = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Internship Offer Letter</h1>
-      
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-gray-700">Candidate Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              required
-            />
+    <div className="dg-page-container">
+      {/* Page Header */}
+      <div className="dg-page-header">
+        <span className="dg-page-tag">Internship</span>
+        <h1 className="dg-page-title">Generate Internship Offer Letter</h1>
+      </div>
+
+      <div className="dg-form-card">
+        {/* Top action bar */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.75rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border-subtle)', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            Fill in the intern details to generate the offer letter
+          </p>
+        </div>
+
+        {/* Section: Intern Info */}
+        <div className="dg-form-section">
+          <p className="dg-form-section-title">Candidate Information</p>
+          <div className="dg-form-grid">
+            <div className="dg-form-group">
+              <label className="dg-label">Candidate Name</label>
+              <input type="text" name="name" value={formData.name} onChange={handleChange} className="dg-input" style={{ paddingLeft: '1rem' }} required />
+            </div>
+            <div className="dg-form-group">
+              <label className="dg-label">Contact Number</label>
+              <input type="text" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} className="dg-input" style={{ paddingLeft: '1rem' }} required />
+            </div>
+            <div className="dg-form-group">
+              <label className="dg-label">Email</label>
+              <input type="email" name="email" value={formData.email} onChange={handleChange} className="dg-input" style={{ paddingLeft: '1rem' }} required />
+            </div>
           </div>
-          
-          <div>
-            <label className="block text-gray-700">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              required
-            />
+          <div className="dg-form-group" style={{ marginTop: '1rem' }}>
+            <label className="dg-label">Address</label>
+            <textarea name="address" value={formData.address} onChange={handleChange} className="dg-textarea" rows="3" required></textarea>
           </div>
-          
-          <div>
-            <label className="block text-gray-700">Phone Number</label>
-            <input
-              type="text"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              required
-            />
+        </div>
+
+        {/* Section: Internship Details */}
+        <div className="dg-form-section">
+          <p className="dg-form-section-title">Internship Details</p>
+          <div className="dg-form-grid">
+            <div className="dg-form-group">
+              <label className="dg-label">Position</label>
+              <input type="text" name="position" value={formData.position} onChange={handleChange} className="dg-input" style={{ paddingLeft: '1rem' }} required />
+            </div>
+            <div className="dg-form-group">
+              <label className="dg-label">Monthly Stipend</label>
+              <input type="text" name="stipend" value={formData.stipend} onChange={handleChange} className="dg-input" style={{ paddingLeft: '1rem' }} placeholder="e.g., Rs. 5000" required />
+            </div>
+            <div className="dg-form-group">
+              <label className="dg-label">Start Date</label>
+              <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} className="dg-input" style={{ paddingLeft: '1rem' }} required />
+            </div>
+            <div className="dg-form-group">
+              <label className="dg-label">End Date</label>
+              <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} className="dg-input" style={{ paddingLeft: '1rem' }} required />
+            </div>
           </div>
-          
-          <div>
-            <label className="block text-gray-700">Position</label>
-            <input
-              type="text"
-              name="position"
-              value={formData.position}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              required
-            />
+        </div>
+
+        {/* Section: Mentor & Misc */}
+        <div className="dg-form-section">
+          <p className="dg-form-section-title">Mentor & Issuance</p>
+          <div className="dg-form-grid">
+            <div className="dg-form-group">
+              <label className="dg-label">Mentor's Name</label>
+              <input type="text" name="mentorName" value={formData.mentorName} onChange={handleChange} className="dg-input" style={{ paddingLeft: '1rem' }} required />
+            </div>
+            <div className="dg-form-group">
+              <label className="dg-label">Mentor's Contact</label>
+              <input type="text" name="mentorContact" value={formData.mentorContact} onChange={handleChange} className="dg-input" style={{ paddingLeft: '1rem' }} required />
+            </div>
+            <div className="dg-form-group">
+              <label className="dg-label">Offer Release Date</label>
+              <input type="date" name="offerReleaseDate" value={formData.offerReleaseDate} onChange={handleChange} className="dg-input" style={{ paddingLeft: '1rem' }} required />
+            </div>
           </div>
-          
-          <div>
-            <label className="block text-gray-700">Start Date</label>
-            <input
-              type="date"
-              name="startDate"
-              value={formData.startDate}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-gray-700">End Date</label>
-            <input
-              type="date"
-              name="endDate"
-              value={formData.endDate}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-gray-700">Monthly Stipend</label>
-            <input
-              type="text"
-              name="stipend"
-              value={formData.stipend}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              placeholder="e.g., ₹5,000 per month"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-gray-700">Mentor's Name</label>
-            <input
-              type="text"
-              name="mentorName"
-              value={formData.mentorName}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-gray-700">Mentor's Contact</label>
-            <input
-              type="text"
-              name="mentorContact"
-              value={formData.mentorContact}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-gray-700">Offer Release Date</label>
-            <input
-              type="date"
-              name="offerReleaseDate"
-              value={formData.offerReleaseDate}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-          
-          <div className="col-span-2">
-            <label className="block text-gray-700">Address</label>
-            <textarea
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              rows="3"
-              required
-            ></textarea>
-          </div>
-          
-          <div className="col-span-2">
-            <label className="block text-gray-700">Terms & Conditions</label>
+        </div>
+
+        {/* Section: Terms and Conditions */}
+        <div className="dg-form-section">
+          <p className="dg-form-section-title">Terms & Conditions</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
             {formData.termsAndConditions.map((term, index) => (
-              <div key={index} className="flex items-center mb-2">
-                <span className="mr-2">{index + 1}.</span>
+              <div key={index} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <span style={{ color: 'var(--primary-light)', fontWeight: 700, fontSize: '0.875rem', minWidth: '1.5rem', textAlign: 'center' }}>
+                  {index + 1}.
+                </span>
                 <input
                   type="text"
                   value={term}
                   onChange={(e) => handleTermChange(index, e.target.value)}
-                  className="flex-1 p-2 border rounded"
+                  className="dg-input"
+                  style={{ paddingLeft: '1rem', flex: 1 }}
                   required
                 />
               </div>
             ))}
-            <button
-              type="button"
-              onClick={addTerm}
-              className="mt-2 px-3 py-1 bg-blue-100 text-blue-700 rounded"
-            >
-              + Add Term
-            </button>
           </div>
-        </div>
-        
-        <div className="mt-6">
           <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            type="button"
+            onClick={addTerm}
+            style={{ marginTop: '0.875rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1rem', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '8px', color: '#10b981', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600, transition: 'all 0.2s' }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(16,185,129,0.18)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(16,185,129,0.1)'}
           >
-            Preview Offer Letter
+            + Add Term
           </button>
         </div>
-      </form>
+
+        {/* Action Buttons */}
+        <div className="dg-form-actions">
+          <button type="button" onClick={handleSubmit} className="dg-btn-secondary">
+            Preview Letter
+          </button>
+        </div>
+      </div>
 
       {/* Preview Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg w-[95vw] max-w-7xl h-[95vh] flex flex-col">
-            <div ref={previewRef} className="flex-1 p-8 overflow-y-auto">
-              <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-lg">
-                <div className="print-header flex justify-center">
-                  <h1 className="text-xl font-bold pt-7 text-center">INTERNSHIP OFFER LETTER</h1>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div style={{ background: '#1a1a2e', border: '1px solid var(--border-medium)', borderRadius: '16px', width: '95vw', maxWidth: '900px', height: '92vh', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 80px rgba(0,0,0,0.6)', animation: 'fadeInUp 0.3s ease' }}>
+            {/* Modal Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Internship Offer Preview — {formData.name || 'Candidate'}</h3>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button onClick={handlePrint} style={{ padding: '0.5rem 1rem', background: 'linear-gradient(135deg,#10b981,#059669)', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
+                  Download PDF
+                </button>
+                <button onClick={handleSaveInfo} style={{ padding: '0.5rem 1rem', background: 'linear-gradient(135deg,#6366f1,#4f46e5)', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
+                  Save & Print
+                </button>
+                <button onClick={closeModal} style={{ padding: '0.5rem 0.875rem', background: 'rgba(244,63,94,0.1)', border: '1px solid rgba(244,63,94,0.3)', borderRadius: '8px', color: '#f43f5e', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
+                  Close
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body: Printed White Theme for PDF */}
+            <div ref={previewRef} style={{ flex: 1, overflowY: 'auto', padding: '2rem', background: '#f8f9fa' }}>
+              <div style={{ maxWidth: '720px', margin: '0 auto', background: 'white', borderRadius: '8px', padding: '3rem', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', color: '#1a1a1a', fontSize: '0.9rem', lineHeight: 1.7 }}>
+                <h1 style={{ textAlign: 'center', fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>INTERNSHIP OFFER LETTER</h1>
+                <div style={{ borderBottom: '2px solid #6366f1', marginBottom: '1rem', paddingBottom: '0.75rem' }}>
+                  <p style={{ fontWeight: 700, fontSize: '1rem' }}>DOAGuru Infosystems</p>
+                  <p style={{ fontSize: '0.8rem', color: '#555' }}>www.doaguru.com | info@doaguru.com | +91-7440992424</p>
                 </div>
-
-                <div className="company-header">
-                  <h2>DOAGuru Infosystems</h2>
-                  <div className="company-info">
-                    Website: <a href="http://www.doaguru.com" target="_blank" rel="noreferrer" className="text-blue-900">www.doaguru.com</a> | Email: info@doaguru.com | Contact: +91-7440992424
+                <p style={{ marginBottom: '1rem' }}><strong>Date:</strong> {formData.offerReleaseDate || new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                <p><strong>To,</strong><br />{formData.name}<br />{formData.address}<br />{formData.phoneNumber}<br />{formData.email}</p>
+                <p style={{ marginTop: '1rem' }}><strong>Subject: Offer of Internship</strong></p>
+                <p style={{ marginTop: '0.5rem' }}>Dear {formData.name},</p>
+                <p>We are pleased to offer you an internship position at DOAGuru Infosystems as <strong>{formData.position}</strong></p>
+                
+                <div style={{ marginTop: '1.5rem' }}>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <p style={{ fontWeight: 700 }}>1. Internship Duration</p>
+                    <p>Your internship will be from <strong>{formData.startDate}</strong> to <strong>{formData.endDate}</strong>.</p>
                   </div>
-                </div>
-
-                <div className="release-date mt-4">
-                  <p>
-                    <strong>Date: {formData.offerReleaseDate || new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</strong>
-                  </p>
-                </div>
-
-                <div className="candidate-info mt-4">
-                  <p>
-                    <strong>To,</strong>
-                    <br />
-                    {formData.name}
-                    <br />
-                    {formData.address}
-                    <br />
-                    {formData.phoneNumber}
-                    <br />
-                    {formData.email}
-                  </p>
-                </div>
-
-                <div className="subject-line mt-4">
-                  <p>
-                    <strong>Subject: Offer of Internship</strong>
-                  </p>
-                  <p className="mt-2">Dear {formData.name},</p>
-                  <p className="mt-2">
-                    We are pleased to offer you an internship position at DOAGuru Infosystems as <strong>{formData.position}</strong>
-                  </p>
-                </div>
-
-                <div className="mt-6 space-y-4">
-                  <div>
-                    <h3 className="font-bold">1. Internship Duration</h3>
-                    <p>
-                      Your internship will be from <strong>{formData.startDate}</strong> to <strong>{formData.endDate}</strong>.
-                    </p>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <p style={{ fontWeight: 700 }}>2. Position & Department</p>
+                    <p>You will be designated as <strong>{formData.position}</strong>, and you will report to the assigned mentor.</p>
                   </div>
-
-                  <div>
-                    <h3 className="font-bold">2. Position & Department</h3>
-                    <p>
-                      You will be designated as <strong>{formData.position}</strong>, and you will report to the assigned mentor as per project requirement.
-                    </p>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <p style={{ fontWeight: 700 }}>3. Stipend</p>
+                    <p>You will receive a monthly stipend of <strong>{formData.stipend}</strong>.</p>
                   </div>
-
-                  <div>
-                    <h3 className="font-bold">3. Stipend</h3>
-                    <p>
-                      You will receive a monthly stipend of <strong>{formData.stipend}</strong> for the duration of your internship.
-                    </p>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <p style={{ fontWeight: 700 }}>4. Mentor Details</p>
+                    <p>You will be assigned <strong>{formData.mentorName}</strong> ({formData.mentorContact}).</p>
                   </div>
-
-                  <div>
-                    <h3 className="font-bold">4. Mentor Details</h3>
-                    <p>
-                      You will be assigned <strong>{formData.mentorName}</strong> as your mentor.
-                    </p>
-                    <p>
-                      Contact: <strong>{formData.mentorContact}</strong>
-                    </p>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <p style={{ fontWeight: 700 }}>5. Working Days</p>
+                    <p>You will work 6 days a week, Monday to Saturday, 10:00 AM to 7:00 PM.</p>
                   </div>
-
-                  <div>
-                    <h3 className="font-bold">5. Working Days</h3>
-                    <p>
-                      You will work 6 days a week, Monday to Saturday, with working hours from 10:00 AM to 7:00 PM as per company policy.
-                    </p>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <p style={{ fontWeight: 700 }}>6. Place of Work</p>
+                    <p>DOAGuru Infosystems, Jabalpur (M.P.), or as assigned.</p>
                   </div>
-
-                  <div>
-                    <h3 className="font-bold">6. Place of Work</h3>
-                    <p>
-                      Your primary place of work will be at DOAGuru Infosystems, Jabalpur (M.P.), or any other location as assigned.
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-bold">7. Terms & Conditions</h3>
-                    <ul className="list-disc pl-5 mt-2 space-y-1">
-                      {formData.termsAndConditions.map((term, index) => (
-                        <li key={index}>{term}</li>
-                      ))}
+                  <div style={{ marginBottom: '1rem' }}>
+                    <p style={{ fontWeight: 700 }}>7. Terms & Conditions</p>
+                    <ul style={{ paddingLeft: '1.25rem', marginTop: '0.5rem' }}>
+                      {formData.termsAndConditions.map((term, index) => <li key={index}>{term}</li>)}
                     </ul>
                   </div>
-
-                  <div>
-                    <h3 className="font-bold">8. General Guidelines</h3>
-                    <ul className="list-disc pl-5 mt-2 space-y-1">
-                      <li>You are expected to maintain the highest standards of professionalism, confidentiality, and follow all company policies.</li>
-                      <li>You are also expected to adhere to the company's code of conduct and ethical guidelines.</li>
-                      <li>The company reserves the right to amend these terms and conditions at any time, with prior notice to the intern.</li>
-                      <li>This offer is valid for 7 days from the date of issue.</li>
-                      <li>Failure to accept this offer within the stipulated time will result in the offer being considered withdrawn.</li>
-                      <li>Any disputes arising from this offer shall be resolved in accordance with the laws of India.</li>
-                    </ul>
-                  </div>
-
-                  <div className="mt-8">
-                    <p>We look forward to your valuable contribution to DOAGURU INFOSYSTEMS. Please sign and return a copy of this letter as confirmation of your acceptance.</p>
-                  </div>
-
-                  <div className="mt-8">
-                    <p className="font-bold">Warm Regards,</p>
-                    <div className="mt-4">
-                      <p className="font-bold">R.S. Pandey</p>
-                      <p>Director</p>
-                      <p>DOAGuru Infosystems</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-12 border-t pt-4">
-                    <h3 className="font-bold">Acknowledgment:</h3>
-                    <p>I, <span className="font-bold">{formData.name}</span>, accept the above terms and conditions of internship.</p>
-                    <div className="mt-8 space-y-4">
-                      <p>Signature: ___________________</p>
-                      <p>Date: ________________</p>
-                    </div>
+                </div>
+                
+                <p style={{ marginTop: '1.5rem' }}>We look forward to your valuable contribution. Please sign and return a copy as confirmation.</p>
+                <div style={{ marginTop: '2rem' }}>
+                  <p style={{ fontWeight: 700 }}>Warm Regards,</p>
+                  <p style={{ marginTop: '0.5rem' }}>R.S. Pandey</p>
+                  <p>Director, DOAGuru Infosystems</p>
+                </div>
+                <div style={{ marginTop: '2.5rem', borderTop: '1px solid #ddd', paddingTop: '1rem' }}>
+                  <p style={{ fontWeight: 700 }}>Acknowledgment</p>
+                  <p>I, <strong>{formData.name}</strong>, accept the above terms and conditions of internship.</p>
+                  <div style={{ marginTop: '1.5rem', display: 'flex', gap: '3rem' }}>
+                    <p>Signature: ___________________</p>
+                    <p>Date: ________________</p>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="p-4 border-t bg-gray-50 rounded-b-lg flex justify-end gap-2">
-              <button onClick={handlePrint} className="bg-green-500 text-white py-2 px-4 rounded mr-2">
-                Without Save Download PDF
-              </button>
-              <button onClick={handleSaveInfo} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                Save and Print
-              </button>
-              <button onClick={closeModal} className="bg-red-500 text-white py-2 px-4 rounded">
-                Close
-              </button>
             </div>
           </div>
         </div>

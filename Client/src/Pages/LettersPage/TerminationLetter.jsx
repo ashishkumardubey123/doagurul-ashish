@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+﻿import { useState, useRef } from 'react';
 import Modal from 'react-modal';
 import { useNavigate } from 'react-router-dom';
 import { IoMdArrowBack } from "react-icons/io";
@@ -146,72 +146,57 @@ const TerminationLetter = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <button 
-        onClick={handleViewAll} 
-        className="border border-gray-300 w-[150px] h-10 ml-[1050px] mb-4"
-      >
-        View all PDFs
-      </button>
+    <div className="dg-page-container">
+      <div className="dg-page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <span className="dg-page-tag">Termination</span>
+          <h1 className="dg-page-title">Generate Termination Letter</h1>
+        </div>
+        <button onClick={handleViewAll} className="dg-btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>
+          View all PDFs
+        </button>
+      </div>
       
-      <form className="bg-white p-6 rounded-lg shadow-lg mb-4">
-        <h2 className="text-2xl font-bold mb-4">Generate Termination Letter</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-1">Employee Name <span className="text-red-500">*</span></label>
-            <input
-              type="text"
-              value={employeeName}
-              onChange={(e) => setEmployeeName(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded"
-              required
-            />
-          </div>
-          
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-1">Employee ID</label>
-            <input
-              type="text"
-              value={employeeId}
-              onChange={(e) => setEmployeeId(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded"
-            />
-          </div>
-          
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-1">Designation <span className="text-red-500">*</span></label>
-            <input
-              type="text"
-              value={designation}
-              onChange={(e) => setDesignation(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded"
-              required
-            />
-          </div>
-          
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-1">Termination Date <span className="text-red-500">*</span></label>
-            <input
-              type="date"
-              value={terminationDate}
-              onChange={(e) => setTerminationDate(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded"
-              required
-            />
-          </div>
+      <div className="dg-form-card">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.75rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border-subtle)' }}>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            Fill in the details to generate the termination letter
+          </p>
         </div>
-        
-        <div className="mt-6">
-          <button
-            type="button"
-            onClick={openModal}
-            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-6 rounded"
-          >
-            Preview Termination Letter
-          </button>
-        </div>
-      </form>
+
+        <form>
+          <div className="dg-form-section">
+            <p className="dg-form-section-title">Employee Details</p>
+            <div className="dg-form-grid">
+              <div className="dg-form-group">
+                <label className="dg-label">Employee Name</label>
+                <input type="text" value={employeeName} onChange={(e) => setEmployeeName(e.target.value)} className="dg-input" required />
+              </div>
+              
+              <div className="dg-form-group">
+                <label className="dg-label">Employee ID</label>
+                <input type="text" value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} className="dg-input" />
+              </div>
+              
+              <div className="dg-form-group">
+                <label className="dg-label">Designation</label>
+                <input type="text" value={designation} onChange={(e) => setDesignation(e.target.value)} className="dg-input" required />
+              </div>
+              
+              <div className="dg-form-group">
+                <label className="dg-label">Termination Date</label>
+                <input type="date" value={terminationDate} onChange={(e) => setTerminationDate(e.target.value)} className="dg-input" required />
+              </div>
+            </div>
+          </div>
+          
+          <div className="dg-form-actions">
+            <button type="button" onClick={openModal} className="dg-btn-secondary">
+              Preview Termination Letter
+            </button>
+          </div>
+        </form>
+      </div>
 
       <Modal
         isOpen={isModalOpen}

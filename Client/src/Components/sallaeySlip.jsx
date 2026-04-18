@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import CLogo from "../assets/images/CLogo.png";
 import Signature from "../assets/images/CEOSignature.png";
 import headerImg from "../assets/images/NewHeaderImage.png";
@@ -705,266 +705,111 @@ const SalarySlip = () => {
   // Show form if slip is not generated yet
   if (!showSlip) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-4 sm:p-6 md:p-8">
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl">
-          <div className="bg-gradient-to-r from-indigo-600 to-blue-600 p-6 text-white">
-            <h2 className="text-2xl md:text-3xl font-bold text-center">Employee Salary Details</h2>
-            <p className="text-center text-blue-100 mt-2">Fill in the details to generate salary slip</p>
+      <div className="dg-page-container">
+        <div className="dg-page-header">
+          <span className="dg-page-tag">Salary</span>
+          <h1 className="dg-page-title">Generate Salary Slip</h1>
+        </div>
+        
+        <div className="dg-form-card">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.75rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border-subtle)' }}>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+              Fill in the details to generate the employee salary slip
+            </p>
           </div>
-          <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
-            {/* Employee Selection */}
-            <div className="space-y-1">
-              <label className="block text-sm font-medium text-gray-700">Select Employee <span className="text-red-500">*</span></label>
-              <select
-                onChange={(e) => handleEmployeeSelect(e.target.value)}
-                className="block w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-                required
-              >
-                <option value="">-- Select Employee --</option>
-                {loading ? (
-                  <option>Loading employees...</option>
-                ) : (
-                  employees.map((employee) => (
-                    <option key={employee.id} value={employee.id}>
-                      {employee.full_name} - {employee.designation} ({employee.department})
-                    </option>
-                  ))
-                )}
-              </select>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">Employee Name <span className="text-red-500">*</span></label>
-                <input
-                  type="text"
-                  name="employeeName"
-                  value={formData.employeeName}
-                  onChange={handleChange}
-                  className="block w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-                  required
-                  placeholder="Enter full name"
-                  readOnly={selectedEmployee && selectedEmployee.full_name}
-                  style={{ backgroundColor: selectedEmployee && selectedEmployee.full_name ? '#f3f4f6' : 'white' }}
-                />
-              </div>
-              
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">Employee ID <span className="text-red-500">*</span></label>
-                <input
-                  type="text"
-                  name="employeeId"
-                  value={formData.employeeId}
-                  onChange={handleChange}
-                  className="block w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-                  required
-                  placeholder="Enter employee ID"
-                  readOnly={selectedEmployee && selectedEmployee.employee_id}
-                  style={{ backgroundColor: selectedEmployee && selectedEmployee.employee_id ? '#f3f4f6' : 'white' }}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">Designation <span className="text-red-500">*</span></label>
-                <input
-                  type="text"
-                  name="designation"
-                  value={formData.designation}
-                  onChange={handleChange}
-                  className="block w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-                  required
-                  placeholder="Enter designation"
-                  readOnly={selectedEmployee && selectedEmployee.designation}
-                  style={{ backgroundColor: selectedEmployee && selectedEmployee.designation ? '#f3f4f6' : 'white' }}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">Department <span className="text-red-500">*</span></label>
-                <input
-                  type="text"
-                  name="department"
-                  value={formData.department}
-                  onChange={handleChange}
-                  className="block w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-                  required
-                  placeholder="Enter department"
-                  readOnly={selectedEmployee && selectedEmployee.department}
-                  style={{ backgroundColor: selectedEmployee && selectedEmployee.department ? '#f3f4f6' : 'white' }}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">Bank Name <span className="text-red-500">*</span></label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="bankName"
-                    value={formData.bankName}
-                    onChange={handleChange}
-                    className="block w-full px-4 py-2.5 pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-                    required
-                    placeholder="e.g. State Bank of India"
-                  />
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">Account Number <span className="text-red-500">*</span></label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="accountNumber"
-                    value={formData.accountNumber}
-                    onChange={handleChange}
-                    className="block w-full px-4 py-2.5 pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-                    required
-                    placeholder="Enter account number"
-                    readOnly={selectedEmployee && selectedEmployee.bank_account_number}
-                    style={{ backgroundColor: selectedEmployee && selectedEmployee.bank_account_number ? '#f3f4f6' : 'white' }}
-                  />
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">PAN Number <span className="text-red-500">*</span></label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="panNumber"
-                    value={formData.panNumber}
-                    onChange={handleChange}
-                    className="block w-full px-4 py-2.5 pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-                    required
-                    placeholder="e.g. ABCDE1234F"
-                    readOnly={selectedEmployee && selectedEmployee.pan_number}
-                    style={{ backgroundColor: selectedEmployee && selectedEmployee.pan_number ? '#f3f4f6' : 'white' }}
-                  />
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">Date of Joining <span className="text-red-500">*</span></label>
-                <div className="relative">
-                  <input
-                    type="date"
-                    name="dateOfJoining"
-                    value={formData.dateOfJoining}
-                    onChange={handleChange}
-                    className="block w-full px-4 py-2.5 pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-                    required
-                    readOnly={selectedEmployee && selectedEmployee.joiningDate}
-                    style={{ backgroundColor: selectedEmployee && selectedEmployee.joiningDate ? '#f3f4f6' : 'white' }}
-                  />
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">Gross Salary (₹)</label>
-                <input
-                  type="number"
-                  name="grossSalary"
-                  value={formData.grossSalary}
-                  onChange={handleChange}
-                  min="0"
-                  step="100"
-                //   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                className="block w-full px-4 py-2.5 pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-                  required
-                  readOnly={selectedEmployee && selectedEmployee.salary_amount}
-                  style={{ backgroundColor: selectedEmployee && selectedEmployee.salary_amount ? '#f3f4f6' : 'white' }}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">Month <span className="text-red-500">*</span></label>
-                <div className="relative">
-                  <select
-                    name="month"
-                    value={formData.month}
-                    onChange={handleChange}
-                    className="appearance-none block w-full px-4 py-2.5 pr-8 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-                    required
-                  >
-                    {monthNames.map((month, index) => (
-                      <option key={index} value={index + 1}>
-                        {month}
+          <form onSubmit={handleSubmit}>
+            <div className="dg-form-section">
+              <p className="dg-form-section-title">Employee Selection</p>
+              <div className="dg-form-group">
+                <label className="dg-label">Select Employee</label>
+                <select onChange={(e) => handleEmployeeSelect(e.target.value)} className="dg-input" required>
+                  <option value="">-- Select Employee --</option>
+                  {loading ? (
+                    <option>Loading employees...</option>
+                  ) : (
+                    employees.map((employee) => (
+                      <option key={employee.id} value={employee.id}>
+                        {employee.full_name} - {employee.designation} ({employee.department})
                       </option>
-                    ))}
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">Year</label>
-                <select
-                  name="year"
-                  value={formData.year}
-                  onChange={handleChange}
-                  className="block w-full px-4 py-2.5 pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-                //   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  required
-                >
-                  {Array.from({ length: 10 }, (_, i) => {
-                    const year = new Date().getFullYear() - 5 + i;
-                    return (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    );
-                  })}
+                    ))
+                  )}
                 </select>
               </div>
+            </div>
 
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">LOP (Leave Without Pay) Days</label>
-                <input
-                  type="number"
-                  name="lopDays"
-                  value={formData.lopDays}
-                  onChange={handleChange}
-                  min="0"
-                  max={totalWorkingDays}
-                  className="block w-full px-4 py-2.5 pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
-                //   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  required
-                />
-                <p className="mt-1 text-xs text-gray-500">
-                  Total working days in {monthNames[formData.month - 1]} {formData.year}: {totalWorkingDays}
-                </p>
+            <div className="dg-form-section">
+              <p className="dg-form-section-title">Employee Details</p>
+              <div className="dg-form-grid">
+                <div className="dg-form-group">
+                  <label className="dg-label">Employee Name</label>
+                  <input type="text" name="employeeName" value={formData.employeeName} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.full_name} style={{ backgroundColor: selectedEmployee && selectedEmployee.full_name ? 'rgba(255,255,255,0.05)' : '' }} required />
+                </div>
+                <div className="dg-form-group">
+                  <label className="dg-label">Employee ID</label>
+                  <input type="text" name="employeeId" value={formData.employeeId} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.employee_id} style={{ backgroundColor: selectedEmployee && selectedEmployee.employee_id ? 'rgba(255,255,255,0.05)' : '' }} required />
+                </div>
+                <div className="dg-form-group">
+                  <label className="dg-label">Designation</label>
+                  <input type="text" name="designation" value={formData.designation} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.designation} style={{ backgroundColor: selectedEmployee && selectedEmployee.designation ? 'rgba(255,255,255,0.05)' : '' }} required />
+                </div>
+                <div className="dg-form-group">
+                  <label className="dg-label">Department</label>
+                  <input type="text" name="department" value={formData.department} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.department} style={{ backgroundColor: selectedEmployee && selectedEmployee.department ? 'rgba(255,255,255,0.05)' : '' }} required />
+                </div>
               </div>
             </div>
 
-            <div className="mt-6">
-              <button
-                type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
+            <div className="dg-form-section">
+              <p className="dg-form-section-title">Bank Details</p>
+              <div className="dg-form-grid">
+                <div className="dg-form-group">
+                  <label className="dg-label">Bank Name</label>
+                  <input type="text" name="bankName" value={formData.bankName} onChange={handleChange} className="dg-input" required />
+                </div>
+                <div className="dg-form-group">
+                  <label className="dg-label">Account Number</label>
+                  <input type="text" name="accountNumber" value={formData.accountNumber} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.bank_account_number} style={{ backgroundColor: selectedEmployee && selectedEmployee.bank_account_number ? 'rgba(255,255,255,0.05)' : '' }} required />
+                </div>
+                <div className="dg-form-group">
+                  <label className="dg-label">PAN Number</label>
+                  <input type="text" name="panNumber" value={formData.panNumber} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.pan_number} style={{ backgroundColor: selectedEmployee && selectedEmployee.pan_number ? 'rgba(255,255,255,0.05)' : '' }} required />
+                </div>
+                <div className="dg-form-group">
+                  <label className="dg-label">Date of Joining</label>
+                  <input type="date" name="dateOfJoining" value={formData.dateOfJoining} onChange={handleChange} className="dg-input" readOnly={selectedEmployee && selectedEmployee.joiningDate} style={{ backgroundColor: selectedEmployee && selectedEmployee.joiningDate ? 'rgba(255,255,255,0.05)' : '' }} required />
+                </div>
+              </div>
+            </div>
+
+            <div className="dg-form-section">
+              <p className="dg-form-section-title">Salary Information</p>
+              <div className="dg-form-grid">
+                <div className="dg-form-group">
+                  <label className="dg-label">Monthly Gross Salary (₹)</label>
+                  <input type="number" name="grossSalary" value={formData.grossSalary} onChange={handleChange} className="dg-input" min="0" step="100" readOnly={selectedEmployee && selectedEmployee.salary_amount} style={{ backgroundColor: selectedEmployee && selectedEmployee.salary_amount ? 'rgba(255,255,255,0.05)' : '' }} required />
+                </div>
+                <div className="dg-form-group">
+                  <label className="dg-label">Loss of Pay (LOP) Days</label>
+                  <input type="number" name="lopDays" value={formData.lopDays} onChange={handleChange} className="dg-input" min="0" max="31" step="0.5" required />
+                </div>
+                <div className="dg-form-group">
+                  <label className="dg-label">Month</label>
+                  <select name="month" value={formData.month} onChange={handleChange} className="dg-input" required>
+                    {monthNames.map((month, index) => (
+                      <option key={index} value={index + 1}>{month}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="dg-form-group">
+                  <label className="dg-label">Year</label>
+                  <input type="number" name="year" value={formData.year} onChange={handleChange} className="dg-input" min="2000" max="2100" />
+                </div>
+              </div>
+            </div>
+
+            <div className="dg-form-actions">
+              <button type="submit" className="dg-btn-secondary">
                 Generate Salary Slip
               </button>
             </div>
@@ -1028,8 +873,8 @@ const SalarySlip = () => {
           }
         }
       `}</style>
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-200 p-4 sm:p-6 md:p-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="dg-page-container">
+      <div className="max-w-4xl mx-auto w-full">
         <div className="mb-8 text-center">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Salary Slip Generator</h1>
           <p className="text-gray-600">Generated on {new Date().toLocaleDateString('en-IN')}</p>

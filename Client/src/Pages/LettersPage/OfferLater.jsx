@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import {
@@ -25,7 +25,7 @@ import footerImg from '../../assets/images/NewFotterImage.png';
 const safe = (v) => (v === null || v === undefined ? '' : String(v));
 const safeArray = (arr) => (Array.isArray(arr) ? arr.filter((x) => typeof x === 'string' && x.trim() !== '') : []);
 
-// PDF Styles — use numeric values (points) instead of CSS strings
+// PDF Styles â€” use numeric values (points) instead of CSS strings
 const styles = StyleSheet.create({
   page: {
     paddingTop: 80,
@@ -183,7 +183,7 @@ const OfferLetterPDF = ({ data }) => {
           <Text style={styles.sectionTitle}>5. Compensation</Text>
           <View style={styles.listItem}>
             <Text style={styles.bullet}>{'\u2022'}</Text>
-            <Text>Your monthly salary for the first month will be ₹{d.salary} Only.</Text>
+            <Text>Your monthly salary for the first month will be â‚¹{d.salary} Only.</Text>
           </View>
           <View style={styles.listItem}>
             <Text style={styles.bullet}>{'\u2022'}</Text>
@@ -502,385 +502,228 @@ const OfferLater = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="bg-white p-6 rounded-lg shadow-lg mb-4">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">
-            {isPreviewMode ? 'Preview Offer Letter' : isEditMode ? 'Edit Offer Letter' : 'Generate Offer Letter'}
-          </h2>
-          <div className="flex gap-2">
+    <div className="dg-page-container">
+      <div className="dg-page-header">
+        <span className="dg-page-tag">Employee</span>
+        <h1 className="dg-page-title">
+          {isPreviewMode ? 'Preview Offer Letter' : isEditMode ? 'Edit Offer Letter' : 'Generate Offer Letter'}
+        </h1>
+      </div>
+
+      <div className="dg-form-card">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.75rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border-subtle)', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            {isEditMode ? 'Update the details and regenerate PDF' : 'Fill in the candidate details to generate the offer letter'}
+          </p>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             {(isEditMode || isPreviewMode) && (
-              <button
-                onClick={() => navigate('/download/offer-letter')}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
-              >
+              <button onClick={() => navigate('/download/offer-letter')} className="dg-btn-secondary">
                 Back to List
               </button>
             )}
             {!isPreviewMode && (
-              <button onClick={handleSaveInfo} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                {isEditMode ? 'Update' : 'Save and Print'}
+              <button onClick={handleSaveInfo} className="dg-btn-primary" style={{ width: 'auto' }}>
+                {isEditMode ? 'Update Letter' : 'Save & Download PDF'}
               </button>
             )}
           </div>
         </div>
 
-        {/* Form Fields */}
-        <div className={`mb-4 ${isPreviewMode ? 'opacity-75' : ''}`}>
-          <label className="block text-gray-700">Candidate Name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded mt-1"
-            required
-            disabled={isPreviewMode}
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700">Address</label>
-          <textarea
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded mt-1 resize-none"
-            rows="3"
-            required
-            disabled={isPreviewMode}
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700">Contact Number</label>
-          <input
-            type="text"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded mt-1"
-            required
-            disabled={isPreviewMode}
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700">Email ID</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded mt-1"
-            required
-            disabled={isPreviewMode}
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700">Position</label>
-          <input
-            type="text"
-            value={position}
-            onChange={(e) => setPosition(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded mt-1"
-            required
-            disabled={isPreviewMode}
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700">Salary</label>
-          <input
-            type="text"
-            value={salary}
-            onChange={(e) => setSalary(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded mt-1"
-            placeholder="e.g., 10000 ₹"
-            required
-            disabled={isPreviewMode}
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700">Joining Date</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded mt-1"
-            required
-            disabled={isPreviewMode}
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Offer Release Date</label>
-          <input
-            type="date"
-            value={offerReleaseDate}
-            onChange={(e) => setOfferReleaseDate(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded mt-1"
-            required
-            disabled={isPreviewMode}
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700">Probation Period</label>
-          <select
-            value={probationPeriod}
-            onChange={(e) => setProbationPeriod(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded mt-1"
-            required
-            disabled={isPreviewMode}
-          >
-            <option value="">Select Probation Period</option>
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((month) => (
-              <option key={month} value={month}>
-                {month} month{month > 1 ? 's' : ''}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700">Notice Period During Probation</label>
-          <select
-            value={noticePeriod}
-            onChange={(e) => setNoticePeriod(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded mt-1"
-            required
-            disabled={isPreviewMode}
-          >
-            <option value="">Select Notice Period</option>
-            <option value="7 days">7 days</option>
-            <option value="15 days">15 days</option>
-          </select>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700">Notice Period After Confirmation</label>
-          <input
-            type="text"
-            value={confirmationNoticePeriod}
-            onChange={(e) => setConfirmationNoticePeriod(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded mt-1"
-            placeholder="e.g., 30 days"
-            required
-            disabled={isPreviewMode}
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700">Job Responsibilities</label>
-          {jobResponsibilities.map((responsibility, index) => (
-            <div key={index} className="flex items-center mb-2">
-              <input
-                type="text"
-                value={responsibility}
-                onChange={(e) => handleJobResponsibilitiesChange(index, e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded mt-1 mb-2"
-                required
-                disabled={isPreviewMode}
-              />
-              {!isPreviewMode && (
-                <button
-                  type="button"
-                  onClick={() => handleRemoveJobResponsibility(index)}
-                  className="ml-2 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                  aria-label="Remove job responsibility"
-                >
-                  Remove
-                </button>
-              )}
+        <div className="dg-form-section">
+          <p className="dg-form-section-title">Candidate Information</p>
+          <div className="dg-form-grid">
+            <div className="dg-form-group">
+              <label className="dg-label">Candidate Name</label>
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="dg-input" style={{ paddingLeft: '1rem' }} placeholder="Full name" required disabled={isPreviewMode} />
             </div>
-          ))}
-          <button
-            type="button"
-            onClick={addJobResponsibility}
-            className="border-2 border-green-400 text-black py-2 px-4 rounded"
-            disabled={isPreviewMode}
-          >
-            Add Job Responsibility
-          </button>
+            <div className="dg-form-group">
+              <label className="dg-label">Contact Number</label>
+              <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="dg-input" style={{ paddingLeft: '1rem' }} placeholder="+91 XXXXX XXXXX" required disabled={isPreviewMode} />
+            </div>
+            <div className="dg-form-group">
+              <label className="dg-label">Email ID</label>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="dg-input" style={{ paddingLeft: '1rem' }} placeholder="candidate@email.com" required disabled={isPreviewMode} />
+            </div>
+          </div>
+          <div className="dg-form-group" style={{ marginTop: '1rem' }}>
+            <label className="dg-label">Address</label>
+            <textarea value={address} onChange={(e) => setAddress(e.target.value)} className="dg-textarea" rows="3" placeholder="Full address..." required disabled={isPreviewMode} />
+          </div>
         </div>
 
-        <div className="flex gap-2">
-          {/* <button type="button" onClick={handlePrint} className="bg-green-500 text-white py-2 px-4 rounded">
-            Without Save Download PDF
-          </button> */}
+        <div className="dg-form-section">
+          <p className="dg-form-section-title">Job Details</p>
+          <div className="dg-form-grid">
+            <div className="dg-form-group">
+              <label className="dg-label">Position / Designation</label>
+              <input type="text" value={position} onChange={(e) => setPosition(e.target.value)} className="dg-input" style={{ paddingLeft: '1rem' }} placeholder="e.g., Software Developer" required disabled={isPreviewMode} />
+            </div>
+            <div className="dg-form-group">
+              <label className="dg-label">Monthly Salary (Rs.)</label>
+              <input type="text" value={salary} onChange={(e) => setSalary(e.target.value)} className="dg-input" style={{ paddingLeft: '1rem' }} placeholder="e.g., 25000" required disabled={isPreviewMode} />
+            </div>
+            <div className="dg-form-group">
+              <label className="dg-label">Joining Date</label>
+              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="dg-input" style={{ paddingLeft: '1rem' }} required disabled={isPreviewMode} />
+            </div>
+            <div className="dg-form-group">
+              <label className="dg-label">Offer Release Date</label>
+              <input type="date" value={offerReleaseDate} onChange={(e) => setOfferReleaseDate(e.target.value)} className="dg-input" style={{ paddingLeft: '1rem' }} required disabled={isPreviewMode} />
+            </div>
+          </div>
+        </div>
+
+        <div className="dg-form-section">
+          <p className="dg-form-section-title">Terms and Conditions</p>
+          <div className="dg-form-grid">
+            <div className="dg-form-group">
+              <label className="dg-label">Probation Period</label>
+              <select value={probationPeriod} onChange={(e) => setProbationPeriod(e.target.value)} className="dg-select" required disabled={isPreviewMode}>
+                <option value="">Select Probation Period</option>
+                {[1,2,3,4,5,6,7,8,9,10,11,12].map((m) => (
+                  <option key={m} value={m}>{m} month{m > 1 ? 's' : ''}</option>
+                ))}
+              </select>
+            </div>
+            <div className="dg-form-group">
+              <label className="dg-label">Notice Period During Probation</label>
+              <select value={noticePeriod} onChange={(e) => setNoticePeriod(e.target.value)} className="dg-select" required disabled={isPreviewMode}>
+                <option value="">Select Notice Period</option>
+                <option value="7 days">7 days</option>
+                <option value="15 days">15 days</option>
+              </select>
+            </div>
+            <div className="dg-form-group">
+              <label className="dg-label">Notice Period After Confirmation</label>
+              <input type="text" value={confirmationNoticePeriod} onChange={(e) => setConfirmationNoticePeriod(e.target.value)} className="dg-input" style={{ paddingLeft: '1rem' }} placeholder="e.g., 30 days" required disabled={isPreviewMode} />
+            </div>
+          </div>
+        </div>
+
+        <div className="dg-form-section">
+          <p className="dg-form-section-title">Job Responsibilities</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+            {jobResponsibilities.map((responsibility, index) => (
+              <div key={index} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <span style={{ color: 'var(--primary-light)', fontWeight: 700, fontSize: '0.875rem', minWidth: '1.5rem', textAlign: 'center' }}>
+                  {index + 1}.
+                </span>
+                <input
+                  type="text"
+                  value={responsibility}
+                  onChange={(e) => handleJobResponsibilitiesChange(index, e.target.value)}
+                  className="dg-input"
+                  style={{ paddingLeft: '1rem', flex: 1 }}
+                  placeholder={`Responsibility ${index + 1}...`}
+                  required
+                  disabled={isPreviewMode}
+                />
+                {!isPreviewMode && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveJobResponsibility(index)}
+                    style={{ padding: '0.5rem 0.75rem', background: 'rgba(244,63,94,0.1)', border: '1px solid rgba(244,63,94,0.3)', borderRadius: '8px', color: '#f43f5e', cursor: 'pointer', fontSize: '0.8rem', whiteSpace: 'nowrap', transition: 'all 0.2s' }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(244,63,94,0.2)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(244,63,94,0.1)'}
+                    aria-label="Remove"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
           {!isPreviewMode && (
-              <button onClick={handleSaveInfo} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                {isEditMode ? 'Update' : 'Save and Print'}
-              </button>
-            )}
-          <button type="button" onClick={openModal} className="border border-gray-950 text-black py-2 px-4 rounded">
+            <button
+              type="button"
+              onClick={addJobResponsibility}
+              style={{ marginTop: '0.875rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1rem', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '8px', color: '#10b981', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600, transition: 'all 0.2s' }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(16,185,129,0.18)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(16,185,129,0.1)'}
+            >
+              + Add Responsibility
+            </button>
+          )}
+        </div>
+
+        <div className="dg-form-actions">
+          {!isPreviewMode && (
+            <button onClick={handleSaveInfo} className="dg-btn-primary" style={{ width: 'auto' }}>
+              {isEditMode ? 'Update Letter' : 'Save and Download PDF'}
+            </button>
+          )}
+          <button type="button" onClick={openModal} className="dg-btn-secondary">
             Preview Letter
           </button>
+          {(isEditMode || isPreviewMode) && (
+            <button onClick={() => navigate('/download/offer-letter')} className="dg-btn-secondary">
+              Back to List
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Preview Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg w-[95vw] max-w-7xl h-[95vh] flex flex-col">
-            <div ref={previewRef} className="flex-1 p-8 overflow-y-auto">
-              <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-lg">
-                <div className="print-header flex justify-center">
-                  <h1 className="text-xl font-bold pt-7 text-center">OFFER LETTER</h1>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div style={{ background: '#1a1a2e', border: '1px solid var(--border-medium)', borderRadius: '16px', width: '95vw', maxWidth: '900px', height: '92vh', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 80px rgba(0,0,0,0.6)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Offer Letter Preview — {name || 'Candidate'}</h3>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button onClick={handlePrint} style={{ padding: '0.5rem 1rem', background: 'linear-gradient(135deg,#10b981,#059669)', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
+                  Download PDF
+                </button>
+                {!isPreviewMode && (
+                  <button onClick={handleSaveInfo} style={{ padding: '0.5rem 1rem', background: 'linear-gradient(135deg,#6366f1,#4f46e5)', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
+                    {isEditMode ? 'Update' : 'Save and Print'}
+                  </button>
+                )}
+                <button onClick={closeModal} style={{ padding: '0.5rem 0.875rem', background: 'rgba(244,63,94,0.1)', border: '1px solid rgba(244,63,94,0.3)', borderRadius: '8px', color: '#f43f5e', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
+                  Close
+                </button>
+              </div>
+            </div>
+            <div ref={previewRef} style={{ flex: 1, overflowY: 'auto', padding: '2rem', background: '#f8f9fa' }}>
+              <div style={{ maxWidth: '720px', margin: '0 auto', background: 'white', borderRadius: '8px', padding: '3rem', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', color: '#1a1a1a', fontSize: '0.9rem', lineHeight: 1.7 }}>
+                <h1 style={{ textAlign: 'center', fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>OFFER LETTER</h1>
+                <div style={{ borderBottom: '2px solid #6366f1', marginBottom: '1rem', paddingBottom: '0.75rem' }}>
+                  <p style={{ fontWeight: 700, fontSize: '1rem' }}>DOAGuru Infosystems</p>
+                  <p style={{ fontSize: '0.8rem', color: '#555' }}>www.doaguru.com | info@doaguru.com | +91-7440992424</p>
                 </div>
-
-                <div className="company-header">
-                  <h2>DOAGuru Infosystems</h2>
-                  <div className="company-info">
-                    Website: <a href="http://www.doaguru.com" target="_blank" rel="noreferrer" className="text-blue-900">www.doaguru.com</a> | Email: info@doaguru.com | Contact: +91-7440992424
-                  </div>
-                </div>
-
-                <div className="release-date mt-4">
-                  <p>
-                    <strong>Date: {offerReleaseDate}</strong>
-                  </p>
-                </div>
-
-                <div className="candidate-info mt-4">
-                  <p>
-                    <strong>To,</strong>
-                    <br />
-                    {name}
-                    <br />
-                    {address}
-                    <br />
-                    {phoneNumber}
-                    <br />
-                    {email}
-                  </p>
-                </div>
-
-                <div className="subject-line mt-4">
-                  <p>
-                    <strong>Subject: Offer of Employment</strong>
-                  </p>
-                  <p className="mt-2">Dear {name},</p>
-                  <p className="mt-2">
-                    We are pleased to offer you the position of <strong>{position}</strong> at DOAGuru Infosystems.
-                  </p>
-                </div>
-
-                <div className="mt-6 space-y-4">
-                  <div>
-                    <h3 className="font-bold">1. Designation & Department</h3>
-                    <p>
-                      You will be designated as <strong>{position}</strong>, and you will report to the assigned Team Lead or
-                      Manager as per project requirement.
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-bold">2. Joining Date</h3>
-                    <p>
-                      Your date of joining shall be <strong>{date}</strong>, or as mutually agreed upon.
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-bold">3. Working Days</h3>
-                    <p>
-                      You will work 6 days a week, Monday to Saturday, with working hours from 10:00 AM to 7:00 PM as per company policy.
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="font-bold">4. Place of Work</h3>
-                    <p>
-                      Your primary place of work will be at DOAGuru Infosystems, Jabalpur (M.P.), or any other location as
-                      assigned.
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-bold">5. Compensation</h3>
-                    <ul className="list-disc pl-5 mt-2 space-y-1">
-                      <li>Your monthly salary for the first month will be ₹{salary} ( Only).</li>
-                      <li>Based on your performance, salary may be revised as per company policy.</li>
-                      <li>Your salary will be paid on time every month.</li>
+                <p style={{ marginBottom: '1rem' }}><strong>Date:</strong> {offerReleaseDate}</p>
+                <p><strong>To,</strong><br />{name}<br />{address}<br />{phoneNumber}<br />{email}</p>
+                <p style={{ marginTop: '1rem' }}><strong>Subject: Offer of Employment</strong></p>
+                <p style={{ marginTop: '0.5rem' }}>Dear {name},</p>
+                <p>We are pleased to offer you the position of <strong>{position}</strong> at DOAGuru Infosystems.</p>
+                <div style={{ marginTop: '1.5rem' }}>
+                  <div style={{ marginBottom: '1rem' }}><p style={{ fontWeight: 700 }}>1. Designation and Department</p><p>You will be designated as {position}, reporting to the assigned Team Lead or Manager.</p></div>
+                  <div style={{ marginBottom: '1rem' }}><p style={{ fontWeight: 700 }}>2. Joining Date</p><p>Your date of joining shall be {date}, or as mutually agreed upon.</p></div>
+                  <div style={{ marginBottom: '1rem' }}><p style={{ fontWeight: 700 }}>3. Working Days</p><p>You will work 6 days a week, Monday to Saturday, 10:00 AM to 7:00 PM.</p></div>
+                  <div style={{ marginBottom: '1rem' }}><p style={{ fontWeight: 700 }}>4. Place of Work</p><p>DOAGuru Infosystems, Jabalpur (M.P.), or any other assigned location.</p></div>
+                  <div style={{ marginBottom: '1rem' }}><p style={{ fontWeight: 700 }}>5. Compensation</p><p>Monthly salary: Rs. {salary}. Salary may be revised based on performance.</p></div>
+                  <div style={{ marginBottom: '1rem' }}><p style={{ fontWeight: 700 }}>6. Probation Period</p><p>{probationPeriod} months from joining. Notice during probation: {noticePeriod}.</p></div>
+                  <div style={{ marginBottom: '1rem' }}><p style={{ fontWeight: 700 }}>7. Notice Period</p><p>On confirmation: {confirmationNoticePeriod || '30 days'} written notice required.</p></div>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <p style={{ fontWeight: 700 }}>8. Roles and Responsibilities</p>
+                    <ul style={{ paddingLeft: '1.25rem', marginTop: '0.5rem' }}>
+                      {jobResponsibilities.map((r, i) => <li key={i}>{r}</li>)}
                     </ul>
                   </div>
-
-                  <div>
-                    <h3 className="font-bold">6. Probation Period</h3>
-                    <p>
-                      You will be on a probation period of <strong>{probationPeriod} months</strong> from the date of joining. During this period, your performance and conduct will be reviewed.
-                    </p>
-                    <p className="font-bold mt-2">Probation Period Meaning:</p>
-                    <p>
-                      This is a trial period during which your performance, conduct, learning ability, and behavior will be
-                      assessed.
-                    </p>
-                    <p>
-                      During this period, either the company or you may terminate the employment with <strong>{noticePeriod}</strong>{' '}
-                      notice.
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="font-bold">7. Notice Period & Service Commitment</h3>
-                    <ul className="list-disc pl-5 mt-2 space-y-1">
-                      <li>In the event of resignation, you must serve a 30-day written notice. Under no circumstances are you permitted to resign or discontinue your employment within the first six (6) months from your joining date.
-</li>
-                      <li>Violation of this clause may lead to appropriate action as per company policy.</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h3 className="font-bold">8. Roles and Responsibilities</h3>
-                    <p>You are expected to:</p>
-                    <ul className="list-disc pl-5 mt-2 space-y-1">
-                      {jobResponsibilities.map((resp, index) => (
-                        <li key={index}>{resp}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h3 className="font-bold">9. General Terms</h3>
-                    <p>You are expected to maintain the highest standards of professionalism, confidentiality, and follow all company policies.</p>
-                    <p>You are also expected to adhere to the company's code of conduct and ethical guidelines.</p>
-                    <p>The company reserves the right to amend these terms and conditions at any time, with prior notice to the employee.</p>
-                    <p>This offer is valid for 15 days from the date of issue.</p>
-                    <p>Failure to accept this offer within the stipulated time will result in the offer being considered withdrawn.</p>
-                    <p>Any disputes arising from this offer shall be resolved in accordance with the laws of India.</p>
-                  </div>
-
-                  <div className="mt-8">
-                    <p>We look forward to your valuable contribution to DOAGURU INFOSYSTEMS. Please sign and return a copy of this letter as confirmation of your acceptance.</p>
-                  </div>
-
-                  <div className="mt-8">
-                    <p className="font-bold">Warm Regards,</p>
-                    <div className="mt-4">
-                      <p className="font-bold">R.S. Pandey</p>
-                      <p>Director</p>
-                      <p>DOAGuru Infosystems</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-12 border-t pt-4">
-                    <h3 className="font-bold">Acknowledgment:</h3>
-                    <p>I, <span className="font-bold">{name}</span>, accept the above terms and conditions of employment.</p>
-                    <div className="mt-8 space-y-4">
-                      <p>Signature: ___________________</p>
-                      <p>Date: ________________</p>
-                    </div>
+                </div>
+                <p style={{ marginTop: '1.5rem' }}>We look forward to your valuable contribution. Please sign and return a copy as confirmation.</p>
+                <div style={{ marginTop: '2rem' }}>
+                  <p style={{ fontWeight: 700 }}>Warm Regards,</p>
+                  <p style={{ marginTop: '0.5rem' }}>R.S. Pandey</p>
+                  <p>Director, DOAGuru Infosystems</p>
+                </div>
+                <div style={{ marginTop: '2.5rem', borderTop: '1px solid #ddd', paddingTop: '1rem' }}>
+                  <p style={{ fontWeight: 700 }}>Acknowledgment</p>
+                  <p>I, <strong>{name}</strong>, accept the above terms and conditions.</p>
+                  <div style={{ marginTop: '1.5rem', display: 'flex', gap: '3rem' }}>
+                    <p>Signature: ___________________</p>
+                    <p>Date: ________________</p>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="p-4 border-t bg-gray-50 rounded-b-lg flex justify-end gap-2">
-              <button onClick={handlePrint} className="bg-green-500 text-white py-2 px-4 rounded mr-2">
-                Without Save Download PDF
-              </button>
-              {!isPreviewMode && (
-              <button onClick={handleSaveInfo} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                {isEditMode ? 'Update' : 'Save and Print'}
-              </button>
-            )}
-              <button onClick={closeModal} className="bg-red-500 text-white py-2 px-4 rounded">
-                Close
-              </button>
             </div>
           </div>
         </div>

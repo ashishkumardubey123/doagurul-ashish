@@ -44,9 +44,11 @@ const RegisterAuth = async (req, res) => {
 const LoginAuth = async (req, res) => {
   const { username, password } = req.body;
 
+   console.log(username, password);
+
   try {
     // Check if the user exists
-    db.query('SELECT * FROM users WHERE username = ?', [username], async (err, results) => {
+    db.query('SELECT * FROM admin_user WHERE user_name = ? OR email = ?', [username, username], async (err, results) => {
       if (err) {
         // Database error handling
         return res.status(500).json({ msg: 'Database error' });
@@ -59,7 +61,8 @@ const LoginAuth = async (req, res) => {
       const user = results[0];
 
       // Compare password
-      const isMatch = await bcrypt.compare(password, user.password);
+      // const isMatch = await bcrypt.compare(password, user.password);
+      const isMatch = (password === user.password);
       if (!isMatch) {
         return res.status(400).json({ msg: 'Invalid credentials' });
       }
