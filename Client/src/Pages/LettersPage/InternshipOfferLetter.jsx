@@ -64,8 +64,8 @@ const styles = StyleSheet.create({
     right: 0,
     height: 60,
   },
-  headerImg: { width: '100%', height: '100%' ,marginBottom: 10},
-  footerImg: { width: '100%', height: '100%', marginTop: 10 },
+  headerImg: { width: '100%', height: '100%', marginBottom: 8 },
+  footerImg: { width: '100%', height: '100%', marginTop: 8 },
   content: {
     fontSize: 11,
     lineHeight: 1.4,
@@ -627,4 +627,6 @@ const InternshipOfferLetter = () => {
 };
 
 export default InternshipOfferLetter;
+
+
 

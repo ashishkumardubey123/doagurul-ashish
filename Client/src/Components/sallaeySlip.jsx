@@ -46,10 +46,12 @@ const styles = StyleSheet.create({
   headerImage: {
     width: '100%',
     height: '100%',
+    marginBottom: 8,
   },
   footerImage: {
     width: '100%',
     height: '100%',
+    marginTop: 8,
   },
   content: {
     flex: 1,

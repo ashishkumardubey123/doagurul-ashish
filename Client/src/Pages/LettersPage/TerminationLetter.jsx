@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { IoMdArrowBack } from "react-icons/io";
 import axios from 'axios';
 import CLogo from '../../assets/images/CLogo.png';
-import headerImg from '../../assets/images/NewFotterImage.png';
+import headerImg from '../../assets/images/NewHeaderImage.png';
 import footerImg from '../../assets/images/NewFotterImage.png';
 import imgS from '../../assets/images/CEOSignature.png';
 import SearchableSelect from '../../Components/SearchableSelect';
@@ -127,43 +127,52 @@ const TerminationLetter = () => {
         <title>Termination Letter - ${employeeName || 'Employee'}</title>
         <style>
           @page {
-            margin: 1cm;
+            margin: 0.8cm;
           }
           body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 1.5cm;
+            padding: 0;
             line-height: 1.6;
             color: #333;
           }
+          .print-preview-content {
+            max-width: 800px;
+            margin: 0 auto;
+            min-height: calc(100vh - 1.6cm);
+            box-sizing: border-box;
+            padding: 88px 20px 72px 20px;
+          }
           .print-header {
-            text-align: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
           }
           .print-header img {
-            width: 12rem;
-            height: auto;
-            margin: 0 auto 1rem;
-            position: absolute;
+            position: fixed;
             top: 0;
+            left: 0;
             right: 0;
+            width: 100%;
+            height: 78px;
+            margin: 0 0 10px 0;
+            display: block;
+            object-fit: cover;
           }
           @media print {
             .print-header img {
-              width: 12rem !important;
-              height: auto !important;
+              width: 100% !important;
+              height: 78px !important;
             }
           }
-          .print-footer {
-            margin-top: 2rem;
-            text-align: center;
-            height: 5rem;
-            width: 100%;
-          }
           .footer-side img {
-            height: 5rem;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 58px;
             width: 100%;
             margin: 0 auto;
+            display: block;
+            object-fit: cover;
           }
           @media print {
             body { 
@@ -305,9 +314,9 @@ const TerminationLetter = () => {
             <IoMdArrowBack />
           </button>
           
-          <div ref={previewRef} className="mt-4 print-preview-content">
+          <div ref={previewRef} className="mt-4 print-preview-content" style={{ minHeight: 'calc(100vh - 120px)', display: 'flex', flexDirection: 'column' }}>
             <div className="print-header text-center mb-8">
-              <img src={headerImg} alt="Header" className=" mx-auto mb-4" style={{width: '12rem', position: 'absolute', top: '0', right: '0' }} />
+              <img src={headerImg} alt="Header" className="mx-auto mb-4" style={{ width: '100%', height: '80px', objectFit: 'cover' }} />
               <h1 className="text-xxl font-bold text-gray-800 ">TERMINATION LETTER</h1>
             </div>
             
@@ -358,8 +367,8 @@ const TerminationLetter = () => {
               </div>
             </div>
             
-            <div className="footer-side mt-12 text-center">
-              <img src={footerImg} alt="Footer" className="h-20 mx-auto" />
+            <div className="footer-side mt-auto text-center pt-4">
+              <img src={footerImg} alt="Footer" className="h-20 mx-auto" style={{ width: '100%', height: '60px', objectFit: 'cover' }} />
             </div>
           </div>
           

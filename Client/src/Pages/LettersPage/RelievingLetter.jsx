@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import Modal from 'react-modal';
 import axios from 'axios';
 import CLogo from '../../assets/images/CLogo.png';
-import headerImg from '../../assets/images/NewFotterImage.png';
+import headerImg from '../../assets/images/NewHeaderImage.png';
 import footerImg from '../../assets/images/NewFotterImage.png';
 import imgS from '../../assets/images/CEOSignature.png';
 import SearchableSelect from '../../Components/SearchableSelect';
@@ -114,25 +114,30 @@ const RelievingLetter = () => {
           body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             line-height: 1.6;
           }
           .print-container {
             max-width: 800px;
             margin: 0 auto;
             position: relative;
-            padding: 20px;
+            min-height: calc(100vh - 2cm);
+            box-sizing: border-box;
+            padding: 88px 20px 72px 20px;
           }
           .print-header {
-            text-align: center;
-            margin-bottom: 20px;
-            position: relative;
+            margin-bottom: 12px;
           }
           .header-image {
-            width: 10rem;
-            position: absolute;
+            position: fixed;
             top: 0;
+            left: 0;
             right: 0;
+            width: 100%;
+            height: 78px;
+            display: block;
+            object-fit: cover;
+            margin-bottom: 12px;
           }
           .logo-header {
             max-width: 7rem;
@@ -140,7 +145,7 @@ const RelievingLetter = () => {
             margin-left: 10px;
           }
           .print-content {
-            margin-top: 2rem;
+            margin-top: 0;
           }
           .print-content p {
             margin: 10px 0;
@@ -158,10 +163,15 @@ const RelievingLetter = () => {
             margin-left: 4rem;
           }
           .footer-image {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
             width: 100%;
-            height: 5rem;
-            margin-top: 2rem;
-           
+            height: 58px;
+            margin-top: 0;
+            display: block;
+            object-fit: cover;
           }
           @page {
             margin: 1cm;
@@ -309,16 +319,18 @@ const RelievingLetter = () => {
         <div ref={previewRef} className="p-6 bg-white">
           <style jsx>{`
             .header-image {
-              width: 10rem;
-              position: absolute;
-              top: 0;
-              right: 0;
+              width: 100%;
+              height: 80px;
+              display: block;
+              object-fit: cover;
+              margin-bottom: 12px;
             }
             .footer-image {
               width: 100%;
-              height: 5rem;
-              margin-top: 2rem;
-              
+              height: 60px;
+              margin-top: 1rem;
+              display: block;
+              object-fit: cover;
             }
             @media print {
               .no-print {
@@ -328,7 +340,7 @@ const RelievingLetter = () => {
           `}</style>
           <div className="print-header">
             <img src={headerImg} alt="Header" className="header-image" />
-            <h1 className="text-xl font-bold pt-7 text-center heading-letter">RELIEVING LETTER</h1>
+            <h1 className="text-xl font-bold text-center heading-letter">RELIEVING LETTER</h1>
           </div>
           <img src={CLogo} alt="Logo" className='w-24 logo-header' />
           
@@ -382,7 +394,7 @@ const RelievingLetter = () => {
             </div>
           </div>
           
-          <img src={footerImg} alt="Footer" className="footer-image mt-8" />
+          <img src={footerImg} alt="Footer" className="footer-image mt-4" />
         </div>
         
         <div className="mt-4 text-center no-print">
