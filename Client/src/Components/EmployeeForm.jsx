@@ -1,12 +1,161 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  Image,
+  pdf,
+} from '@react-pdf/renderer';
 import SearchableSelect from './SearchableSelect';
+import CLogo from '../assets/images/CLogo.png';
+import Signature from '../assets/images/CEOSignature.png';
+import headerImg from '../assets/images/NewHeaderImage.png';
+import footerImg from '../assets/images/NewFotterImage.png';
+
+const pdfStyles = StyleSheet.create({
+  page: {
+    paddingTop: 80,
+    paddingBottom: 70,
+    paddingHorizontal: 50,
+    position: 'relative',
+    fontSize: 11,
+    fontFamily: 'Helvetica',
+    lineHeight: 1.5,
+    color: '#333',
+  },
+  headerWrap: { position: 'absolute', top: 0, left: 0, right: 0, height: 80 },
+  footerWrap: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 60 },
+  headerImage: { width: '100%', height: '100%', marginBottom: 8 },
+  footerImage: { width: '100%', height: '100%', marginTop: 8 },
+  content: { marginTop: 20 },
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#000',
+    textDecoration: 'underline',
+  },
+  dateRight: { textAlign: 'right', marginBottom: 20 },
+  paragraph: { marginBottom: 15, textAlign: 'justify' },
+  bold: { fontWeight: 'bold' },
+  signatureSection: { marginTop: 40 },
+  signatureImage: { width: 100, height: 50, marginBottom: 5 },
+  signatureLine: { width: 120, height: 1, backgroundColor: '#000', marginBottom: 5 },
+  signatureText: { fontSize: 10 },
+  watermarkContainer: {
+    position: 'absolute',
+    top: 80,
+    left: 0,
+    right: 0,
+    bottom: 70,
+    zIndex: -1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  watermark: { width: 350, height: 350, opacity: 0.04 },
+});
+
+const normalizeGender = (gender = '') => {
+  const value = gender.toLowerCase();
+  if (value === 'he' || value === 'male') return 'He';
+  if (value === 'she' || value === 'female') return 'She';
+  if (value === 'they' || value === 'other') return 'They';
+  return '';
+};
+
+const getPronouns = (gender) => {
+  const normalized = normalizeGender(gender);
+  if (normalized === 'He') return { subject: 'he', possessive: 'his', be: 'was' };
+  if (normalized === 'She') return { subject: 'she', possessive: 'her', be: 'was' };
+  return { subject: 'they', possessive: 'their', be: 'were' };
+};
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+};
+
+const EmployeeExperienceLetterPDF = ({ data }) => {
+  const { formData, companyInfo } = data;
+  const pronouns = getPronouns(formData.gender);
+  const issueDate = formData.currentDate || new Date().toLocaleDateString('en-GB');
+
+  return (
+    <Document>
+      <Page size="A4" style={pdfStyles.page}>
+        <View fixed style={pdfStyles.headerWrap}>
+          <Image src={headerImg} style={pdfStyles.headerImage} />
+        </View>
+        <View fixed style={pdfStyles.footerWrap}>
+          <Image src={footerImg} style={pdfStyles.footerImage} />
+        </View>
+        <View fixed style={pdfStyles.watermarkContainer}>
+          <Image src={CLogo} style={pdfStyles.watermark} />
+        </View>
+
+        <View style={pdfStyles.content}>
+          <Text style={pdfStyles.dateRight}>Date: {issueDate}</Text>
+          <Text style={pdfStyles.title}>TO WHOMSOEVER IT MAY CONCERN</Text>
+
+          <Text style={pdfStyles.paragraph}>
+            This is to certify that <Text style={pdfStyles.bold}>{formData.name}</Text>
+            {formData.employeeCode ? ` (Employee ID: ${formData.employeeCode})` : ''} was employed with{' '}
+            <Text style={pdfStyles.bold}>{companyInfo.name}</Text> as a{' '}
+            <Text style={pdfStyles.bold}>{formData.designation}</Text> from{' '}
+            <Text style={pdfStyles.bold}>{formData.joining_date}</Text> to{' '}
+            <Text style={pdfStyles.bold}>{formData.resignation_date}</Text>.
+          </Text>
+
+          <Text style={pdfStyles.paragraph}>
+            During {pronouns.possessive} tenure with us, {pronouns.subject} {pronouns.be} found to be sincere,
+            hardworking, and professional in approach. {pronouns.possessive.charAt(0).toUpperCase() + pronouns.possessive.slice(1)} performance and conduct were satisfactory.
+          </Text>
+
+          <Text style={pdfStyles.paragraph}>
+            We wish <Text style={pdfStyles.bold}>{formData.name}</Text> success in all future endeavors.
+          </Text>
+
+          <View style={pdfStyles.signatureSection}>
+            <Text style={{ marginBottom: 10 }}>For {companyInfo.name}</Text>
+            <Image src={Signature} style={pdfStyles.signatureImage} />
+            <View style={pdfStyles.signatureLine}></View>
+            <Text style={[pdfStyles.signatureText, pdfStyles.bold]}>
+              {formData.signatory === 'HR Manager' ? 'HR Department' : formData.signatory.includes('CEO') ? 'R.S. Pandey' : formData.signatory}
+            </Text>
+            <Text style={pdfStyles.signatureText}>
+              {formData.signatory === 'HR Manager' ? 'HR Manager' : formData.signatory.includes('CEO') ? 'CEO, DOAGuru Infosystems' : 'Authorized Signatory'}
+            </Text>
+          </View>
+        </View>
+      </Page>
+    </Document>
+  );
+};
 
 const EmployeeForm = () => {
-  const [formData, setFormData] = useState({ name: '', designation: '', joining_date: '', resignation_date: '', gender: '', signatory: 'R.S. Pandey (CEO)' });
-  const [employeeId, setEmployeeId] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    employeeCode: '',
+    designation: '',
+    joining_date: '',
+    resignation_date: '',
+    gender: '',
+    signatory: 'R.S. Pandey (CEO)',
+    currentDate: new Date().toLocaleDateString('en-GB'),
+  });
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState(null);
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -36,57 +185,26 @@ const EmployeeForm = () => {
       setFormData(prev => ({
         ...prev,
         name: emp.full_name || '',
+        employeeCode: emp.employee_id || '',
         designation: emp.designation || '',
         joining_date: emp.joiningDate ? new Date(emp.joiningDate).toISOString().split('T')[0] : '',
-        gender: emp.gender || '',
+        gender: normalizeGender(emp.gender),
       }));
     }
   };
 
-  const handleSubmit = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/saveEmployee`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        alert(result.message);
-        setEmployeeId(result.employeeId); // Store the employeeId for PDF download
-      } else {
-        const errorData = await response.json();
-        alert('Error saving employee data: ' + errorData.message);
-      }
-    } catch (error) {
-      console.error('Error saving employee data:', error);
-    }
-  };
-
   const handleDownloadPDF = async () => {
-    if (!employeeId) {
-      alert('No employee ID found!');
+    if (!pdfUrl) {
+      alert('Please generate preview first!');
       return;
     }
 
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/generatePDF/${employeeId}`);
-
-      if (response.ok) {
-        const blob = await response.blob(); // Handle PDF as a blob
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `experience_letter_${formData.name}.pdf`;
-        a.click();
-      } else {
-        const errorData = await response.json();
-        alert('Error generating PDF: ' + errorData.message);
-      }
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-    }
+    const a = document.createElement('a');
+    a.href = pdfUrl;
+    a.download = `experience_letter_${formData.name || 'employee'}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   const handleGeneratePreview = async () => {
@@ -94,7 +212,9 @@ const EmployeeForm = () => {
       alert('Please fill in all required fields');
       return;
     }
+
     try {
+      // Keep existing save flow so entries remain available in records table.
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/saveEmployee`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -102,27 +222,43 @@ const EmployeeForm = () => {
       });
 
       if (response.ok) {
-        const result = await response.json();
-        setEmployeeId(result.employeeId);
-        
-        // Fetch the PDF preview right after
-        const pdfResp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/generatePDF/${result.employeeId}`);
-        if (pdfResp.ok) {
-          const blob = await pdfResp.blob();
-          const url = window.URL.createObjectURL(blob);
-          setPdfUrl(url);
-          setShowPreview(true);
-        } else {
-          alert('Error generating PDF preview');
-        }
+        await response.json();
       } else {
         const errorData = await response.json();
         alert('Error saving employee data: ' + errorData.message);
+        return;
       }
     } catch (error) {
-      console.error('Error in preview:', error);
+      console.error('Error saving employee data:', error);
+      return;
+    }
+
+    try {
+      const formattedData = {
+        ...formData,
+        joining_date: formatDate(formData.joining_date),
+        resignation_date: formatDate(formData.resignation_date),
+      };
+      const companyInfo = { name: 'DOAGURU INFOSYSTEMS' };
+      const instance = pdf(<EmployeeExperienceLetterPDF data={{ formData: formattedData, companyInfo }} />);
+      const blob = await instance.toBlob();
+      const url = URL.createObjectURL(blob);
+      setPdfUrl(prev => {
+        if (prev) URL.revokeObjectURL(prev);
+        return url;
+      });
+      setShowPreview(true);
+    } catch (error) {
+      console.error('Error generating preview:', error);
+      alert('Error generating PDF preview');
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+    };
+  }, [pdfUrl]);
 
   if (showPreview) {
     return (
@@ -187,6 +323,10 @@ const EmployeeForm = () => {
               <div className="dg-form-group">
                 <label className="dg-label">Designation</label>
                 <input type="text" placeholder="Designation" value={formData.designation} onChange={(e) => setFormData({ ...formData, designation: e.target.value })} className="dg-input" required />
+              </div>
+              <div className="dg-form-group">
+                <label className="dg-label">Employee ID</label>
+                <input type="text" placeholder="Employee ID" value={formData.employeeCode} onChange={(e) => setFormData({ ...formData, employeeCode: e.target.value })} className="dg-input" />
               </div>
             </div>
             
