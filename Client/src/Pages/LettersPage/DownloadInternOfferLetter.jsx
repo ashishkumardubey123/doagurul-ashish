@@ -16,7 +16,13 @@ const DownloadInternOfferLetter = () => {
         const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/internship-offers`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        setLetters(response.data);
+        if (Array.isArray(response.data)) {
+          setLetters(response.data);
+        } else if (response.data && Array.isArray(response.data.data)) {
+          setLetters(response.data.data);
+        } else {
+          setLetters([]);
+        }
       } catch (err) {
         console.error('Error fetching intern offer letters:', err);
         setError('Failed to load intern offer letters.');

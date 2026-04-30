@@ -209,17 +209,17 @@ const SalarySlipPDF = ({ data }) => {
       <View fixed style={styles.headerWrap}>
         <Image src={headerImg} style={styles.headerImage} />
       </View>
-      
+
       {/* Fixed footer */}
       <View fixed style={styles.footerWrap}>
         <Image src={footerImg} style={styles.footerImage} />
       </View>
-      
+
       {/* Watermark */}
       <View style={styles.watermarkContainer}>
         <Image src={CLogo} style={styles.watermark} />
       </View>
-      
+
       {/* Content */}
       <View style={styles.content}>{children}</View>
     </Page>
@@ -409,7 +409,7 @@ const SalarySlip = () => {
   const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [loading, setLoading] = useState(false);
-  
+
   // Company Information
   const companyInfo = {
     name: 'DOAGURU INFOSYSTEMS',
@@ -472,19 +472,19 @@ const SalarySlip = () => {
     const employee = employees.find(emp => emp.id == employeeId);
     if (employee) {
       setSelectedEmployee(employee);
-      
+
       const gSal = employee.salary_amount || 0;
       const bSal = Math.round(gSal * 0.5);
       const hraSal = Math.round(bSal * 0.4);
       const allowSal = Math.max(0, gSal - bSal - hraSal);
-      
+
       setFormData(prev => ({
         ...prev,
         employeeName: employee.full_name || '',
         employeeId: employee.employee_id || '',
         designation: employee.designation || '',
         department: employee.department || '',
-        bankName: '', 
+        bankName: '',
         accountNumber: employee.bank_account_number || '',
         dateOfJoining: employee.joiningDate ? new Date(employee.joiningDate).toISOString().split('T')[0] : '',
         panNumber: employee.pan_number || '',
@@ -514,8 +514,8 @@ const SalarySlip = () => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: ['grossSalary', 'basicSalary', 'hra', 'allowances', 'pf', 'esi', 'lopDays', 'month', 'year'].includes(name) 
-        ? (value === '' ? '' : Number(value)) 
+      [name]: ['grossSalary', 'basicSalary', 'hra', 'allowances', 'pf', 'esi', 'lopDays', 'month', 'year'].includes(name)
+        ? (value === '' ? '' : Number(value))
         : value
     }));
   };
@@ -590,7 +590,7 @@ const SalarySlip = () => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB'); // DD/MM/YYYY format
   };
-  
+
   // Reusable Detail Item Component
   const DetailItem = ({ label, value, isHighlighted = false }) => (
     <div className="flex">
@@ -602,7 +602,7 @@ const SalarySlip = () => {
       </span>
     </div>
   );
-  
+
   // Salary Item Component
   const SalaryItem = ({ label, amount, isTotal = false }) => (
     <div className={`flex justify-between items-center ${isTotal ? 'pt-2' : 'pb-2'}`}>
@@ -610,7 +610,7 @@ const SalarySlip = () => {
         {label}
       </span>
       <span className={`font-mono ${isTotal ? 'text-lg font-bold text-indigo-700 dark:text-indigo-400' : 'text-gray-800 dark:text-gray-200'}`}>
-        ₹{amount.toLocaleString('en-IN')}
+        ₹{Number(amount || 0).toLocaleString('en-IN')}
       </span>
     </div>
   );
@@ -633,41 +633,41 @@ const SalarySlip = () => {
     // Handle decimal part (paise)
     const rupees = Math.floor(num);
     const paise = Math.round((num - rupees) * 100);
-    
+
     if (rupees === 0) {
       return 'Zero Rupees' + (paise > 0 ? ` and ${formatTens(paise)} Paise` : '') + ' Only';
     }
 
     let result = '';
-    
+
     // Crores
     if (rupees >= 10000000) {
       const crores = Math.floor(rupees / 10000000);
       result += formatTens(crores) + ' Crore';
       const remaining = rupees % 10000000;
       if (remaining > 0) result += ' ' + numberToWords(remaining);
-    } 
+    }
     // Lakhs
     else if (rupees >= 100000) {
       const lakhs = Math.floor(rupees / 100000);
       result += formatTens(lakhs) + ' Lakh';
       const remaining = rupees % 100000;
       if (remaining > 0) result += ' ' + numberToWords(remaining);
-    } 
+    }
     // Thousands
     else if (rupees >= 1000) {
       const thousands = Math.floor(rupees / 1000);
       result += formatTens(thousands) + ' Thousand';
       const remaining = rupees % 1000;
       if (remaining > 0) result += ' ' + numberToWords(remaining);
-    } 
+    }
     // Hundreds
     else if (rupees >= 100) {
       const hundreds = Math.floor(rupees / 100);
       result += single[hundreds] + ' Hundred';
       const remaining = rupees % 100;
       if (remaining > 0) result += ' and ' + formatTens(remaining);
-    } 
+    }
     // Tens and ones
     else {
       result = formatTens(rupees);
@@ -675,60 +675,60 @@ const SalarySlip = () => {
 
     // Add 'Rupees' word
     let finalResult = result + ' Rupees';
-    
+
     // Add paise if any
     if (paise > 0) {
       finalResult += ' and ' + formatTens(paise) + ' Paise';
     }
-    
+
     return finalResult + ' Only';
   };
 
   const salaryData = {
-    grossSalary: formData.grossSalary,
-    totalWorkingDays: totalWorkingDays,
-    lopDays: formData.lopDays,
-    
+    grossSalary: Number(formData.grossSalary || 0),
+    totalWorkingDays: Number(totalWorkingDays || 0),
+    lopDays: Number(formData.lopDays || 0),
+
     // Calculate daily rate based on gross salary and working days
     get dailyRate() {
       return this.grossSalary / this.totalWorkingDays;
     },
-    
+
     // Calculate LOP amount based on daily rate and LOP days
     get lopDeduction() {
       return Math.round(this.dailyRate * this.lopDays);
     },
-    
+
     get basicSalary() {
       return formData.basicSalary || 0;
     },
-    
+
     get houseRentAllowance() {
       return formData.hra || 0;
     },
-    
+
     get otherAllowances() {
       return formData.allowances || 0;
     },
-    
+
     get pfDeduction() {
       return formData.pf || 0;
     },
-    
+
     get esiDeduction() {
       return formData.esi || 0;
     },
-    
+
     get totalDeductions() {
       return this.esiDeduction + this.pfDeduction + this.lopDeduction;
     },
-    
+
     get netPay() {
       const totalEarnings = this.basicSalary + this.houseRentAllowance + this.otherAllowances;
       return totalEarnings - this.totalDeductions;
     }
   };
-    
+
 
 
   // Show form if slip is not generated yet
@@ -739,7 +739,7 @@ const SalarySlip = () => {
           <span className="dg-page-tag">Salary</span>
           <h1 className="dg-page-title">Generate Salary Slip</h1>
         </div>
-        
+
         <div className="dg-form-card">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.75rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border-subtle)' }}>
             <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
@@ -753,10 +753,10 @@ const SalarySlip = () => {
               <div className="dg-form-group">
                 <label className="dg-label">Search and Select Employee</label>
                 <SearchableSelect
-                  options={ employeeOptions }
-                  value={ selectedEmployee ? String(selectedEmployee.id) : '' }
-                  onChange={ handleEmployeeSelect }
-                  placeholder={ loading ? "Loading employees..." : "-- Select Employee --" }
+                  options={employeeOptions}
+                  value={selectedEmployee ? String(selectedEmployee.id) : ''}
+                  onChange={handleEmployeeSelect}
+                  placeholder={loading ? "Loading employees..." : "-- Select Employee --"}
                 />
               </div>
             </div>
@@ -881,7 +881,7 @@ const SalarySlip = () => {
   // Salary Slip Display
   return (
     <>
-      <style jsx>{`
+      <style>{`
         @media print {
           @page {
             size: A4;
@@ -932,206 +932,206 @@ const SalarySlip = () => {
           }
         }
       `}</style>
-    <div className="dg-page-container">
-      <div className="max-w-4xl mx-auto w-full">
-        <div className="mb-8 text-center">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-2">Salary Slip Generator</h1>
-          <p className="text-gray-600 dark:text-slate-400">Generated on {new Date().toLocaleDateString('en-IN')}</p>
-        </div>
-        
-        {/* Salary Slip Card */}
-        <div className="bg-white dark:bg-brand-card rounded-2xl shadow-xl dark:shadow-none dark:border dark:border-white/[0.06] overflow-hidden transform transition-all duration-300 hover:shadow-2xl">
-          {/* Company Header */}
-          <div className="bg-white dark:bg-brand-card p-4 border-b border-gray-200 dark:border-white/[0.06]">
-            <div className="flex flex-col md:flex-row items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <img 
-                  src={CLogo} 
-                  alt="Company Logo" 
-                  className="w-16 h-16 object-contain"
-                />
-                <div className="text-center md:text-left">
-                  <h1 className="text-xl font-bold text-gray-800 dark:text-white">{companyInfo.name}</h1>
-                  <p className="text-sm text-gray-600 dark:text-slate-400">{companyInfo.address}</p>
-                  <p className="text-sm text-gray-600 dark:text-slate-400">{companyInfo.city}, {companyInfo.state}, {companyInfo.country}</p>
-                  <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">
-                    {/* <span className="font-medium">CIN:</span> {companyInfo.cin} |  */}
-                    <span className="font-medium">GSTIN:</span> {companyInfo.gstin} | 
-                    {/* <span className="font-medium">PAN:</span> {companyInfo.pan} */}
-                  </p>
+      <div className="dg-page-container">
+        <div className="max-w-4xl mx-auto w-full">
+          <div className="mb-8 text-center">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-2">Salary Slip Generator</h1>
+            <p className="text-gray-600 dark:text-slate-400">Generated on {new Date().toLocaleDateString('en-IN')}</p>
+          </div>
+
+          {/* Salary Slip Card */}
+          <div className="bg-white dark:bg-brand-card rounded-2xl shadow-xl dark:shadow-none dark:border dark:border-white/[0.06] overflow-hidden transform transition-all duration-300 hover:shadow-2xl">
+            {/* Company Header */}
+            <div className="bg-white dark:bg-brand-card p-4 border-b border-gray-200 dark:border-white/[0.06]">
+              <div className="flex flex-col md:flex-row items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <img
+                    src={CLogo}
+                    alt="Company Logo"
+                    className="w-16 h-16 object-contain"
+                  />
+                  <div className="text-center md:text-left">
+                    <h1 className="text-xl font-bold text-gray-800 dark:text-white">{companyInfo.name}</h1>
+                    <p className="text-sm text-gray-600 dark:text-slate-400">{companyInfo.address}</p>
+                    <p className="text-sm text-gray-600 dark:text-slate-400">{companyInfo.city}, {companyInfo.state}, {companyInfo.country}</p>
+                    <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">
+                      {/* <span className="font-medium">CIN:</span> {companyInfo.cin} |  */}
+                      <span className="font-medium">GSTIN:</span> {companyInfo.gstin} |
+                      {/* <span className="font-medium">PAN:</span> {companyInfo.pan} */}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 md:mt-0 text-center">
+                  <div className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-4 py-2 rounded-lg">
+                    <h2 className="text-xl font-bold">SALARY SLIP</h2>
+                    <p className="text-sm flex items-center justify-center">
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      {monthNames[formData.month - 1]} {formData.year}
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className="mt-4 md:mt-0 text-center">
-                <div className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-4 py-2 rounded-lg">
-                  <h2 className="text-xl font-bold">SALARY SLIP</h2>
-                  <p className="text-sm flex items-center justify-center">
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </div>
+
+            {/* Employee Header */}
+            <div className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 p-4 border-b border-gray-200 dark:border-white/[0.06]">
+              <div className="flex flex-col md:flex-row justify-between items-center">
+                <div className="text-center md:text-left mb-2 md:mb-0">
+                  <h1 className="text-xl font-bold text-gray-800 dark:text-white">{formData.employeeName}</h1>
+                  <p className="text-gray-600 dark:text-slate-400">{formData.designation}</p>
+                  <p className="text-sm text-gray-500 dark:text-slate-500">Employee ID: {formData.employeeId}</p>
+                </div>
+                <div className="text-sm text-gray-600 dark:text-slate-400 text-center md:text-right">
+                  <p><span className="font-medium">Date of Joining:</span> {formatDate(formData.dateOfJoining)}</p>
+                  <p><span className="font-medium">Department:</span> {formData.department}</p>
+                  <p><span className="font-medium">PAN Number:</span> {formData.panNumber}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Employee & Bank Details */}
+            <div className="p-4 bg-gray-50 dark:bg-white/[0.02] border-b border-gray-200 dark:border-white/[0.06]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Employee Details */}
+                <div className="bg-white dark:bg-brand-card p-4 rounded-xl shadow-sm dark:shadow-none dark:border dark:border-white/[0.06]">
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3 pb-2 border-b border-gray-200 dark:border-white/[0.06] flex items-center">
+                    <svg className="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                    {monthNames[formData.month - 1]} {formData.year}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Employee Header */}
-          <div className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 p-4 border-b border-gray-200 dark:border-white/[0.06]">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="text-center md:text-left mb-2 md:mb-0">
-                <h1 className="text-xl font-bold text-gray-800 dark:text-white">{formData.employeeName}</h1>
-                <p className="text-gray-600 dark:text-slate-400">{formData.designation}</p>
-                <p className="text-sm text-gray-500 dark:text-slate-500">Employee ID: {formData.employeeId}</p>
-              </div>
-              <div className="text-sm text-gray-600 dark:text-slate-400 text-center md:text-right">
-                <p><span className="font-medium">Date of Joining:</span> {formatDate(formData.dateOfJoining)}</p>
-                <p><span className="font-medium">Department:</span> {formData.department}</p>
-                <p><span className="font-medium">PAN Number:</span> {formData.panNumber}</p>
-              </div>
-            </div>
-          </div>
-          
-          {/* Employee & Bank Details */}
-          <div className="p-4 bg-gray-50 dark:bg-white/[0.02] border-b border-gray-200 dark:border-white/[0.06]">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Employee Details */}
-              <div className="bg-white dark:bg-brand-card p-4 rounded-xl shadow-sm dark:shadow-none dark:border dark:border-white/[0.06]">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3 pb-2 border-b border-gray-200 dark:border-white/[0.06] flex items-center">
-                  <svg className="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  Employee Details
-                </h3>
-                <div className="space-y-2">
-                  <DetailItem label="Employee ID" value={formData.employeeId} />
-                  <DetailItem label="Department" value={formData.department} />
-                  <DetailItem label="Date of Joining" value={formatDate(formData.dateOfJoining)} />
-                  <DetailItem label="Working Days" value={`${totalWorkingDays} days`} />
-                  <DetailItem label="LOP Days" value={`${formData.lopDays} days`} />
-                </div>
-              </div>
-              
-              {/* Bank Details */}
-              <div className="bg-white dark:bg-brand-card p-4 rounded-xl shadow-sm dark:shadow-none dark:border dark:border-white/[0.06]">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3 pb-2 border-b border-gray-200 dark:border-white/[0.06] flex items-center">
-                  <svg className="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                  </svg>
-                  Bank & Payment Details
-                </h3>
-                <div className="space-y-2">
-                  <DetailItem label="Bank Name" value={formData.bankName} />
-                  <DetailItem label="Account Number" value={`•••• ${formData.accountNumber.slice(-4)}`} />
-                  <DetailItem label="PAN Number" value={formData.panNumber} />
-                  <DetailItem label="Payment Mode" value="Bank Transfer" />
-                  <DetailItem label="Net Payable" value={`₹${salaryData.netPay.toLocaleString('en-IN')}`} isHighlighted />
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Salary Breakdown */}
-          <div className="p-4">
-            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4 text-center">Salary Breakdown</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              {/* Earnings */}
-              <div className="bg-gray-50 dark:bg-white/[0.02] rounded-xl overflow-hidden border border-gray-300 dark:border-white/[0.1]">
-                <div className="bg-gray-800 p-4 text-white font-semibold text-center">
-                  EARNINGS
-                </div>
-                <div className="p-3">
+                    Employee Details
+                  </h3>
                   <div className="space-y-2">
-                    <SalaryItem label="Basic Salary" amount={salaryData.basicSalary} />
-                    <SalaryItem label="House Rent Allowance (HRA)" amount={salaryData.houseRentAllowance} />
-                    <SalaryItem label="Conveyance Allowance" amount={salaryData.conveyanceAllowance} />
-                    <SalaryItem label="Medical Allowance" amount={salaryData.medicalAllowance} />
-                    <SalaryItem label="Special Allowance" amount={salaryData.specialAllowance} />
-                    <div className="pt-2 mt-2 border-t border-gray-300 dark:border-white/[0.1]">
-                      <SalaryItem label="Total Earnings" amount={salaryData.grossSalary} isTotal />
-                    </div>
+                    <DetailItem label="Employee ID" value={formData.employeeId} />
+                    <DetailItem label="Department" value={formData.department} />
+                    <DetailItem label="Date of Joining" value={formatDate(formData.dateOfJoining)} />
+                    <DetailItem label="Working Days" value={`${totalWorkingDays} days`} />
+                    <DetailItem label="LOP Days" value={`${formData.lopDays} days`} />
                   </div>
                 </div>
-              </div>
-              
-              {/* Deductions */}
-              <div className="bg-gray-50 dark:bg-white/[0.02] rounded-xl overflow-hidden border border-gray-300 dark:border-white/[0.1]">
-                <div className="bg-gray-800 p-4 text-white font-semibold text-center">
-                  DEDUCTIONS
-                </div>
-                <div className="p-3">
+
+                {/* Bank Details */}
+                <div className="bg-white dark:bg-brand-card p-4 rounded-xl shadow-sm dark:shadow-none dark:border dark:border-white/[0.06]">
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3 pb-2 border-b border-gray-200 dark:border-white/[0.06] flex items-center">
+                    <svg className="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                    Bank & Payment Details
+                  </h3>
                   <div className="space-y-2">
-                    <SalaryItem label="Professional Tax" amount={0} />
-                    <SalaryItem label="Income Tax (TDS)" amount={0} />
-                    <SalaryItem label="Provident Fund (PF)" amount={salaryData.pfDeduction} />
-                    <SalaryItem label="Health Insurance (ESI)" amount={salaryData.esiDeduction} />
-                    <div className="h-4"></div> {/* Spacer for alignment */}
-                    <div className="pt-2 mt-2 border-t border-gray-300 dark:border-white/[0.1]">
-                      <SalaryItem label="Total Deductions" amount={salaryData.totalDeductions} isTotal />
-                    </div>
+                    <DetailItem label="Bank Name" value={formData.bankName} />
+                    <DetailItem label="Account Number" value={`•••• ${formData.accountNumber.slice(-4)}`} />
+                    <DetailItem label="PAN Number" value={formData.panNumber} />
+                    <DetailItem label="Payment Mode" value="Bank Transfer" />
+                    <DetailItem label="Net Payable" value={`₹${salaryData.netPay.toLocaleString('en-IN')}`} isHighlighted />
                   </div>
                 </div>
               </div>
             </div>
-            
-            {/* Net Pay */}
-            <div className="bg-gray-800 rounded-xl p-4 text-white mb-6">
-              <div className="flex flex-col items-center text-center">
-                <span className="text-gray-300 mb-2">Net Payable Amount</span>
-                <div className="text-2xl font-bold mb-2">₹{salaryData.netPay.toLocaleString('en-IN')}</div>
-                <div className="text-gray-300 text-sm">
-                  {numberToWords(salaryData.netPay)} Rupees Only
+
+            {/* Salary Breakdown */}
+            <div className="p-4">
+              <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4 text-center">Salary Breakdown</h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                {/* Earnings */}
+                <div className="bg-gray-50 dark:bg-white/[0.02] rounded-xl overflow-hidden border border-gray-300 dark:border-white/[0.1]">
+                  <div className="bg-gray-800 p-4 text-white font-semibold text-center">
+                    EARNINGS
+                  </div>
+                  <div className="p-3">
+                    <div className="space-y-2">
+                      <SalaryItem label="Basic Salary" amount={salaryData.basicSalary} />
+                      <SalaryItem label="House Rent Allowance (HRA)" amount={salaryData.houseRentAllowance} />
+                      <SalaryItem label="Conveyance Allowance" amount={salaryData.conveyanceAllowance} />
+                      <SalaryItem label="Medical Allowance" amount={salaryData.medicalAllowance} />
+                      <SalaryItem label="Special Allowance" amount={salaryData.specialAllowance} />
+                      <div className="pt-2 mt-2 border-t border-gray-300 dark:border-white/[0.1]">
+                        <SalaryItem label="Total Earnings" amount={salaryData.grossSalary} isTotal />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Deductions */}
+                <div className="bg-gray-50 dark:bg-white/[0.02] rounded-xl overflow-hidden border border-gray-300 dark:border-white/[0.1]">
+                  <div className="bg-gray-800 p-4 text-white font-semibold text-center">
+                    DEDUCTIONS
+                  </div>
+                  <div className="p-3">
+                    <div className="space-y-2">
+                      <SalaryItem label="Professional Tax" amount={0} />
+                      <SalaryItem label="Income Tax (TDS)" amount={0} />
+                      <SalaryItem label="Provident Fund (PF)" amount={salaryData.pfDeduction} />
+                      <SalaryItem label="Health Insurance (ESI)" amount={salaryData.esiDeduction} />
+                      <div className="h-4"></div> {/* Spacer for alignment */}
+                      <div className="pt-2 mt-2 border-t border-gray-300 dark:border-white/[0.1]">
+                        <SalaryItem label="Total Deductions" amount={salaryData.totalDeductions} isTotal />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            {/* Footer */}
-            
-            {/* Signature Section */}
-            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-white/[0.06]">
-              <div className="flex flex-col items-end">
-                <div className="mb-2 text-sm text-gray-500 dark:text-slate-400">
-                  For {companyInfo.name}
-                </div>
-                <img src={Signature} className="h-12" alt="Flowbite Logo" />
-                <div className="mb-2 w-48 h-0.5 bg-gray-300 dark:bg-slate-600"></div>
-                <div className="text-sm font-medium text-gray-700 dark:text-slate-300">
-                  Authorized Signatory
-                </div>
-                <div className="text-xs text-gray-500 dark:text-slate-500">
-                  Director
+
+              {/* Net Pay */}
+              <div className="bg-gray-800 rounded-xl p-4 text-white mb-6">
+                <div className="flex flex-col items-center text-center">
+                  <span className="text-gray-300 mb-2">Net Payable Amount</span>
+                  <div className="text-2xl font-bold mb-2">₹{salaryData.netPay.toLocaleString('en-IN')}</div>
+                  <div className="text-gray-300 text-sm">
+                    {numberToWords(salaryData.netPay)} Rupees Only
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-white/[0.06] text-center text-sm text-gray-500 dark:text-slate-500">
-              <p>For any discrepancies, please contact the HR department within 7 days.</p>
-            </div>
-            {/* Action Buttons */}
-            <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
-              <button
-                onClick={handlePDFDownload}
-                className="px-6 py-3 bg-gray-800 dark:bg-indigo-600 text-white rounded-lg hover:bg-gray-900 dark:hover:bg-indigo-700 transition-colors flex items-center justify-center"
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Download PDF
-              </button>
-              <button
-                onClick={handleEdit}
-                className="px-6 py-3 border border-gray-300 dark:border-white/[0.1] text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-colors flex items-center justify-center"
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                Edit Details
-              </button>
+
+              {/* Footer */}
+
+              {/* Signature Section */}
+              <div className="mt-6 pt-4 border-t border-gray-200 dark:border-white/[0.06]">
+                <div className="flex flex-col items-end">
+                  <div className="mb-2 text-sm text-gray-500 dark:text-slate-400">
+                    For {companyInfo.name}
+                  </div>
+                  <img src={Signature} className="h-12" alt="Flowbite Logo" />
+                  <div className="mb-2 w-48 h-0.5 bg-gray-300 dark:bg-slate-600"></div>
+                  <div className="text-sm font-medium text-gray-700 dark:text-slate-300">
+                    Authorized Signatory
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-slate-500">
+                    Director
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-white/[0.06] text-center text-sm text-gray-500 dark:text-slate-500">
+                <p>For any discrepancies, please contact the HR department within 7 days.</p>
+              </div>
+              {/* Action Buttons */}
+              <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
+                <button
+                  onClick={handlePDFDownload}
+                  className="px-6 py-3 bg-gray-800 dark:bg-indigo-600 text-white rounded-lg hover:bg-gray-900 dark:hover:bg-indigo-700 transition-colors flex items-center justify-center"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Download PDF
+                </button>
+                <button
+                  onClick={handleEdit}
+                  className="px-6 py-3 border border-gray-300 dark:border-white/[0.1] text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-colors flex items-center justify-center"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Edit Details
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
     </>
   );
 };

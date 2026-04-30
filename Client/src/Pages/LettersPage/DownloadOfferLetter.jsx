@@ -53,7 +53,7 @@ const DownloadOfferLetter = () => {
   }
 
   return (
-    <div className="flex-1 px-6 py-8 max-w-[1200px] mx-auto w-full">
+    <div className="flex-1 py-8 max-w-[1200px] mx-auto w-full">
 
       {/* Header */}
       <div className="mb-6 animate-[fadeInUp_0.4s_ease]">

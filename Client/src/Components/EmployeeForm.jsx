@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import {
   Document,
@@ -84,7 +84,7 @@ const formatDate = (dateStr) => {
   });
 };
 
-const EmployeeExperienceLetterPDF = ({ data }) => {
+const EmployeeExperienceLetterPDF = ({ data, staticText }) => {
   const { formData, companyInfo } = data;
   const pronouns = getPronouns(formData.gender);
   const issueDate = formData.currentDate || new Date().toLocaleDateString('en-GB');
@@ -104,24 +104,24 @@ const EmployeeExperienceLetterPDF = ({ data }) => {
 
         <View style={pdfStyles.content}>
           <Text style={pdfStyles.dateRight}>Date: {issueDate}</Text>
-          <Text style={pdfStyles.title}>TO WHOMSOEVER IT MAY CONCERN</Text>
+          <Text style={pdfStyles.title}>{staticText.title}</Text>
 
           <Text style={pdfStyles.paragraph}>
-            This is to certify that <Text style={pdfStyles.bold}>{formData.name}</Text>
-            {formData.employeeCode ? ` (Employee ID: ${formData.employeeCode})` : ''} was employed with{' '}
-            <Text style={pdfStyles.bold}>{companyInfo.name}</Text> as a{' '}
-            <Text style={pdfStyles.bold}>{formData.designation}</Text> from{' '}
-            <Text style={pdfStyles.bold}>{formData.joining_date}</Text> to{' '}
+            {staticText.certifyPrefix}<Text style={pdfStyles.bold}>{formData.name}</Text>
+            {formData.employeeCode ? ` (Employee ID: ${formData.employeeCode})` : ''}{staticText.employedWith}
+            <Text style={pdfStyles.bold}>{companyInfo.name}</Text>{staticText.asA}
+            <Text style={pdfStyles.bold}>{formData.designation}</Text>{staticText.from}
+            <Text style={pdfStyles.bold}>{formData.joining_date}</Text>{staticText.to}
             <Text style={pdfStyles.bold}>{formData.resignation_date}</Text>.
           </Text>
 
           <Text style={pdfStyles.paragraph}>
-            During {pronouns.possessive} tenure with us, {pronouns.subject} {pronouns.be} found to be sincere,
-            hardworking, and professional in approach. {pronouns.possessive.charAt(0).toUpperCase() + pronouns.possessive.slice(1)} performance and conduct were satisfactory.
+            During {pronouns.possessive}{staticText.perfMid1}{pronouns.subject} {pronouns.be}{staticText.perfMid2}
+            {pronouns.possessive.charAt(0).toUpperCase() + pronouns.possessive.slice(1)}{staticText.perfSuffix}
           </Text>
 
           <Text style={pdfStyles.paragraph}>
-            We wish <Text style={pdfStyles.bold}>{formData.name}</Text> success in all future endeavors.
+            {staticText.wishPrefix}<Text style={pdfStyles.bold}>{formData.name}</Text>{staticText.wishSuffix}
           </Text>
 
           <View style={pdfStyles.signatureSection}>
@@ -141,6 +141,20 @@ const EmployeeExperienceLetterPDF = ({ data }) => {
   );
 };
 
+const DEFAULT_STATIC = {
+  title: 'TO WHOMSOEVER IT MAY CONCERN',
+  certifyPrefix: 'This is to certify that ',
+  employedWith: ' was employed with ',
+  asA: ' as a ',
+  from: ' from ',
+  to: ' to ',
+  perfMid1: ' tenure with us, ',
+  perfMid2: ' found to be sincere, hardworking, and professional in approach. ',
+  perfSuffix: ' performance and conduct were satisfactory.',
+  wishPrefix: 'We wish ',
+  wishSuffix: ' success in all future endeavors.'
+};
+
 const EmployeeForm = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -155,7 +169,8 @@ const EmployeeForm = () => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [pdfUrl, setPdfUrl] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [staticText, setStaticText] = useState(DEFAULT_STATIC);
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -193,18 +208,28 @@ const EmployeeForm = () => {
     }
   };
 
-  const handleDownloadPDF = async () => {
-    if (!pdfUrl) {
-      alert('Please generate preview first!');
-      return;
+  const handlePrint = async () => {
+    try {
+      const formattedData = {
+        ...formData,
+        joining_date: formatDate(formData.joining_date),
+        resignation_date: formatDate(formData.resignation_date),
+      };
+      const companyInfo = { name: 'DOAGURU INFOSYSTEMS' };
+      const instance = pdf(<EmployeeExperienceLetterPDF data={{ formData: formattedData, companyInfo }} staticText={staticText} />);
+      const blob = await instance.toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `experience_letter_${formData.name || 'employee'}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      alert('Error generating PDF');
     }
-
-    const a = document.createElement('a');
-    a.href = pdfUrl;
-    a.download = `experience_letter_${formData.name || 'employee'}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
   };
 
   const handleGeneratePreview = async () => {
@@ -214,7 +239,6 @@ const EmployeeForm = () => {
     }
 
     try {
-      // Keep existing save flow so entries remain available in records table.
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/saveEmployee`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -233,58 +257,29 @@ const EmployeeForm = () => {
       return;
     }
 
-    try {
-      const formattedData = {
-        ...formData,
-        joining_date: formatDate(formData.joining_date),
-        resignation_date: formatDate(formData.resignation_date),
-      };
-      const companyInfo = { name: 'DOAGURU INFOSYSTEMS' };
-      const instance = pdf(<EmployeeExperienceLetterPDF data={{ formData: formattedData, companyInfo }} />);
-      const blob = await instance.toBlob();
-      const url = URL.createObjectURL(blob);
-      setPdfUrl(prev => {
-        if (prev) URL.revokeObjectURL(prev);
-        return url;
-      });
-      setShowPreview(true);
-    } catch (error) {
-      console.error('Error generating preview:', error);
-      alert('Error generating PDF preview');
-    }
+    setShowPreview(true);
   };
 
-  useEffect(() => {
-    return () => {
-      if (pdfUrl) URL.revokeObjectURL(pdfUrl);
-    };
-  }, [pdfUrl]);
+  const renderStatic = (key) => (
+    <span
+      contentEditable={isEditMode}
+      suppressContentEditableWarning
+      onBlur={(e) => setStaticText((prev) => ({ ...prev, [key]: e.currentTarget.textContent }))}
+      style={{
+        outline: isEditMode ? '1px dashed #3b82f6' : 'none',
+        padding: isEditMode ? '1px 3px' : 0,
+        borderRadius: '2px',
+        backgroundColor: isEditMode ? 'rgba(59,130,246,0.06)' : 'transparent',
+        display: 'inline',
+        cursor: isEditMode ? 'text' : 'default',
+        minWidth: '20px'
+      }}
+    >
+      {staticText[key]}
+    </span>
+  );
 
-  if (showPreview) {
-    return (
-      <div className="dg-page-container">
-        <div className="dg-page-header">
-          <span className="dg-page-tag">Preview</span>
-          <h1 className="dg-page-title">Experience Letter Preview</h1>
-        </div>
-        <div className="dg-form-card flex flex-col h-[800px]">
-          <div className="flex justify-between items-center mb-4">
-            <button onClick={() => setShowPreview(false)} className="dg-btn-secondary">
-              Back to Form
-            </button>
-            <button onClick={handleDownloadPDF} className="dg-btn-primary" style={{ width: 'auto' }}>
-              Download PDF
-            </button>
-          </div>
-          {pdfUrl ? (
-            <iframe src={pdfUrl} className="w-full flex-1 rounded-md border border-[var(--border-medium)]" title="PDF Preview" />
-          ) : (
-            <div className="w-full flex-1 flex items-center justify-center text-[var(--text-secondary)]">Generating preview...</div>
-          )}
-        </div>
-      </div>
-    );
-  }
+  const pronouns = getPronouns(formData.gender);
 
   return (
     <div className="dg-page-container">
@@ -366,6 +361,73 @@ const EmployeeForm = () => {
           </div>
         </form>
       </div>
+
+      {showPreview && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div style={{ background: '#1a1a2e', border: '1px solid var(--border-medium)', borderRadius: '16px', width: '95vw', maxWidth: '900px', height: '92vh', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 80px rgba(0,0,0,0.6)', animation: 'fadeInUp 0.3s ease' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Experience Letter Preview — {formData.name || 'Employee'}</h3>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button onClick={() => setIsEditMode(!isEditMode)} style={{ padding: '0.5rem 1rem', background: isEditMode ? 'linear-gradient(135deg,#f59e0b,#d97706)' : 'linear-gradient(135deg,#3b82f6,#2563eb)', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
+                  {isEditMode ? '✓ Done Editing' : '✎ Edit Content'}
+                </button>
+                <button onClick={handlePrint} style={{ padding: '0.5rem 1rem', background: 'linear-gradient(135deg,#10b981,#059669)', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
+                  Download PDF
+                </button>
+                <button onClick={() => setShowPreview(false)} style={{ padding: '0.5rem 0.875rem', background: 'rgba(244,63,94,0.1)', border: '1px solid rgba(244,63,94,0.3)', borderRadius: '8px', color: '#f43f5e', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
+                  Close
+                </button>
+              </div>
+            </div>
+
+            {isEditMode && (
+              <div style={{ background: 'rgba(59,130,246,0.08)', borderBottom: '1px solid rgba(59,130,246,0.2)', padding: '0.55rem 1.5rem', fontSize: '0.76rem', color: '#3b82f6' }}>
+                ✎ Edit mode — click any <span style={{ borderBottom: '1px dashed #3b82f6' }}>underlined text</span> to edit. Name, dates, and designation are locked to form values.
+              </div>
+            )}
+
+            <div style={{ flex: 1, overflowY: 'auto', padding: '2rem', background: '#f8f9fa' }}>
+              <div style={{ maxWidth: '720px', margin: '0 auto', background: 'white', borderRadius: '8px', padding: '3rem', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', color: '#1a1a1a', fontSize: '0.95rem', lineHeight: 1.8 }}>
+                <p style={{ textAlign: 'right', marginBottom: '1.5rem' }}>Date: {formData.currentDate || new Date().toLocaleDateString('en-GB')}</p>
+                
+                <h1 style={{ textAlign: 'center', fontSize: '1.15rem', fontWeight: 700, marginBottom: '2rem', textDecoration: 'underline' }}>
+                  {renderStatic('title')}
+                </h1>
+                
+                <p style={{ marginBottom: '1.5rem', textAlign: 'justify' }}>
+                  {renderStatic('certifyPrefix')}<strong>{formData.name}</strong>
+                  {formData.employeeCode ? ` (Employee ID: ${formData.employeeCode})` : ''}{renderStatic('employedWith')}
+                  <strong>DOAGURU INFOSYSTEMS</strong>{renderStatic('asA')}
+                  <strong>{formData.designation}</strong>{renderStatic('from')}
+                  <strong>{formatDate(formData.joining_date)}</strong>{renderStatic('to')}
+                  <strong>{formatDate(formData.resignation_date)}</strong>.
+                </p>
+                
+                <p style={{ marginBottom: '1.5rem', textAlign: 'justify' }}>
+                  During {pronouns.possessive}{renderStatic('perfMid1')}{pronouns.subject} {pronouns.be}{renderStatic('perfMid2')}
+                  {pronouns.possessive.charAt(0).toUpperCase() + pronouns.possessive.slice(1)}{renderStatic('perfSuffix')}
+                </p>
+                
+                <p style={{ marginBottom: '2.5rem', textAlign: 'justify' }}>
+                  {renderStatic('wishPrefix')}<strong>{formData.name}</strong>{renderStatic('wishSuffix')}
+                </p>
+
+                <div style={{ marginTop: '3rem' }}>
+                  <p style={{ marginBottom: '0.5rem' }}>For DOAGURU INFOSYSTEMS</p>
+                  <img src={Signature} alt="Signature" style={{ width: '6rem', marginBottom: '0.25rem' }} />
+                  <div style={{ width: '120px', height: '1px', backgroundColor: '#000', marginBottom: '0.25rem' }}></div>
+                  <p style={{ fontWeight: 700, fontSize: '0.85rem' }}>
+                    {formData.signatory === 'HR Manager' ? 'HR Department' : formData.signatory.includes('CEO') ? 'R.S. Pandey' : formData.signatory}
+                  </p>
+                  <p style={{ fontSize: '0.85rem' }}>
+                    {formData.signatory === 'HR Manager' ? 'HR Manager' : formData.signatory.includes('CEO') ? 'CEO, DOAGuru Infosystems' : 'Authorized Signatory'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

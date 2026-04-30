@@ -9,31 +9,17 @@ import footerImg from '../../assets/images/NewFotterImage.png';
 import imgS from '../../assets/images/CEOSignature.png';
 import SearchableSelect from '../../Components/SearchableSelect';
 
-// Make sure to bind modal to your appElement
 Modal.setAppElement('#root');
 
-// Custom modal styles
 const customStyles = {
   content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    maxWidth: '800px',
-    width: '90%',
-    maxHeight: '90vh',
-    overflowY: 'auto',
-    padding: '0',
-    border: 'none',
-    borderRadius: '8px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+    top: '50%', left: '50%', right: 'auto', bottom: 'auto',
+    marginRight: '-50%', transform: 'translate(-50%, -50%)',
+    maxWidth: '820px', width: '95%', maxHeight: '92vh', overflowY: 'auto',
+    padding: '0', border: 'none', borderRadius: '12px',
+    boxShadow: '0 24px 80px rgba(0,0,0,0.5)'
   },
-  overlay: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 1000
-  }
+  overlay: { backgroundColor: 'rgba(0,0,0,0.75)', zIndex: 1000 }
 };
 
 const TerminationLetter = () => {
@@ -46,10 +32,44 @@ const TerminationLetter = () => {
   const [signatory, setSignatory] = useState('R.S. Pandey (CEO)');
   const [reason, setReason] = useState('Poor Performance');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
   const previewRef = useRef();
   const navigate = useNavigate();
+
+  const [staticText, setStaticText] = useState({
+    subject: 'Subject: Termination of Employment',
+    greeting: 'Dear',
+    regretLine: 'We regret to inform you that your employment with DOAGuru Infosystems as a',
+    inDept: 'in the',
+    deptSuffix: 'Department is hereby terminated with effect from',
+    considerationLine: 'This decision has been taken after careful consideration and following the terms and conditions of your employment contract.',
+    reasonPoorPerf: 'Despite prior discussions, reviews, and feedback, the expectations and standards of the organisation have not been met satisfactorily.',
+    reasonMisconduct: 'This decision has been taken due to a severe breach of the company\'s code of conduct and professional standards.',
+    reasonDownsizing: 'Due to recent restructuring and downsizing within the organisation, we regret to inform you that your position has been made redundant.',
+    reasonAbsconding: 'This decision has been taken due to your unauthorized and prolonged absence from work without prior intimation.',
+    formalitiesLine: 'You are requested to complete all formalities, including the handover of company assets, documentation, and clearance procedures by your last working day. Your full and final settlement will be processed as per company policy.',
+    wishLine: 'We thank you for your services and wish you success in your future endeavours.',
+    closing: 'Sincerely,',
+  });
+
+  const handleStaticChange = (key, val) => setStaticText(prev => ({ ...prev, [key]: val }));
+
+  const rs = (key) => (
+    <span
+      contentEditable={isEditMode}
+      suppressContentEditableWarning
+      onBlur={e => handleStaticChange(key, e.currentTarget.textContent)}
+      style={{
+        outline: isEditMode ? '1px dashed #3b82f6' : 'none',
+        padding: isEditMode ? '1px 3px' : 0,
+        borderRadius: '2px',
+        backgroundColor: isEditMode ? 'rgba(59,130,246,0.05)' : 'transparent',
+        display: 'inline',
+      }}
+    >{staticText[key]}</span>
+  );
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -92,108 +112,40 @@ const TerminationLetter = () => {
     setIsModalOpen(true);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
+  const closeModal = () => { setIsModalOpen(false); setIsEditMode(false); };
 
   const handlePrint = async () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(`${import.meta.env.VITE_API_BASE_URL || ''}/api/termination-letters`, {
         employeeName, employeeId, designation, department, terminationDate, gender, signatory, reason
-      }, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      }, { headers: { 'Authorization': `Bearer ${token}` } });
     } catch (error) {
       console.error('Failure saving to Database:', error);
     }
-    // Get the preview content using the ref
-    if (!previewRef.current) {
-      console.error('Preview content not found');
-      return;
-    }
-    
-    // Clone the content for printing
+    if (!previewRef.current) { console.error('Preview content not found'); return; }
+
     const contentClone = previewRef.current.cloneNode(true);
-    
-    // Create a new window for printing
     const printWindow = window.open('', '', 'width=800,height=600');
-    
-    // Write the HTML content
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
       <head>
         <title>Termination Letter - ${employeeName || 'Employee'}</title>
         <style>
-          @page {
-            margin: 0.8cm;
-          }
-          body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-            color: #333;
-          }
-          .print-preview-content {
-            max-width: 800px;
-            margin: 0 auto;
-            min-height: calc(100vh - 1.6cm);
-            box-sizing: border-box;
-            padding: 88px 20px 72px 20px;
-          }
-          .print-header {
-            margin-bottom: 1rem;
-          }
-          .print-header img {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            width: 100%;
-            height: 78px;
-            margin: 0 0 10px 0;
-            display: block;
-            object-fit: cover;
-          }
-          @media print {
-            .print-header img {
-              width: 100% !important;
-              height: 78px !important;
-            }
-          }
-          .footer-side img {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 58px;
-            width: 100%;
-            margin: 0 auto;
-            display: block;
-            object-fit: cover;
-          }
-          @media print {
-            body { 
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-            }
-            .no-print {
-              display: none !important;
-            }
-          }
+          @page { margin: 0.8cm; }
+          body { font-family: Arial, sans-serif; margin: 0; padding: 0; line-height: 1.6; color: #111; }
+          .print-preview-content { max-width: 800px; margin: 0 auto; min-height: calc(100vh - 1.6cm); box-sizing: border-box; padding: 88px 20px 72px 20px; }
+          .print-header img { position: fixed; top: 0; left: 0; right: 0; width: 100%; height: 78px; margin: 0; display: block; object-fit: cover; }
+          .footer-side img { position: fixed; bottom: 0; left: 0; right: 0; height: 58px; width: 100%; display: block; object-fit: cover; }
+          @media print { body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } .no-print { display: none !important; } }
+          [contenteditable] { outline: none !important; background: transparent !important; }
         </style>
       </head>
       <body>
         ${contentClone.innerHTML}
         <script>
-          window.onload = function() {
-            setTimeout(function() {
-              window.print();
-              // window.close(); // Uncomment to close after printing
-            }, 500);
-          };
+          window.onload = function() { setTimeout(function() { window.print(); }, 500); };
         </script>
       </body>
       </html>
@@ -201,9 +153,15 @@ const TerminationLetter = () => {
     printWindow.document.close();
   };
 
-  const handleViewAll = () => {
-    navigate('/LetterGenrate');
-  };
+  const handleViewAll = () => navigate('/LetterGenrate');
+
+  const sigName = signatory === 'HR Manager' ? 'HR Department' : signatory.includes('CEO') ? 'R.S. Pandey' : signatory;
+  const sigTitle = signatory === 'HR Manager' ? 'HR Manager, DOAGuru Infosystems' : signatory.includes('CEO') ? 'CEO, DOAGuru Infosystems' : 'Authorized Signatory';
+
+  const reasonText = reason === 'Poor Performance' ? staticText.reasonPoorPerf
+    : reason === 'Misconduct' ? staticText.reasonMisconduct
+    : reason === 'Downsizing' ? staticText.reasonDownsizing
+    : staticText.reasonAbsconding;
 
   return (
     <div className="dg-page-container">
@@ -216,12 +174,10 @@ const TerminationLetter = () => {
           View all PDFs
         </button>
       </div>
-      
+
       <div className="dg-form-card">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.75rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border-subtle)' }}>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-            Fill in the details to generate the termination letter
-          </p>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Fill in the details to generate the termination letter</p>
         </div>
 
         <form>
@@ -229,11 +185,7 @@ const TerminationLetter = () => {
             <p className="dg-form-section-title">Select Employee</p>
             <div className="dg-form-group">
               <label className="dg-label">Search and Select Employee</label>
-              <SearchableSelect
-                options={employeeOptions}
-                onChange={handleEmployeeSelect}
-                placeholder={loading ? "Loading employees..." : "-- Select Employee --"}
-              />
+              <SearchableSelect options={employeeOptions} onChange={handleEmployeeSelect} placeholder={loading ? "Loading employees..." : "-- Select Employee --"} />
             </div>
           </div>
 
@@ -244,27 +196,22 @@ const TerminationLetter = () => {
                 <label className="dg-label">Employee Name</label>
                 <input type="text" value={employeeName} onChange={(e) => setEmployeeName(e.target.value)} className="dg-input" required />
               </div>
-              
               <div className="dg-form-group">
                 <label className="dg-label">Employee ID</label>
                 <input type="text" value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} className="dg-input" />
               </div>
-              
               <div className="dg-form-group">
                 <label className="dg-label">Designation</label>
                 <input type="text" value={designation} onChange={(e) => setDesignation(e.target.value)} className="dg-input" required />
               </div>
-
               <div className="dg-form-group">
                 <label className="dg-label">Department</label>
                 <input type="text" value={department} onChange={(e) => setDepartment(e.target.value)} className="dg-input" />
               </div>
-              
               <div className="dg-form-group">
                 <label className="dg-label">Termination Date</label>
                 <input type="date" value={terminationDate} onChange={(e) => setTerminationDate(e.target.value)} className="dg-input" required />
               </div>
-              
               <div className="dg-form-group">
                 <label className="dg-label">Gender</label>
                 <select value={gender} onChange={(e) => setGender(e.target.value)} className="dg-input" required>
@@ -274,7 +221,6 @@ const TerminationLetter = () => {
                   <option value="They">Other (They/Them)</option>
                 </select>
               </div>
-              
               <div className="dg-form-group">
                 <label className="dg-label">Reason for Termination</label>
                 <select value={reason} onChange={(e) => setReason(e.target.value)} className="dg-input" required>
@@ -284,7 +230,6 @@ const TerminationLetter = () => {
                   <option value="Absconding">Absconding / Unauthorized Absence</option>
                 </select>
               </div>
-              
               <div className="dg-form-group">
                 <label className="dg-label">Signatory</label>
                 <select value={signatory} onChange={(e) => setSignatory(e.target.value)} className="dg-input" required>
@@ -294,97 +239,103 @@ const TerminationLetter = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="dg-form-actions">
-            <button type="button" onClick={openModal} className="dg-btn-secondary">
-              Preview Termination Letter
-            </button>
+            <button type="button" onClick={openModal} className="dg-btn-secondary">Preview Termination Letter</button>
           </div>
         </form>
       </div>
 
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={closeModal}
-        style={customStyles}
-        contentLabel="Termination Letter Preview"
-      >
-        <div className="p-6 bg-white">
-          <button onClick={closeModal} className="text-[35px] no-print">
-            <IoMdArrowBack />
-          </button>
-          
-          <div ref={previewRef} className="mt-4 print-preview-content" style={{ minHeight: 'calc(100vh - 120px)', display: 'flex', flexDirection: 'column' }}>
-            <div className="print-header text-center mb-8">
-              <img src={headerImg} alt="Header" className="mx-auto mb-4" style={{ width: '100%', height: '80px', objectFit: 'cover' }} />
-              <h1 className="text-xxl font-bold text-gray-800 ">TERMINATION LETTER</h1>
+      <Modal isOpen={isModalOpen} onRequestClose={closeModal} style={customStyles} contentLabel="Termination Letter Preview">
+        {/* Modal Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.5rem', borderBottom: '1px solid #e5e7eb', background: '#1a1a2e' }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#f1f5f9' }}>Termination Letter — {employeeName || 'Employee'}</h3>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button onClick={() => setIsEditMode(!isEditMode)} style={{ padding: '0.45rem 0.9rem', background: isEditMode ? 'linear-gradient(135deg,#f59e0b,#d97706)' : 'linear-gradient(135deg,#3b82f6,#2563eb)', border: 'none', borderRadius: '7px', color: 'white', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600 }}>
+              {isEditMode ? '✓ Save Content' : '✎ Edit Content'}
+            </button>
+            <button onClick={handlePrint} style={{ padding: '0.45rem 0.9rem', background: 'linear-gradient(135deg,#10b981,#059669)', border: 'none', borderRadius: '7px', color: 'white', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600 }}>
+              Print / Save PDF
+            </button>
+            <button onClick={closeModal} style={{ padding: '0.45rem 0.9rem', background: 'rgba(244,63,94,0.1)', border: '1px solid rgba(244,63,94,0.3)', borderRadius: '7px', color: '#f43f5e', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600 }}>
+              Close
+            </button>
+          </div>
+        </div>
+
+        {isEditMode && (
+          <div style={{ background: 'rgba(59,130,246,0.08)', borderBottom: '1px solid rgba(59,130,246,0.2)', padding: '0.6rem 1.5rem', fontSize: '0.78rem', color: '#3b82f6' }}>
+            ✎ Edit mode active — click on any highlighted text to modify it. Dynamic fields (name, dates, designation) remain locked.
+          </div>
+        )}
+
+        {/* Letter Content */}
+        <div style={{ padding: '1rem' }}>
+          <div ref={previewRef} className="print-preview-content" style={{ background: 'white', minHeight: '600px', display: 'flex', flexDirection: 'column' }}>
+            <div className="print-header" style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <img src={headerImg} alt="Header" style={{ width: '100%', height: '80px', objectFit: 'cover' }} />
+              <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#111', marginTop: '0.5rem' }}>TERMINATION LETTER</h1>
             </div>
-            
-            <img src={CLogo} alt="Logo" className="" style={{width: '12rem' }} />
-            
-            <div className="print-content">
+
+            <img src={CLogo} alt="Logo" style={{ width: '12rem' }} />
+
+            <div className="print-content" style={{ color: 'black', fontSize: '0.9rem', lineHeight: 1.75 }}>
               <p>DOAGuru Infosystems<br />
-              1815 Wright Town, Jabalpur,<br />
-              Madhya Pradesh, INDIA – 482002<br />
-              Phone: +91-7440992424<br />
-              Email: info@doaguru.com<br />
-              Website: https://doaguru.com</p>
-              
-              <div className="flex justify-between my-4">
-                <p>Date: {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
-              </div>
-              
-              <p>To,</p>
-              <p className="font-semibold">{employeeName || '[Employee Name]'}<br />
-              {designation || '[Employee Designation]'}<br />
-              Employee ID: {employeeId || '[Employee ID]'}</p>
-              
-              <p className="font-bold mt-6">Subject: Termination of Employment</p>
-              
-              <p className="mt-4">Dear {employeeName || 'Employee'},</p>
-              
-              <p className="mt-2">We regret to inform you that your employment with DOAGuru Infosystems as a {designation || '[Designation]'} in the {department || 'Development'} Department is hereby terminated with effect from {terminationDate || '[Termination Date]'}.</p>
-              
-              <p className="mt-2">
-                This decision has been taken after careful consideration and following the terms and conditions of your employment contract. 
-                {reason === 'Poor Performance' && " Despite prior discussions, reviews, and feedback, the expectations and standards of the organisation have not been met satisfactorily."}
-                {reason === 'Misconduct' && " This decision has been taken due to a severe breach of the company's code of conduct and professional standards."}
-                {reason === 'Downsizing' && " Due to recent restructuring and downsizing within the organisation, we regret to inform you that your position has been made redundant."}
-                {reason === 'Absconding' && " This decision has been taken due to your unauthorized and prolonged absence from work without prior intimation."}
+                1815 Wright Town, Jabalpur,<br />
+                Madhya Pradesh, INDIA – 482002<br />
+                Phone: +91-7440992424<br />
+                Email: info@doaguru.com<br />
+                Website: https://doaguru.com</p>
+
+              <p style={{ marginTop: '1rem' }}>Date: {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+
+              <p style={{ marginTop: '1rem' }}>To,</p>
+              <p style={{ fontWeight: 600 }}>
+                {employeeName || '[Employee Name]'}<br />
+                {designation || '[Employee Designation]'}<br />
+                Employee ID: {employeeId || '[Employee ID]'}
               </p>
-              
-              <p className="mt-2">You are requested to complete all formalities, including the handover of company assets, documentation, and clearance procedures by your last working day. Your full and final settlement will be processed as per company policy.</p>
-              
-              <p className="mt-2">We thank you for your services and wish you success in your future endeavours.</p>
-              
-              <div className="mt-10">
-                <p>Sincerely,</p>
-                <img src={imgS} alt="Signature" className="w-28 mt-2" />
-                <p className="font-bold">
-                  {signatory === 'HR Manager' ? 'HR Department' : signatory.includes('CEO') ? 'R.S. Pandey' : signatory}<br />
-                  {signatory === 'HR Manager' ? 'HR Manager, DOAGuru Infosystems' : signatory.includes('CEO') ? 'CEO, DOAGuru Infosystems' : 'Authorized Signatory'}
+
+              <p style={{ fontWeight: 700, marginTop: '1.5rem' }}>{rs('subject')}</p>
+
+              <p style={{ marginTop: '1rem' }}>{rs('greeting')} {employeeName || 'Employee'},</p>
+
+              <p style={{ marginTop: '0.75rem' }}>
+                {rs('regretLine')} <strong>{designation || '[Designation]'}</strong> {rs('inDept')} <strong>{department || 'Development'}</strong> {rs('deptSuffix')} <strong>{terminationDate || '[Termination Date]'}</strong>.
+              </p>
+
+              <p style={{ marginTop: '0.75rem' }}>
+                {rs('considerationLine')} {' '}
+                <span
+                  contentEditable={isEditMode}
+                  suppressContentEditableWarning
+                  onBlur={e => {
+                    const key = reason === 'Poor Performance' ? 'reasonPoorPerf'
+                      : reason === 'Misconduct' ? 'reasonMisconduct'
+                      : reason === 'Downsizing' ? 'reasonDownsizing'
+                      : 'reasonAbsconding';
+                    handleStaticChange(key, e.currentTarget.textContent);
+                  }}
+                  style={{ outline: isEditMode ? '1px dashed #3b82f6' : 'none', padding: isEditMode ? '1px 3px' : 0, borderRadius: '2px', backgroundColor: isEditMode ? 'rgba(59,130,246,0.05)' : 'transparent', display: 'inline' }}
+                >{reasonText}</span>
+              </p>
+
+              <p style={{ marginTop: '0.75rem' }}>{rs('formalitiesLine')}</p>
+
+              <p style={{ marginTop: '0.75rem' }}>{rs('wishLine')}</p>
+
+              <div style={{ marginTop: '2.5rem' }}>
+                <p>{rs('closing')}</p>
+                <img src={imgS} alt="Signature" style={{ width: '7rem', marginTop: '0.5rem' }} />
+                <p style={{ fontWeight: 700 }}>
+                  {sigName}<br />{sigTitle}
                 </p>
               </div>
             </div>
-            
-            <div className="footer-side mt-auto text-center pt-4">
-              <img src={footerImg} alt="Footer" className="h-20 mx-auto" style={{ width: '100%', height: '60px', objectFit: 'cover' }} />
+
+            <div style={{ marginTop: 'auto', paddingTop: '1rem' }}>
+              <img src={footerImg} alt="Footer" style={{ width: '100%', height: '60px', objectFit: 'cover' }} />
             </div>
-          </div>
-          
-          <div className="mt-6 text-center no-print">
-            <button
-              onClick={handlePrint}
-              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-6 rounded mr-4"
-            >
-              Print Termination Letter
-            </button>
-            <button
-              onClick={closeModal}
-              className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-6 rounded"
-            >
-              Close
-            </button>
           </div>
         </div>
       </Modal>
