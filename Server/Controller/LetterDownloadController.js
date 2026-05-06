@@ -1,4 +1,4 @@
-const pool = require('../Config/DB_promise');
+const pool = require('../Config/DB');
 
 exports.saveInternExperienceLetter = async (req, res) => {
   try {
