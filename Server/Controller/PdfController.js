@@ -1,4 +1,4 @@
-const db = require('../Config/DB');
+const pool = require('../Config/DB');
 
 const saveOfferLetter = async (req, res) => {
   const {
@@ -17,7 +17,7 @@ const saveOfferLetter = async (req, res) => {
     jobResponsibilities,
     signatory
   } = req.body;
-  
+
   console.log('Saving offer letter data for:', { name, email, designation });
 
   try {
@@ -58,31 +58,22 @@ const saveOfferLetter = async (req, res) => {
     ];
 
     console.log('Saving offer letter data to database...');
-    
-    db.query(query, values, (error, results) => {
-      if (error) {
-        console.error('Failed to save offer letter data:', error);
-        return res.status(500).json({
-          success: false,
-          message: 'Failed to save offer letter data',
-          error: error.message
-        });
+
+    const [results] = await pool.query(query, values);
+
+    console.log('Offer letter data saved successfully');
+    res.status(200).json({
+      success: true,
+      message: 'Offer letter data saved successfully',
+      data: {
+        id: results.insertId,
+        name,
+        email,
+        designation,
+        gender: gender || null,
+        signatory: signatory || null,
+        joiningDate: new Date(joiningDate).toISOString().split('T')[0]
       }
-      
-      console.log('Offer letter data saved successfully');
-      res.status(200).json({
-        success: true,
-        message: 'Offer letter data saved successfully',
-        data: {
-          id: results.insertId,
-          name,
-          email,
-          designation,
-          gender: gender || null,
-          signatory: signatory || null,
-          joiningDate: new Date(joiningDate).toISOString().split('T')[0]
-        }
-      });
     });
   } catch (error) {
     console.error('Failed to save offer letter data:', error);
