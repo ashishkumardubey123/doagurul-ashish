@@ -11,11 +11,11 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
-// Connection test
+// Test connection on startup
 pool.getConnection()
-  .then(conn => {
-    console.log('YES DB Connected (*_*) DB-Name>>>>>', conn.config.database);
-    conn.release();
+  .then(connection => {
+    console.log('YES DB Connected (*_*) DB-Name>>>>>', connection.config.database);
+    connection.release();
   })
   .catch(err => {
     console.error('Here DB ERROR:', err);

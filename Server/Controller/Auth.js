@@ -1,5 +1,5 @@
 // auth
-const pool = require('../Config/DB');
+const db = require('../Config/DB');
 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -12,8 +12,7 @@ const RegisterAuth = async (req, res) => {
 
   try {
     // Check if the user already exists
-    const [results] = await pool.query('SELECT * FROM users WHERE username = ?', [username]);
-
+    const [results] = await db.query('SELECT * FROM users WHERE username = ?', [username]);
     if (results.length > 0) {
       return res.status(400).json({ msg: 'User already exists' });
     }
@@ -23,7 +22,7 @@ const RegisterAuth = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Insert the new user into the database
-    const [result] = await pool.query('INSERT INTO users SET ?', { username, password: hashedPassword });
+    const [result] = await db.query('INSERT INTO users SET ?', { username, password: hashedPassword });
     console.log(username);
 
     const payload = { user: { id: result.insertId } };
@@ -45,7 +44,7 @@ const LoginAuth = async (req, res) => {
 
   try {
     // Check if the user exists
-    const [results] = await pool.query(
+    const [results] = await db.query(
       'SELECT * FROM admin_user WHERE user_name = ? OR email = ?',
       [username, username]
     );

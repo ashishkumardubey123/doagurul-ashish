@@ -1,4 +1,4 @@
-const pool = require('../Config/DB');
+const db = require('../Config/DB');
 const path = require('path');
 
 // Save internship offer letter details
@@ -42,8 +42,7 @@ const saveInternshipOffer = async (req, res) => {
   ];
 
   try {
-    const [results] = await pool.query(query, values);
-
+    const [results] = await db.query(query, values);
     return res.status(200).json({
       success: true,
       message: 'Internship offer processed successfully',
@@ -63,10 +62,8 @@ const saveInternshipOffer = async (req, res) => {
 
 // Get all offer letters data
 const getOfferLetters = async (req, res) => {
-  const query = 'SELECT * FROM offer_letters';
-
   try {
-    const [results] = await pool.query(query);
+    const [results] = await db.query('SELECT * FROM offer_letters');
     res.status(200).json(results);
   } catch (error) {
     console.error('Failed to fetch offer letters:', error);
@@ -133,10 +130,13 @@ const updateOfferLetter = async (req, res) => {
   ];
 
   try {
-    const [results] = await pool.query(query, values);
+    const [results] = await db.query(query, values);
 
     if (results.affectedRows === 0) {
-      return res.status(404).json({ success: false, message: 'Offer letter not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'Offer letter not found'
+      });
     }
 
     res.status(200).json({
@@ -157,11 +157,9 @@ const updateOfferLetter = async (req, res) => {
 // Get a single offer letter by ID
 const getOfferLetterById = async (req, res) => {
   const { id } = req.params;
-  const query = 'SELECT * FROM offer_letters WHERE id = ?';
 
   try {
-    const [results] = await pool.query(query, [id]);
-
+    const [results] = await db.query('SELECT * FROM offer_letters WHERE id = ?', [id]);
     if (results.length === 0) {
       return res.status(404).send('Offer letter not found');
     }
@@ -177,8 +175,7 @@ const downloadPdf = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [results] = await pool.query('SELECT pdfPath FROM offer_letters WHERE id = ?', [id]);
-
+    const [results] = await db.query('SELECT pdfPath FROM offer_letters WHERE id = ?', [id]);
     if (results.length > 0) {
       const pdfPath = results[0].pdfPath;
       res.sendFile(path.resolve(pdfPath));

@@ -47,6 +47,7 @@
 // }
 
 
+const db = require('../Config/DB');
 const fs = require('fs');
 const path = require('path');
 const { PDFDocument, rgb, StandardFonts } = require('pdf-lib');
@@ -196,19 +197,12 @@ const saveWarningLetter = async (req, res) => {
     
 
     // Save PDF path in the database
-    const values = [name,date,warningDetails, pdfPath, letter];
-
+    const values = [name, date, warningDetails, pdfPath, letter];
     const query = 'INSERT INTO warnings (name,date,warningDetails, pdfPath, letter) VALUES (?, ?, ?, ?, ?)';
 
-    db.query(query, values, (error, results) => {
-      if (error) {
-        console.error('Failed to save warning letter data:', error);
-        res.status(500).send('Failed to save warning letter data');
-      } else {
-        res.status(200).send('warning letter data saved successfully');
-        console.log(results);
-      }
-    });
+    const [results] = await db.query(query, values);
+    console.log(results);
+    res.status(200).send('warning letter data saved successfully');
   } catch (error) {
     console.error('Failed to generate PDF:', error);
     res.status(500).send('Failed to generate PDF');
