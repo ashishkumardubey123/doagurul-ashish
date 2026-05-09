@@ -264,7 +264,10 @@ const EmployeeForm = () => {
     <span
       contentEditable={isEditMode}
       suppressContentEditableWarning
-      onBlur={(e) => setStaticText((prev) => ({ ...prev, [key]: e.currentTarget.textContent }))}
+      onBlur={(e) => {
+        const nextText = e.currentTarget?.textContent ?? '';
+        setStaticText((prev) => ({ ...prev, [key]: nextText }));
+      }}
       style={{
         outline: isEditMode ? '1px dashed #3b82f6' : 'none',
         padding: isEditMode ? '1px 3px' : 0,
