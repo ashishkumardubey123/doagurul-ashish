@@ -142,14 +142,18 @@ const EmployeeExperienceLetterPDF = ({ data, staticText }) => {
 };
 
 const DEFAULT_STATIC = {
-  title: 'TO WHOMSOEVER IT MAY CONCERN',
+  title: 'EXPERIENCE CERTIFICATE',
   certifyPrefix: 'This is to certify that ',
   employedWith: ' was employed with ',
   asA: ' as a ',
   from: ' from ',
   to: ' to ',
   perfMid1: ' tenure with us, ',
-  perfMid2: ' found to be sincere, hardworking, and professional in approach. ',
+  perfMid2: ` found to be sincere, hardworking, technically skilled, and professional 
+in approach. He demonstrated strong problem-solving abilities, quick learning capability, dedication 
+toward assigned responsibilities, and the ability to work effectively in a team environment. He actively 
+contributed to software development,  debugging, and project execution 
+tasks.` ,
   perfSuffix: ' performance and conduct were satisfactory.',
   wishPrefix: 'We wish ',
   wishSuffix: ' success in all future endeavors.'
